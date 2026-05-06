@@ -109,7 +109,7 @@ export const DestinationDetailPage = () => {
           {/* Main Content */}
           <div>
             {/* Info Header */}
-            <div style{{ display: 'flex', gap: 12, marginBottom: 20 }}>
+            <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
               <Chip variant="sage">{destination.category}</Chip>
               {destination.region && <Chip>{destination.region}</Chip>}
             </div>
