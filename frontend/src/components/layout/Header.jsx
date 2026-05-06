@@ -1,53 +1,58 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Icon } from '../atomic/Icons';
 
 /**
  * Header/Navigation — Web header component
- * @param {string} active - active page ('home' | 'planner' | 'directory' | 'about')
  * @param {object} logo - logo configuration
  */
 export const Header = ({ 
-  active = 'home',
   logo = { text: 'Belalah', sub: 'HSS' },
-  onNavClick = () => {},
   solid = false,
 }) => {
+  const location = useLocation();
+  
   const navItems = [
-    { id: 'home', label: 'Beranda' },
-    { id: 'planner', label: 'Perencana Rute' },
-    { id: 'directory', label: 'Direktori Destinasi' },
-    { id: 'about', label: 'Tentang' },
+    { id: 'home', label: 'Beranda', path: '/' },
+    { id: 'planner', label: 'Perencana Rute', path: '/planner' },
+    { id: 'directory', label: 'Direktori Destinasi', path: '/directory' },
+    { id: 'about', label: 'Tentang', path: '/about' },
   ];
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className={`bh-webnav ${solid ? 'solid' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 56px' }}>
-      <div className="bh-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ width: 40, height: 40, backgroundColor: 'var(--sage)', borderRadius: 'var(--radius-sm)' }} />
-        <div>
-          <div className="word" style={{ fontFamily: 'var(--serif)', fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1, margin: 0 }}>
-            {logo.text}
-          </div>
-          <div className="sub" style={{ fontFamily: 'var(--sans)', fontSize: 9.5, fontWeight: 500, letterSpacing: '0.05em', color: 'var(--ink-3)' }}>
-            {logo.sub}
+      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <div className="bh-logo" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 40, height: 40, backgroundColor: 'var(--sage)', borderRadius: 'var(--radius-sm)' }} />
+          <div>
+            <div className="word" style={{ fontFamily: 'var(--serif)', fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1, margin: 0 }}>
+              {logo.text}
+            </div>
+            <div className="sub" style={{ fontFamily: 'var(--sans)', fontSize: 9.5, fontWeight: 500, letterSpacing: '0.05em', color: 'var(--ink-3)' }}>
+              {logo.sub}
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <div className="bh-webnav-links" style={{ display: 'flex', gap: 30, fontSize: 14, fontWeight: 500, color: 'var(--ink-2)' }}>
         {navItems.map(item => (
-          <a
+          <Link
             key={item.id}
-            onClick={() => onNavClick(item.id)}
+            to={item.path}
             style={{
-              color: active === item.id ? 'var(--ink)' : 'var(--ink-2)',
+              color: isActive(item.path) ? 'var(--ink)' : 'var(--ink-2)',
               textDecoration: 'none',
               cursor: 'pointer',
               position: 'relative',
               paddingBottom: 4,
+              transition: 'color 0.2s ease',
             }}
           >
             {item.label}
-            {active === item.id && (
+            {isActive(item.path) && (
               <div style={{
                 content: '""',
                 display: 'block',
@@ -58,7 +63,7 @@ export const Header = ({
                 margin: '4px auto 0',
               }} />
             )}
-          </a>
+          </Link>
         ))}
       </div>
 

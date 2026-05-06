@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from '../atomic/Icons';
+import { Link } from 'react-router-dom';
 
 /**
  * Footer — Footer component
@@ -33,11 +33,16 @@ export const Footer = ({
               Navigasi
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {['Beranda', 'Destinasi', 'Perencana Rute', 'Tentang'].map(item => (
-                <li key={item} style={{ marginBottom: 8 }}>
-                  <a href="#" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>
-                    {item}
-                  </a>
+              {[
+                { label: 'Beranda', path: '/' },
+                { label: 'Destinasi', path: '/directory' },
+                { label: 'Perencana Rute', path: '/planner' },
+                { label: 'Tentang', path: '/about' },
+              ].map(item => (
+                <li key={item.path} style={{ marginBottom: 8 }}>
+                  <Link to={item.path} style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>

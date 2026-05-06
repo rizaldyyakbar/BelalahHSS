@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
@@ -11,12 +12,20 @@ import { DESTINATIONS } from '../constants/destinations';
 /**
  * DestinationDetailPage — Halaman detail destinasi
  */
-export const DestinationDetailPage = ({ destinationId = 1 }) => {
-  const destination = DESTINATIONS.find(d => d.id === destinationId);
+export const DestinationDetailPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const destination = DESTINATIONS.find(d => d.id === parseInt(id));
+
   if (!destination) {
-    return <div>Destination not found</div>;
+    return (
+      <div className="bh-screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <h1>Destinasi tidak ditemukan</h1>
+        <Button onClick={() => navigate('/')}>Kembali ke Beranda</Button>
+      </div>
+    );
   }
 
   return (
@@ -228,6 +237,7 @@ export const DestinationDetailPage = ({ destinationId = 1 }) => {
               {DESTINATIONS.slice(0, 3).map(dest => (
                 <div
                   key={dest.id}
+                  onClick={() => navigate(`/destination/${dest.id}`)}
                   style={{
                     padding: 12,
                     marginBottom: 8,
@@ -235,7 +245,10 @@ export const DestinationDetailPage = ({ destinationId = 1 }) => {
                     borderRadius: 'var(--radius-md)',
                     cursor: 'pointer',
                     border: '1px solid var(--line)',
+                    transition: 'all 0.2s ease',
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-2)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
                   <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 4 }}>
                     {dest.name}

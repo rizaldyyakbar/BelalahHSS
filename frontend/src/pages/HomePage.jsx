@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import HeroSection from '../components/sections/HeroSection';
@@ -9,24 +10,26 @@ import { DESTINATIONS } from '../constants/destinations';
  * HomePage — Home page menggunakan komponen yang sudah dipisah
  */
 export const HomePage = () => {
+  const navigate = useNavigate();
+
   const handleSearch = (query) => {
     console.log('Searching for:', query);
+    navigate(`/directory?search=${query}`);
   };
 
   const handleViewAllDestinations = () => {
     console.log('View all destinations');
+    navigate('/directory');
   };
 
   const handleCardClick = (destinationId) => {
     console.log('Navigate to detail:', destinationId);
+    navigate(`/destination/${destinationId}`);
   };
 
   const handleHeartClick = (destinationId) => {
     console.log('Toggle favorite:', destinationId);
-  };
-
-  const handleNavigation = (page) => {
-    console.log('Navigate to:', page);
+    // TODO: Add to favorites logic
   };
 
   return (
@@ -40,10 +43,7 @@ export const HomePage = () => {
       lineHeight: 1.5,
       position: 'relative',
     }}>
-      <Header
-        active="home"
-        onNavClick={handleNavigation}
-      />
+      <Header />
 
       <main style={{ marginBottom: 0 }}>
         <HeroSection
