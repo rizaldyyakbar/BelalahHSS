@@ -1,10 +1,10 @@
 import React from 'react';
-import { Icon } from './Icons';
-import IconButton from './IconButton';
-import Stars from './Stars';
-import Chip from './Chip';
-import RankBadge from './RankBadge';
-import Button from './Button';
+import { Icon } from '../atomic/Icons';
+import IconButton from '../atomic/IconButton';
+import Stars from '../atomic/Stars';
+import Chip from '../atomic/Chip';
+import RankBadge from '../atomic/RankBadge';
+import Button from '../atomic/Button';
 
 /**
  * DestinationCard — Card component untuk destination item

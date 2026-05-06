@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Header, Footer, Icon, IconButton, Stars, Chip, Button } from '../components';
+import { Header } from '../components/layout/Header';
+import { Footer } from '../components/layout/Footer';
+import { Icon } from '../components/atomic/Icons';
+import { IconButton } from '../components/atomic/IconButton';
+import { Stars } from '../components/atomic/Stars';
+import { Chip } from '../components/atomic/Chip';
+import Button from '../components/atomic/Button';
 import { DESTINATIONS } from '../constants/destinations';
 
 /**
