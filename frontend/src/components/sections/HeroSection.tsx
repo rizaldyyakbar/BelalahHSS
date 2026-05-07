@@ -1,6 +1,7 @@
 import React from 'react';
 import SearchBar from '../atomic/SearchBar';
 
+
 interface HeroSectionProps {
   imageClass?: string;
   location?: string;
@@ -15,7 +16,7 @@ interface HeroSectionProps {
  * HeroSection — Hero banner section
  */
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  imageClass = 'forest',
+  imageClass = 'langara',
   location = 'Hulu Sungai Selatan · Kalimantan Selatan',
   title = 'Belalah ke Bumi Antaludin',
   titleHighlight = 'Bumi Antaludin',
@@ -28,7 +29,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div style={{ position: 'relative', borderRadius: 'var(--radius-xl)', overflow: 'hidden', height: 560 }}>
         {/* Background Image */}
         <div className={`bh-photo ${imageClass}`} style={{ position: 'absolute', inset: 0 }}>
-          <span className="credit">FOTO · {(location?.split('·')?.[0] || 'HULU SUNGAI').trim().toUpperCase()}</span>
+          <img
+            src={`/assets/${imageClass}.png`}
+            alt = {location}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+          />
         </div>
 
         {/* Overlay */}
@@ -52,8 +57,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
             <span className="bh-chip" style={{
-              background: 'rgba(255,255,255,0.16)',
-              color: '#fff',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid var(--border)',
+              color: 'var(--ink)',
               backdropFilter: 'blur(8px)',
               fontSize: 13,
             }}>

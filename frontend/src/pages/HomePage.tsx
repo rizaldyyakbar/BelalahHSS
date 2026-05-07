@@ -4,6 +4,8 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import HeroSection from '../components/sections/HeroSection';
 import RecommendationSection from '../components/sections/RecommendationSection';
+import { HowToCreateRoute } from '../components/sections/HowToCreateRoute';
+import { BrowseByCategory } from '../components/sections/BrowseByCategory';
 import { DESTINATIONS } from '../constants/destinations';
 
 /**
@@ -32,6 +34,11 @@ export const HomePage: React.FC = () => {
     // TODO: Add to favorites logic
   };
 
+  const handleStartPlanning = (): void => {
+    console.log('Start planning');
+    navigate('/planner');
+  };
+
   return (
     <div className="bh-screen scroll web" style={{
       width: '100%',
@@ -57,11 +64,15 @@ export const HomePage: React.FC = () => {
         <RecommendationSection
           destinations={DESTINATIONS}
           title="Destinasi paling cocok untukmu"
-          subtitle="Rekomendasi sistem · SAW"
+          subtitle="Rekomendasi Utama"
           onViewAll={handleViewAllDestinations}
           onCardClick={handleCardClick}
           onHeartClick={handleHeartClick}
         />
+
+        <HowToCreateRoute onStartPlanning={handleStartPlanning} />
+
+        <BrowseByCategory />
       </main>
 
       <Footer company="Belalah HSS" year={2026} />

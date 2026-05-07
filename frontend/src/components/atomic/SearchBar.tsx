@@ -39,12 +39,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         gap: 6,
         padding: 6,
         backgroundColor: 'var(--bg)',
-        borderRadius: 999,
+        borderRadius: 'var(--radius-xl)',
+        border: '1px solid var(--border)',
         ...style,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', flex: 1 }}>
-        <Icon.Search size={18} />
+        <Icon.Search size={18} style={{ color: 'black' }} />
         <input
           type="text"
           placeholder={placeholder}
@@ -66,7 +67,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         variant="sage"
         size="md"
         onClick={handleSearch}
-        style={{ padding: '12px 22px' }}
+        style={{ padding: '12px 22px', borderRadius: 'var(--radius-xl)', marginRight:10 }}
       >
         Cari
       </Button>

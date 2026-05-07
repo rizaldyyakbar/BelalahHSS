@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Icon } from '../atomic/Icons';
 
 interface NavLink {
   label: string;
@@ -104,6 +105,9 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                 >
                   {/* Social icons */}
+                  {i === 0 && <Icon.Mail size={20} style={{ color: 'white' }} />}
+                  {i === 1 && <Icon.Phone size={20} style={{ color: 'white' }} />}
+                  {i === 2 && <Icon.Instagram size={20} style={{ color: 'white' }} />}
                 </button>
               ))}
             </div>

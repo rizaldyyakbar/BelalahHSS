@@ -25,10 +25,24 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   onViewDetail = () => {},
   imageClass = 'forest',
 }) => {
+  const getImageUrl = (img: string) => {
+    // If img looks like a filename with extension, use it directly
+    if (img.includes('.')) {
+      return `/assets/${img}`;
+    }
+    // Otherwise use it with .jpg extension
+    return `/assets/${img}.jpg`;
+  };
+
   if (featured) {
     return (
       <div className="bh-card featured" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-        <div className={`bh-photo ${imageClass}`} style={{ height: 360, position: 'relative' }}>
+        <div style={{ height: 360, position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+          <img
+            src={getImageUrl(destination.img)}
+            alt={destination.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
           <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 8 }}>
             <RankBadge rank={1} variant="featured" />
           </div>
@@ -75,7 +89,12 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   // Standard card
   return (
     <div className="bh-card" style={{ position: 'relative' }}>
-      <div className={`bh-photo ${imageClass}`} style={{ height: 170, position: 'relative' }}>
+      <div style={{ height: 170, position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+        <img
+          src={getImageUrl(destination.img)}
+          alt={destination.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         <RankBadge rank={destination.rank || 1} style={{ position: 'absolute', top: 12, left: 12, zIndex: 3 }} />
         <IconButton
           variant="light"

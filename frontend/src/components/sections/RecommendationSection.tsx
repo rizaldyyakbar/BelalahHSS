@@ -18,7 +18,7 @@ interface RecommendationSectionProps {
 export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
   destinations = [],
   title = 'Destinasi paling cocok untukmu',
-  subtitle = 'Rekomendasi sistem · SAW',
+  subtitle = 'Rekomendasi Utama',
   onViewAll = () => {},
   onCardClick = () => {},
   onHeartClick = () => {},
@@ -37,16 +37,17 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 32,
+        marginBottom: 24,
       }}>
         <div>
           <div style={{
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 600,
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: 'var(--ink-3)',
+            letterSpacing: '0.16em',
+            color: 'var(--clay-deep)',
             marginBottom: 8,
+            fontFamily: 'var(--sans)',
           }}>
             {subtitle}
           </div>
@@ -56,6 +57,7 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
             letterSpacing: '-0.02em',
             margin: 0,
             color: 'var(--ink)',
+            fontFamily: 'var(--serif)',
           }}>
             {title}
           </h2>
@@ -74,6 +76,7 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
             background: 'none',
             border: 'none',
             padding: 0,
+            fontFamily: 'var(--sans)',
           }}
         >
           Lihat semua {destinations.length} destinasi <Icon.ArrowRight size={16} />
@@ -87,18 +90,20 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
         gap: 22,
         marginBottom: 22,
       }}>
-        {/* Featured Card */}
+        {/* Featured Card - span 2 rows */}
         {featured && (
-          <DestinationCard
-            destination={featured}
-            featured
-            onHeartClick={() => onHeartClick(featured.id)}
-            onViewDetail={() => onCardClick(featured.id)}
-            imageClass={featured.img || 'forest'}
-          />
+          <div style={{ gridRow: 'span 2' }}>
+            <DestinationCard
+              destination={featured}
+              featured
+              onHeartClick={() => onHeartClick(featured.id)}
+              onViewDetail={() => onCardClick(featured.id)}
+              imageClass={featured.img || 'forest'}
+            />
+          </div>
         )}
 
-        {/* Other Cards */}
+        {/* Other Cards - 4 small cards */}
         {others.map((dest, idx) => (
           <DestinationCard
             key={dest.id}

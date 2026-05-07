@@ -1,96 +1,101 @@
 import React from 'react';
+import { 
+  Search, 
+  Star, 
+  Heart, 
+  MapPin, 
+  Route, 
+  Compass, 
+  Home, 
+  User, 
+  Filter, 
+  ChevronLeft, 
+  ArrowRight,
+  Plus,
+  X,
+  Clock,
+  Mail,
+  Phone
+} from 'lucide-react';
+
 
 interface IconProps {
   size?: number;
   filled?: boolean;
+  color?: string;
+  style?: React.CSSProperties;
 }
 
 export const Icon = {
-  Search: ({ size = 18 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="9" r="6.2" /><path d="M13.6 13.6L17 17" />
-    </svg>
+  Search: ({ size = 18, color = "currentColor", style }: IconProps) => (
+    <Search size={size} color={color} strokeWidth={1.6} style={style} />
   ),
   
-  Star: ({ size = 14, filled = true }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill={filled ? "#D4A24C" : "none"} stroke="#D4A24C" strokeWidth="1.4" strokeLinejoin="round">
-      <path d="M8 1.5l1.96 4.16 4.54.64-3.3 3.18.8 4.5L8 11.84 3.99 13.98l.8-4.5L1.5 6.3l4.54-.64L8 1.5z" />
-    </svg>
+  Star: ({ size = 14, filled = true, style }: IconProps) => (
+    <Star size={size} color="#D4A24C" strokeWidth={1.4} fill={filled ? "#D4A24C" : "none"} style={style} />
   ),
   
-  Heart: ({ size = 16, filled = false }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill={filled ? "#C26B3C" : "none"} stroke={filled ? "#C26B3C" : "currentColor"} strokeWidth="1.5" strokeLinejoin="round">
-      <path d="M9 15.5s-6-3.6-6-8a3.5 3.5 0 016.5-1.8A3.5 3.5 0 0115 7.5c0 4.4-6 8-6 8z" />
-    </svg>
+  Heart: ({ size = 16, filled = false, style }: IconProps) => (
+    <Heart size={size} color={filled ? "#C26B3C" : "currentColor"} strokeWidth={1.5} fill={filled ? "#C26B3C" : "none"} style={style} />
   ),
   
-  Pin: ({ size = 14 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
-      <path d="M8 14.5s5-4.4 5-8.5a5 5 0 10-10 0c0 4.1 5 8.5 5 8.5z" />
-      <circle cx="8" cy="6" r="1.8" />
-    </svg>
+  Pin: ({ size = 14, color = "currentColor", style }: IconProps) => (
+    <MapPin size={size} color={color} strokeWidth={1.4} style={style} />
   ),
   
-  Route: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="4" cy="4" r="2" /><circle cx="14" cy="14" r="2" />
-      <path d="M4 6v3a3 3 0 003 3h4a3 3 0 013 3v-2" />
-    </svg>
+  Route: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Route size={size} color={color} strokeWidth={1.5} style={style} />
   ),
   
-  Compass: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
-      <circle cx="9" cy="9" r="7" /><path d="M11.6 6.4L10.4 10.4 6.4 11.6 7.6 7.6z" />
-    </svg>
+  Compass: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Compass size={size} color={color} strokeWidth={1.5} style={style} />
   ),
   
-  Home: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
-      <path d="M2.5 8L9 2.5 15.5 8v7H2.5z" /><path d="M7 15v-4h4v4" />
-    </svg>
+  Home: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Home size={size} color={color} strokeWidth={1.5} style={style} />
   ),
   
-  User: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <circle cx="9" cy="6" r="3" /><path d="M3 15.5c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5" />
-    </svg>
+  User: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <User size={size} color={color} strokeWidth={1.5} style={style} />
   ),
   
-  Filter: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M2.5 4.5h13M5 9h8M7.5 13.5h3" />
-    </svg>
+  Filter: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Filter size={size} color={color} strokeWidth={1.5} style={style} />
   ),
   
-  Back: ({ size = 18 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M11 3.5L5.5 9 11 14.5" />
-    </svg>
+  Back: ({ size = 18, color = "currentColor", style }: IconProps) => (
+    <ChevronLeft size={size} color={color} strokeWidth={1.6} style={style} />
   ),
   
-  ArrowRight: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 3.5L12.5 9 7 14.5" />
-    </svg>
+  ArrowRight: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <ArrowRight size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Plus: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Plus size={size} color={color} strokeWidth={1.8} style={style} />
   ),
   
-  Plus: ({ size = 16 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <path d="M8 3v10M3 8h10" />
-    </svg>
+  Close: ({ size = 14, color = "currentColor", style }: IconProps) => (
+    <X size={size} color={color} strokeWidth={1.6} style={style} />
   ),
   
-  Close: ({ size = 14 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-      <path d="M3 3l8 8M11 3l-8 8" />
-    </svg>
+  Clock: ({ size = 14, color = "currentColor", style }: IconProps) => (
+    <Clock size={size} color={color} strokeWidth={1.4} style={style} />
   ),
-  
-  Clock: ({ size = 14 }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="6.2" /><path d="M8 4.5V8l2.4 1.5" strokeLinecap="round" />
-    </svg>
+
+  Mail: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Mail size={size} color={color} strokeWidth={1.4} style={style} />
   ),
+
+  Phone: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Phone size={size} color={color} strokeWidth={1.4} style={style} />
+  ),
+
+    Instagram: ({ size = 16, color = "currentColor", style }: IconProps) => (
+        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" style={style}>
+            <rect x="2" y="2" width="12" height="12" rx="3" ry="3" /><path d="M8 5a3 3 0 100 6 3 3 0 000-6z" /><path d="M11.5 4.5h.01" />
+        </svg>
+    ),
 };
 
 export default Icon;
