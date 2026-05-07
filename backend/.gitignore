@@ -1,9 +1,0 @@
-bootstrap/cache/
-storage/
-vendor/
-node_modules/
-npm-debug.log
-yarn-error.log
-.env
-.env.local
-.phpunit.result.cache
