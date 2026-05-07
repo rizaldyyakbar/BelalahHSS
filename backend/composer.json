@@ -36,6 +36,14 @@
     }
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "disable-tls": true,
+    "allow-plugins": true
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://packagist.org"
+    }
   }
 }
