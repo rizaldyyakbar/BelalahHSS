@@ -16,69 +16,106 @@ interface DestinationCardProps {
 }
 
 /**
- * DestinationCard — Card component untuk destination item
+ * DestinationCard — Premium card with hover lift + image zoom
  */
 export const DestinationCard: React.FC<DestinationCardProps> = ({
   destination,
   featured = false,
-  onHeartClick = () => {},
-  onViewDetail = () => {},
+  onHeartClick = () => { },
+  onViewDetail = () => { },
   imageClass = 'forest',
 }) => {
   const getImageUrl = (img: string) => {
-    // If img looks like a filename with extension, use it directly
-    if (img.includes('.')) {
-      return `/assets/${img}`;
-    }
-    // Otherwise use it with .jpg extension
+    if (!img) return '';
+    if (img.includes('.')) return `/assets/${img}`;
     return `/assets/${img}.jpg`;
+  };
+
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.style.display = 'none';
+    if (target.parentElement) {
+      target.parentElement.style.background = 'linear-gradient(135deg, #3F8C6E, #2A6650)';
+    }
   };
 
   if (featured) {
     return (
-      <div className="bh-card featured" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ height: 360, position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+      <div
+        className="bh-card hover-lift"
+        style={{ position: 'relative', height: '100%', overflow: 'hidden', cursor: 'pointer', borderRadius: 'var(--radius-lg)' }}
+        onClick={onViewDetail}
+      >
+        {/* Full-bleed image */}
+        <div className="bh-img-zoom" style={{ position: 'absolute', inset: 0, borderRadius: 'var(--radius-lg)' }}>
           <img
             src={getImageUrl(destination.img)}
             alt={destination.name}
+            onError={handleImgError}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
-          <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 8 }}>
-            <RankBadge rank={1} variant="featured" />
-          </div>
-          <IconButton
-            variant="light"
-            size={40}
-            onClick={onHeartClick}
-            style={{ position: 'absolute', top: 16, right: 16 }}
-          >
-            <Icon.Heart size={18} />
-          </IconButton>
-          <span className="credit">FOTO · {destination.location?.toUpperCase()}</span>
         </div>
 
-        <div style={{ padding: 28, flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <Chip variant="sage">{destination.category}</Chip>
-            {destination.region && <Chip>{destination.region}</Chip>}
-          </div>
+        {/* Gradient scrim for readability */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.55) 100%)',
+          borderRadius: 'var(--radius-lg)',
+          zIndex: 1,
+        }} />
 
-          <h3 className="bh-serif" style={{ fontSize: 30, fontWeight: 500, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+        {/* Top badges */}
+        <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 3 }}>
+          <RankBadge rank={1} variant="featured" />
+        </div>
+        <IconButton
+          variant="light"
+          size={38}
+          onClick={(e) => { e.stopPropagation(); onHeartClick(); }}
+          style={{ position: 'absolute', top: 14, right: 14, zIndex: 3 }}
+        >
+          <Icon.Heart size={16} />
+        </IconButton>
+
+        {/* Glass info panel at bottom */}
+        <div style={{
+          position: 'absolute',
+          bottom: 16, left: 16, right: 16,
+          zIndex: 2,
+          background: 'rgba(255, 255, 255, 0.18)',
+          backdropFilter: 'blur(20px) saturate(1.6)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+          border: '1px solid rgba(255, 255, 255, 0.35)',
+          borderRadius: 'var(--radius-md)',
+          padding: '16px 20px',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+        }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            {[destination.category, destination.region].filter(Boolean).map((label) => (
+              <span key={label} style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: '3px 10px',
+                borderRadius: 999,
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: 'rgba(255, 255, 255, 0.9)',
+                letterSpacing: '0.02em',
+              }}>{label}</span>
+            ))}
+          </div>
+          <h3 className="bh-serif" style={{ fontSize: 26, fontWeight: 500, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff' }}>
             {destination.name}
           </h3>
-
-          <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Icon.Pin size={12} /> {destination.distance}
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Icon.Pin size={11} /> {destination.distance}
           </div>
-
-          <p style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6, marginTop: 14, textWrap: 'pretty', flex: 1 }}>
-            {destination.description}
-          </p>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 22 }}>
-            <Stars rating={destination.rating} reviews={destination.reviews} size={14} />
-            <Button variant="primary" size="md" onClick={onViewDetail}>
-              Lihat detail <Icon.ArrowRight size={14} />
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Stars rating={destination.rating} reviews={destination.reviews} size={13} />
+            <Button variant="primary" size="md" onClick={(e) => { e.stopPropagation(); onViewDetail(); }}>
+              Lihat detail <Icon.ArrowRight size={13} />
             </Button>
           </div>
         </div>
@@ -86,41 +123,77 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
     );
   }
 
-  // Standard card
+  // Standard card — full-bleed photo with glass info overlay
   return (
-    <div className="bh-card" style={{ position: 'relative' }}>
-      <div style={{ height: 170, position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)' }}>
+    <div
+      className="bh-card hover-lift"
+      onClick={onViewDetail}
+      style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer', borderRadius: 'var(--radius-lg)', minHeight: 220 }}
+    >
+      {/* Full-bleed image */}
+      <div className="bh-img-zoom" style={{ position: 'absolute', inset: 0, borderRadius: 'var(--radius-lg)' }}>
         <img
           src={getImageUrl(destination.img)}
           alt={destination.name}
+          onError={handleImgError}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        <RankBadge rank={destination.rank || 1} style={{ position: 'absolute', top: 12, left: 12, zIndex: 3 }} />
-        <IconButton
-          variant="light"
-          size={34}
-          onClick={onHeartClick}
-          style={{ position: 'absolute', top: 10, right: 10, zIndex: 3 }}
-        >
-          <Icon.Heart size={14} />
-        </IconButton>
       </div>
 
-      <div style={{ padding: 18 }}>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-          <Chip style={{ fontSize: 11, padding: '3px 9px' }}>{destination.category}</Chip>
-        </div>
+      {/* Gradient scrim */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.5) 100%)',
+        borderRadius: 'var(--radius-lg)',
+        zIndex: 1,
+      }} />
 
-        <div className="bh-serif" style={{ fontSize: 18, fontWeight: 600, lineHeight: 1.2 }}>
+      {/* Top badges */}
+      <RankBadge rank={destination.rank || 1} style={{ position: 'absolute', top: 10, left: 10, zIndex: 3 }} />
+      <IconButton
+        variant="light"
+        size={32}
+        onClick={(e) => { e.stopPropagation(); onHeartClick(); }}
+        style={{ position: 'absolute', top: 10, right: 10, zIndex: 3 }}
+      >
+        <Icon.Heart size={13} />
+      </IconButton>
+
+      {/* Glass info panel at bottom */}
+      <div style={{
+        position: 'absolute',
+        bottom: 10, left: 10, right: 10,
+        zIndex: 2,
+        background: 'rgba(255, 255, 255, 0.16)',
+        backdropFilter: 'blur(18px) saturate(1.5)',
+        WebkitBackdropFilter: 'blur(18px) saturate(1.5)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '10px 12px',
+        boxShadow: '0 2px 16px rgba(0,0,0,0.1)',
+      }}>
+        <span style={{
+          display: 'inline-block',
+          fontSize: 11,
+          fontWeight: 600,
+          padding: '3px 10px',
+          borderRadius: 999,
+          background: 'rgba(255, 255, 255, 0.15)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          color: 'rgba(255, 255, 255, 0.9)',
+          letterSpacing: '0.02em',
+          marginBottom: 4,
+        }}>{destination.category}</span>
+        <div className="bh-serif" style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.2, color: '#fff' }}>
           {destination.name}
         </div>
-
-        <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Icon.Pin size={11} /> {destination.distance}
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Icon.Pin size={10} /> {destination.distance}
         </div>
-
-        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--line)' }}>
-          <Stars rating={destination.rating} reviews={destination.reviews} size={11} />
+        <div style={{ marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 6 }}>
+          <Stars rating={destination.rating} reviews={destination.reviews} size={10} />
         </div>
       </div>
     </div>

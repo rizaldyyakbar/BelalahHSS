@@ -15,7 +15,12 @@ import {
   X,
   Clock,
   Mail,
-  Phone
+  Phone,
+  Calendar,
+  Wallet,
+  Map,
+  Save,
+  Bell
 } from 'lucide-react';
 
 
@@ -91,11 +96,31 @@ export const Icon = {
     <Phone size={size} color={color} strokeWidth={1.4} style={style} />
   ),
 
-    Instagram: ({ size = 16, color = "currentColor", style }: IconProps) => (
-        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" style={style}>
-            <rect x="2" y="2" width="12" height="12" rx="3" ry="3" /><path d="M8 5a3 3 0 100 6 3 3 0 000-6z" /><path d="M11.5 4.5h.01" />
-        </svg>
-    ),
+  Calendar: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Calendar size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Wallet: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Wallet size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Map: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Map size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Save: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Save size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Bell: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Bell size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Instagram: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" style={style}>
+      <rect x="2" y="2" width="12" height="12" rx="3" ry="3" /><path d="M8 5a3 3 0 100 6 3 3 0 000-6z" /><path d="M11.5 4.5h.01" />
+    </svg>
+  ),
 };
 
 export default Icon;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Icon } from './Icons';
-import Button from './Button';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -10,68 +9,75 @@ interface SearchBarProps {
 }
 
 /**
- * SearchBar — Reusable search component
+ * SearchBar — Clean input with glassmorphism support
+ * Updated to match the capsule 'Go' style.
  */
 export const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = 'Cari destinasi...',
-  onSearch = () => {},
+  onSearch = () => { },
   className = '',
-  style = {},
+  style,
 }) => {
-  const [value, setValue] = useState<string>('');
+  const [query, setQuery] = useState('');
 
-  const handleSearch = () => {
-    onSearch(value);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(query);
   };
 
   return (
-    <div
-      className={`bh-searchbar ${className}`.trim()}
+    <form
+      className={`bh-searchbar ${className}`}
+      onSubmit={handleSubmit}
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 6,
-        padding: 6,
-        backgroundColor: 'var(--bg)',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border)',
-        ...style,
+        padding: '8px 12px',
+        background: 'var(--bg-card)',
+        borderRadius: 'var(--radius-pill)',
+        border: '1px solid var(--line)',
+        boxShadow: 'var(--shadow-1)',
+        width: '100%',
+        ...style
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', flex: 1 }}>
-        <Icon.Search size={18} style={{ color: 'black' }} />
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          style={{
-            flex: 1,
-            border: 'none',
-            outline: 'none',
-            background: 'transparent',
-            font: 'inherit',
-            fontSize: 14,
-            color: 'var(--ink)',
-          }}
-        />
-      </div>
-      <Button
-        variant="sage"
-        size="md"
-        onClick={handleSearch}
-        style={{ padding: '12px 22px', borderRadius: 'var(--radius-xl)', marginRight:10 }}
+      <Icon.Search size={18} style={{ color: 'var(--ink-2)', marginLeft: 8, flexShrink: 0 }} />
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={{
+          flex: 1,
+          border: 'none',
+          outline: 'none',
+          background: 'transparent',
+          padding: '10px 16px',
+          fontSize: 16,
+          color: 'var(--ink)',
+          fontWeight: 500,
+        }}
+
+      />
+      <button
+        type="submit"
+        style={{
+          background: 'var(--sage)',
+          color: '#fff',
+          border: 'none',
+          padding: '10px 24px',
+          borderRadius: 'var(--radius-pill)',
+          fontWeight: 600,
+          fontSize: 14,
+          cursor: 'pointer',
+          transition: 'transform var(--transition-fast)',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
       >
-        Cari
-      </Button>
-    </div>
+        Go
+      </button>
+    </form>
   );
 };
 

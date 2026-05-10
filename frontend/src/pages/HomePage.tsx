@@ -9,73 +9,41 @@ import { BrowseByCategory } from '../components/sections/BrowseByCategory';
 import { DESTINATIONS } from '../constants/destinations';
 
 /**
- * HomePage — Home page menggunakan komponen yang sudah dipisah
+ * HomePage — Premium 'Expedition' Design
+ * Matches the capsule centered preview exactly.
  */
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSearch = (query: string): void => {
-    console.log('Searching for:', query);
     navigate(`/directory?search=${query}`);
   };
 
-  const handleViewAllDestinations = (): void => {
-    console.log('View all destinations');
-    navigate('/directory');
-  };
-
-  const handleCardClick = (destinationId: number): void => {
-    console.log('Navigate to detail:', destinationId);
-    navigate(`/destination/${destinationId}`);
-  };
-
-  const handleHeartClick = (destinationId: number): void => {
-    console.log('Toggle favorite:', destinationId);
-    // TODO: Add to favorites logic
-  };
-
-  const handleStartPlanning = (): void => {
-    console.log('Start planning');
-    navigate('/planner');
-  };
-
   return (
-    <div className="bh-screen scroll web" style={{
-      width: '100%',
-      minHeight: '100vh',
-      background: 'var(--bg)',
-      color: 'var(--ink)',
-      fontFamily: 'var(--sans)',
-      fontSize: 15,
-      lineHeight: 1.5,
-      position: 'relative',
-    }}>
+    <div className="bh-screen scroll web bh-topo-bg">
+      {/* Topo lines are now background fixed via bh-topo-bg::before */}
+      
       <Header />
 
-      <main style={{ marginBottom: 0 }}>
+      <main>
         <HeroSection
-          location="Hulu Sungai Selatan · Kalimantan Selatan"
-          title="Belalah ke"
-          titleHighlight="Bumi Antaludin"
-          description="Rencanakan perjalananmu yang pertama di Hulu Sungai Selatan — rekomendasi destinasi terbaik dan rute terpendek antar tempat, dalam beberapa langkah saja."
+          imageClass="langara"
           onSearch={handleSearch}
         />
 
-        <RecommendationSection
-          destinations={DESTINATIONS}
-          title="Destinasi paling cocok untukmu"
-          subtitle="Rekomendasi Utama"
-          onViewAll={handleViewAllDestinations}
-          onCardClick={handleCardClick}
-          onHeartClick={handleHeartClick}
-        />
+        <div style={{ position: 'relative', zIndex: 10, marginTop: -60 }}>
+          <RecommendationSection
+            destinations={DESTINATIONS}
+            onCardClick={(id) => navigate(`/destination/${id}`)}
+          />
 
-        <HowToCreateRoute onStartPlanning={handleStartPlanning} />
+          <HowToCreateRoute />
 
-        <BrowseByCategory />
+          <BrowseByCategory />
+        </div>
       </main>
 
-      <Footer company="Belalah HSS" year={2026} />
+      <Footer />
     </div>
   );
 };
