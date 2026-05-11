@@ -10,6 +10,7 @@ use App\Models\DestinationValue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Recommendation\RecommendationService;
+use Illuminate\Support\Facades\DB;
 
 class RecommendationController extends Controller
 {
@@ -19,14 +20,35 @@ class RecommendationController extends Controller
     {
         $data = $request->validated();
 
-        $userLat = (float) $data['lat'];
-        $userLng = (float) $data['lng'];
+        $mode = $data['mode'] ?? 'near_user';
         $limit = isset($data['limit']) ? (int) $data['limit'] : 10;
         $sort = $data['sort'] ?? 'score';
+        $radiusMeters = isset($data['radius_meters']) ? (int) $data['radius_meters'] : 5000;
         $pretty = $request->boolean('pretty');
+        $excludeDestinationId = null;
 
-        // Generate cache key based on all relevant request parameters
-        $cacheKey = $this->generateCacheKey($userLat, $userLng, $limit, $sort);
+        if ($mode === 'around_destination') {
+            $centerDestination = Destination::query()
+                ->select(['id', 'latitude', 'longitude'])
+                ->findOrFail((int) $data['destination_id']);
+
+            $userLat = (float) $centerDestination->latitude;
+            $userLng = (float) $centerDestination->longitude;
+            $excludeDestinationId = (int) $centerDestination->id;
+        } else {
+            $userLat = (float) $data['lat'];
+            $userLng = (float) $data['lng'];
+        }
+
+        $cacheKey = $this->generateCacheKey([
+            'mode' => $mode,
+            'lat' => round($userLat, 5),
+            'lng' => round($userLng, 5),
+            'destination_id' => $excludeDestinationId,
+            'radius_meters' => $radiusMeters,
+            'limit' => $limit,
+            'sort' => $sort,
+        ]);
         $cacheTtl = 60 * 60; // 1 hour cache
 
         // Try to return cached result
@@ -38,38 +60,103 @@ class RecommendationController extends Controller
             return response()->json($payload);
         }
 
-        // Load destinations with eager loading for performance
-        $destinations = Destination::whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->select(['id', 'name', 'latitude', 'longitude', 'image_thumb_url', 'image_url'])
-            ->get();
+        $candidateLimit = max($limit * 5, 50);
 
-        // Prepare destination array for distance calculation
-        $destArray = $destinations->map(fn ($d) => [
-            'id' => $d->id,
-            'latitude' => (float) $d->latitude,
-            'longitude' => (float) $d->longitude,
-        ])->toArray();
+                // Primary path: use PostGIS to fetch nearest candidates quickly.
+                $postgisSql = <<<SQL
+SELECT id,
+             ROUND(
+                 ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng1, :lat1), 4326)::geography)::numeric / 1000,
+                 2
+             ) AS distance_km
+FROM destinations
+WHERE location IS NOT NULL
+    AND ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng2, :lat2), 4326)::geography, :radius_meters)
+SQL;
 
-        // Calculate distances using Haversine formula
-        $distances = $this->recommendationService->calculateHaversineDistances($userLat, $userLng, $destArray);
+                $postgisBindings = [
+                        'lng1' => $userLng,
+                        'lat1' => $userLat,
+                        'lng2' => $userLng,
+                        'lat2' => $userLat,
+                        'radius_meters' => $radiusMeters,
+                ];
+
+                if ($excludeDestinationId !== null) {
+                        $postgisSql .= "\n  AND id <> :exclude_id";
+                        $postgisBindings['exclude_id'] = $excludeDestinationId;
+                }
+
+                $postgisSql .= "\nORDER BY distance_km ASC\nLIMIT :candidate_limit";
+                $postgisBindings['candidate_limit'] = $candidateLimit;
+
+                $postgisRows = DB::select($postgisSql, $postgisBindings);
+
         $distanceById = [];
-        foreach ($distances as $row) {
-            $distanceById[$row['id']] = $row['distance_km'];
+        $destinationIds = [];
+
+        foreach ($postgisRows as $row) {
+            $id = (int) $row->id;
+            $destinationIds[] = $id;
+            $distanceById[$id] = (float) $row->distance_km;
         }
 
-        // Cache criteria (rarely changes, no need to query on every request)
-        $criteriaModels = Cache::remember('criteria_models', 60 * 24, function () {
-            return Criteria::all();
+        // Fallback path: if PostGIS returns no row, use Haversine for backward compatibility.
+        if (empty($destinationIds)) {
+            $allDestinationsQuery = Destination::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->select(['id', 'name', 'latitude', 'longitude', 'image_thumb_url', 'image_url']);
+
+            if ($excludeDestinationId !== null) {
+                $allDestinationsQuery->where('id', '<>', $excludeDestinationId);
+            }
+
+            $allDestinations = $allDestinationsQuery->get();
+
+            $destArray = $allDestinations->map(fn ($d) => [
+                'id' => $d->id,
+                'latitude' => (float) $d->latitude,
+                'longitude' => (float) $d->longitude,
+            ])->toArray();
+
+            $distances = $this->recommendationService->calculateHaversineDistances($userLat, $userLng, $destArray);
+
+            foreach ($distances as $row) {
+                $id = (int) $row['id'];
+                $destinationIds[] = $id;
+                $distanceById[$id] = round((float) $row['distance_km'], 2);
+            }
+
+            usort($distances, fn ($a, $b) => $a['distance_km'] <=> $b['distance_km']);
+            $destinationIds = array_slice(array_column($distances, 'id'), 0, $candidateLimit);
+            $destinations = $allDestinations->whereIn('id', $destinationIds)->values();
+        } else {
+            $destinations = Destination::whereIn('id', $destinationIds)
+                ->select(['id', 'name', 'latitude', 'longitude', 'image_thumb_url', 'image_url'])
+                ->get();
+        }
+
+        // Cache plain arrays (not Eloquent objects) to avoid unserialize issues.
+        $criteriaList = Cache::remember('criteria_list_v2', 60 * 24, function () {
+            return Criteria::query()
+                ->get(['id', 'weight', 'type'])
+                ->map(fn ($c) => [
+                    'id' => (string) $c->id,
+                    'weight' => (float) $c->weight,
+                    'type' => strtolower($c->type ?? 'benefit'),
+                ])
+                ->values()
+                ->toArray();
         });
-        $criteria = $criteriaModels->map(fn ($c) => [
-            'key' => (string) $c->id,
-            'weight' => (float) $c->weight,
-            'type' => strtolower($c->type ?? 'benefit'),
-        ])->toArray();
+
+        $criteria = array_map(static fn (array $c) => [
+            'key' => $c['id'],
+            'weight' => $c['weight'],
+            'type' => $c['type'],
+        ], $criteriaList);
 
         // Load destination values with eager loading to prevent N+1
-        $destinationIds = $destinations->pluck('id')->toArray();
+        // Only for destinations within search radius
         $values = DestinationValue::whereIn('destination_id', $destinationIds)
             ->get(['destination_id', 'criteria_id', 'value_score']);
         
@@ -83,8 +170,9 @@ class RecommendationController extends Controller
         $alternatives = [];
         foreach ($destinations as $d) {
             $vals = [];
-            foreach ($criteriaModels as $c) {
-                $vals[(string) $c->id] = $valuesMap[$d->id][$c->id] ?? 0.0;
+            foreach ($criteriaList as $c) {
+                $criteriaId = $c['id'];
+                $vals[$criteriaId] = $valuesMap[$d->id][$criteriaId] ?? 0.0;
             }
 
             $alternatives[] = [
@@ -150,13 +238,9 @@ class RecommendationController extends Controller
     /**
      * Generate a cache key based on recommendation request parameters
      */
-    private function generateCacheKey(float $lat, float $lng, int $limit, string $sort): string
+    private function generateCacheKey(array $parts): string
     {
-        // Round to 2 decimal places for lat/lng to group nearby requests
-        $latRounded = round($lat, 2);
-        $lngRounded = round($lng, 2);
-        
-        return "recommendations:{$latRounded}:{$lngRounded}:{$limit}:{$sort}";
+        return 'recommendations:' . md5(json_encode($parts)) . ':' . Cache::get('recommendation_cache_version', 1);
     }
 }
 

@@ -75,4 +75,21 @@ class RecommendationRequestTest extends TestCase
         $this->assertArrayHasKey('limit', $validator->errors()->messages());
         $this->assertArrayHasKey('sort', $validator->errors()->messages());
     }
+
+    public function test_rules_fail_for_around_destination_mode_without_destination_id(): void
+    {
+        $request = new RecommendationRequest();
+
+        $validator = Validator::make(
+            [
+                'mode' => 'around_destination',
+                'limit' => 10,
+            ],
+            $request->rules(),
+            $request->messages(),
+        );
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('destination_id', $validator->errors()->messages());
+    }
 }
