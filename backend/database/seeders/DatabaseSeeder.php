@@ -73,17 +73,22 @@ class DatabaseSeeder extends Seeder
 
         $criteria = [
             [
-                'name' => 'Jarak',
-                'weight' => 0.40,
-                'type' => 'cost',
-            ],
-            [
-                'name' => 'Keindahan',
-                'weight' => 0.35,
+                'name' => 'Popularitas',
+                'weight' => 0.15,
                 'type' => 'benefit',
             ],
             [
+                'name' => 'Price',
+                'weight' => 0.20,
+                'type' => 'cost',
+            ],
+            [
                 'name' => 'Fasilitas',
+                'weight' => 0.40,
+                'type' => 'benefit',
+            ],
+            [
+                'name' => 'Kebersihan dan Keamanan',
                 'weight' => 0.25,
                 'type' => 'benefit',
             ],
@@ -98,17 +103,22 @@ class DatabaseSeeder extends Seeder
 
         $destinationPantai = Destination::where('name', 'Pantai Indah')->first();
         $destinationMuseum = Destination::where('name', 'Museum Sejarah')->first();
-        $criterionJarak = Criteria::where('name', 'Jarak')->first();
-        $criterionKeindahan = Criteria::where('name', 'Keindahan')->first();
-        $criterionFasilitas = Criteria::where('name', 'Fasilitas')->first();
+        $criterionPopularitas    = Criteria::where('name', 'Popularitas')->first();
+        $criterionPrice          = Criteria::where('name', 'Price')->first();
+        $criterionFasilitas      = Criteria::where('name', 'Fasilitas')->first();
+        $criterionKebersihan     = Criteria::where('name', 'Kebersihan dan Keamanan')->first();
 
         $destinationValues = [
-            [$destinationPantai?->id, $criterionJarak?->id, 4.50],
-            [$destinationPantai?->id, $criterionKeindahan?->id, 4.80],
-            [$destinationPantai?->id, $criterionFasilitas?->id, 3.90],
-            [$destinationMuseum?->id, $criterionJarak?->id, 3.70],
-            [$destinationMuseum?->id, $criterionKeindahan?->id, 4.20],
-            [$destinationMuseum?->id, $criterionFasilitas?->id, 4.60],
+            // Pantai Indah
+            [$destinationPantai?->id, $criterionPopularitas?->id,  80.00],
+            [$destinationPantai?->id, $criterionPrice?->id,         25.00],
+            [$destinationPantai?->id, $criterionFasilitas?->id,     70.00],
+            [$destinationPantai?->id, $criterionKebersihan?->id,    85.00],
+            // Museum Sejarah
+            [$destinationMuseum?->id, $criterionPopularitas?->id,   65.00],
+            [$destinationMuseum?->id, $criterionPrice?->id,          10.00],
+            [$destinationMuseum?->id, $criterionFasilitas?->id,     78.00],
+            [$destinationMuseum?->id, $criterionKebersihan?->id,    90.00],
         ];
 
         foreach ($destinationValues as [$destinationId, $criteriaId, $score]) {
