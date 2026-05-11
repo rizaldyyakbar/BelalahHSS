@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 
 class DestinationValue extends Model
 {
@@ -35,5 +36,20 @@ class DestinationValue extends Model
     public function title(): string
     {
         return $this->label;
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn (): bool => static::invalidateRecommendationCache());
+        static::deleted(fn (): bool => static::invalidateRecommendationCache());
+    }
+
+    private static function invalidateRecommendationCache(): bool
+    {
+        if (! Cache::add('recommendation_cache_version', 1)) {
+            Cache::increment('recommendation_cache_version');
+        }
+
+        return true;
     }
 }

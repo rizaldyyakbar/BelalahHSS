@@ -1,47 +1,59 @@
-# Belalah HSS Project
+# Belalah HSS
 
-Project fullstack Belalah HSS dengan Frontend React JS dan Backend Laravel.
+Fullstack project untuk rekomendasi destinasi wisata dan pengelolaan data lewat admin panel.
 
-## Struktur Project
+## Struktur
 
 ```
 Belalah HSS/
-├── frontend/          # React JS Application
-│   ├── public/
-│   ├── src/
-│   ├── package.json
-│   └── README.md
-├── backend/           # Laravel Application
-│   ├── app/
-│   ├── database/
-│   ├── routes/
-│   ├── composer.json
-│   └── README.md
+├── frontend/   # React app
+├── backend/    # Laravel app + Filament admin
 └── README.md
 ```
 
+## Alur Kerja
+
+1. Buat branch baru untuk tiap fitur atau perbaikan.
+2. Kerjakan perubahan di branch itu.
+3. Uji perubahan sebelum commit.
+4. Push branch ke GitHub.
+5. Buat pull request ke branch utama.
+
 ## Quick Start
 
-### Frontend (React)
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### Backend (Laravel)
+### Backend
 
 ```bash
 cd backend
 composer install
-cp .env.example .env
+copy .env.example .env
 php artisan key:generate
 php artisan migrate
+php artisan storage:link
 php artisan serve
+```
+
+Jika pakai upload gambar atau job queue:
+
+```bash
+php artisan queue:work
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 ## Dokumentasi
 
-- [Frontend README](./frontend/README.md)
 - [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
+
+## Branch Naming
+
+- `feature/...` untuk fitur baru
+- `fix/...` untuk perbaikan bug
+- `docs/...` untuk dokumentasi

@@ -1,7 +1,6 @@
 import React from 'react';
 import SearchBar from '../atomic/SearchBar';
 
-
 interface HeroSectionProps {
   imageClass?: string;
   location?: string;
@@ -9,96 +8,99 @@ interface HeroSectionProps {
   titleHighlight?: string;
   description?: string;
   onSearch?: (query: string) => void;
-  style?: React.CSSProperties;
 }
 
 /**
- * HeroSection — Hero banner section
+ * HeroSection — Centered Immersive Design
+ * Matches the 'Belalah ke Bumi Antaludin' centered preview.
  */
 export const HeroSection: React.FC<HeroSectionProps> = ({
   imageClass = 'langara',
   location = 'Hulu Sungai Selatan · Kalimantan Selatan',
-  title = 'Belalah ke Bumi Antaludin',
+  title = 'Belalah ke',
   titleHighlight = 'Bumi Antaludin',
-  description = 'Rencanakan perjalananmu yang pertama di Hulu Sungai Selatan — rekomendasi destinasi terbaik dan rute terpendek antar tempat, dalam beberapa langkah saja.',
-  onSearch = () => {},
-  style = {},
+  onSearch = () => { },
 }) => {
   return (
-    <div style={{ padding: '0 56px 24px', ...style }}>
-      <div style={{ position: 'relative', borderRadius: 'var(--radius-xl)', overflow: 'hidden', height: 560 }}>
+    <div style={{ padding: '24px 24px 70px', marginTop: 10 }}>
+      <div className="bh-hero" style={{
+        height: 'calc(100vh - 48px)',
+        minHeight: 500,
+        borderRadius: 'var(--radius-xl)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
         {/* Background Image */}
-        <div className={`bh-photo ${imageClass}`} style={{ position: 'absolute', inset: 0 }}>
+        <div className="bh-hero__bg">
           <img
             src={`/assets/${imageClass}.png`}
-            alt = {location}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+            alt={location}
+            style={{ filter: 'brightness(0.95) saturate(1.1)' }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = `/assets/${imageClass}.jpg`;
+            }}
           />
         </div>
 
-        {/* Overlay */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%)',
-          zIndex: 2,
+        {/* Overlay - subtle vignette */}
+        <div className="bh-hero__overlay" style={{
+          background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%)',
         }} />
 
-        {/* Content */}
-        <div style={{
-          position: 'relative',
-          zIndex: 3,
-          height: '100%',
+        {/* Centered Content */}
+        <div className="bh-hero__content" style={{
+          padding: '0 24px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'flex-end',
-          padding: 48,
-          color: '#fff',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 40,
         }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
-            <span className="bh-chip" style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid var(--border)',
-              color: 'var(--ink)',
-              backdropFilter: 'blur(8px)',
-              fontSize: 13,
-            }}>
-              {location}
-            </span>
-          </div>
-
-          <h1 className="bh-serif" style={{
-            fontSize: 64,
-            fontWeight: 500,
-            lineHeight: 1.0,
-            letterSpacing: '-0.03em',
+          <h1 className="bh-hero__title" style={{
+            fontSize: 'clamp(48px, 8vw, 100px)',
+            maxWidth: '12ch',
             margin: 0,
-            maxWidth: '16ch',
-            color: '#fff',
-            textWrap: 'balance',
+            textShadow: '0 4px 12px rgba(0,0,0,0.1)',
           }}>
-            {title}{' '}
-            <em style={{ fontStyle: 'italic', color: '#F4DCC4' }}>{titleHighlight}</em>
-            , dari air terjun ke pegunungan Meratus.
+            {title} <br />
+            {titleHighlight}
           </h1>
 
-          <p style={{
-            fontSize: 16,
-            marginTop: 18,
-            maxWidth: '52ch',
-            color: 'rgba(255,251,243,0.86)',
-            lineHeight: 1.55,
+          <div className="bh-hero__search" style={{
+            width: '100%',
+            maxWidth: 640,
+            marginTop: 0,
           }}>
-            {description}
-          </p>
-
-          <div style={{ marginTop: 26, maxWidth: 560 }}>
-            <SearchBar
-              placeholder="Cari Loksado, Haratai, Pasar Terapung…"
-              onSearch={onSearch}
-            />
+            <div className="liquid-glass" style={{
+              padding: '8px 8px 8px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              borderRadius: 'var(--radius-pill)',
+              background: 'rgba(255, 255, 255, 0.45)',
+            }}>
+              <SearchBar
+                placeholder="Explore your next mountain adventure..."
+                onSearch={onSearch}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  boxShadow: 'none',
+                  backdropFilter: 'none',
+                  padding: 0,
+                }}
+              />
+            </div>
           </div>
         </div>
+
+        {/* Bottom indicator or topo lines are visible via screen wrapper */}
       </div>
     </div>
   );
