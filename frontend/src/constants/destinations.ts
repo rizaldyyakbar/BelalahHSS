@@ -22,6 +22,8 @@ export interface Destination {
   hours?: string;
   entrance?: string;
   rank?: number;
+  latitude?: number;
+  longitude?: number;
 
   // ── Nilai kriteria SAW ────────────────────────────────────────────────────
   /** Skor popularitas destinasi (0–100), kriteria benefit bobot 0.15 */

@@ -8,6 +8,7 @@ import { Stars } from '../components/atomic/Stars';
 import { Chip } from '../components/atomic/Chip';
 import Button from '../components/atomic/Button';
 import { DESTINATIONS, Destination } from '../constants/destinations';
+import { getGoogleMapsRouteUrl } from '../services/api';
 
 /**
  * DestinationDetailPage — Immersive detail with sticky sidebar
@@ -155,9 +156,16 @@ export const DestinationDetailPage: React.FC = () => {
               </h3>
               <div className="price">{destination.entrance || 'Rp 10.000'}</div>
 
-              <Button variant="sage" size="lg" style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
-                Pesan Sekarang
-              </Button>
+              <a
+                href={getGoogleMapsRouteUrl(destination)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', width: '100%', display: 'block', marginBottom: 10 }}
+              >
+                <Button variant="sage" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
+                  🗺️ Buka Rute Google Maps
+                </Button>
+              </a>
               <Button variant="secondary" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
                 Tambah ke Rencana
               </Button>

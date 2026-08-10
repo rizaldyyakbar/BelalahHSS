@@ -6,6 +6,7 @@ import Chip from '../atomic/Chip';
 import RankBadge from '../atomic/RankBadge';
 import Button from '../atomic/Button';
 import { Destination } from '../../constants/destinations';
+import { getGoogleMapsRouteUrl } from '../../services/api';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -112,11 +113,25 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
             <Icon.Pin size={11} /> {destination.distance}
           </div>
-          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <Stars rating={destination.rating} reviews={destination.reviews} size={13} />
-            <Button variant="primary" size="md" onClick={(e) => { e.stopPropagation(); onViewDetail(); }}>
-              Lihat detail <Icon.ArrowRight size={13} />
-            </Button>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <a
+                href={getGoogleMapsRouteUrl(destination)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                style={{ textDecoration: 'none' }}
+                title="Buka Navigasi Rute di Google Maps"
+              >
+                <Button variant="secondary" size="md" style={{ padding: '6px 12px', fontSize: 12 }}>
+                  🗺️ Rute
+                </Button>
+              </a>
+              <Button variant="primary" size="md" onClick={(e) => { e.stopPropagation(); onViewDetail(); }}>
+                Lihat detail <Icon.ArrowRight size={13} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -192,8 +207,32 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
           <Icon.Pin size={10} /> {destination.distance}
         </div>
-        <div style={{ marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 6 }}>
+        <div style={{ marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Stars rating={destination.rating} reviews={destination.reviews} size={10} />
+          <a
+            href={getGoogleMapsRouteUrl(destination)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            style={{ textDecoration: 'none' }}
+            title="Buka Navigasi Rute di Google Maps"
+          >
+            <span style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#fff',
+              background: 'rgba(255, 255, 255, 0.25)',
+              padding: '3px 10px',
+              borderRadius: 999,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              backdropFilter: 'blur(6px)',
+              border: '1px solid rgba(255,255,255,0.4)',
+            }}>
+              🗺️ Rute
+            </span>
+          </a>
         </div>
       </div>
     </div>
