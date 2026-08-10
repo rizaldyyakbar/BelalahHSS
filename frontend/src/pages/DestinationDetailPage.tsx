@@ -166,8 +166,24 @@ export const DestinationDetailPage: React.FC = () => {
                   🗺️ Buka Rute Google Maps
                 </Button>
               </a>
-              <Button variant="secondary" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
-                Tambah ke Rencana
+              <Button
+                variant="secondary"
+                size="lg"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  const saved = localStorage.getItem('belalah_itinerary');
+                  let items: Destination[] = [];
+                  if (saved) {
+                    try { items = JSON.parse(saved); } catch (e) {}
+                  }
+                  if (!items.some((d) => d.id === destination.id)) {
+                    items.push(destination);
+                    localStorage.setItem('belalah_itinerary', JSON.stringify(items));
+                  }
+                  navigate('/planner');
+                }}
+              >
+                ➕ Tambah ke Rencana
               </Button>
 
               <div style={{ marginTop: 20, fontSize: 12, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 6 }}>

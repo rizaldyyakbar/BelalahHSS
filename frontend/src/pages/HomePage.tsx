@@ -69,9 +69,12 @@ export const HomePage: React.FC = () => {
           <RecommendationSection
             destinations={destinations}
             onCardClick={(id) => navigate(`/destination/${id}`)}
+            onViewAll={() => navigate('/directory')}
           />
 
-          <HowToCreateRoute />
+          <HowToCreateRoute
+            onStartPlanning={() => navigate('/planner')}
+          />
 
           <BrowseByCategory />
         </div>
