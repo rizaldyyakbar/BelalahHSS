@@ -45,7 +45,7 @@ class Destination extends Model
     protected static function booted(): void
     {
         static::saved(function (self $destination): void {
-            if ($destination->latitude !== null && $destination->longitude !== null) {
+            if (DB::getDriverName() === 'pgsql' && $destination->latitude !== null && $destination->longitude !== null) {
                 DB::statement(
                     'UPDATE destinations SET location = ST_SetSRID(ST_MakePoint(?, ?), 4326) WHERE id = ?',
                     [(float) $destination->longitude, (float) $destination->latitude, $destination->id]

@@ -16,9 +16,11 @@ frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
 
-# IDE
+# IDE & Agent
 .vscode/
 .idea/
+.agent/
+.agents/
 *.swp
 *.swo
 *~
