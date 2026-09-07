@@ -8,6 +8,7 @@ import { Stars } from '../components/atomic/Stars';
 import { Chip } from '../components/atomic/Chip';
 import Button from '../components/atomic/Button';
 import { DESTINATIONS, Destination } from '../constants/destinations';
+import { getGoogleMapsRouteUrl } from '../services/api';
 
 /**
  * DestinationDetailPage — Immersive detail with sticky sidebar
@@ -155,11 +156,34 @@ export const DestinationDetailPage: React.FC = () => {
               </h3>
               <div className="price">{destination.entrance || 'Rp 10.000'}</div>
 
-              <Button variant="sage" size="lg" style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
-                Pesan Sekarang
-              </Button>
-              <Button variant="secondary" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
-                Tambah ke Rencana
+              <a
+                href={getGoogleMapsRouteUrl(destination)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', width: '100%', display: 'block', marginBottom: 10 }}
+              >
+                <Button variant="sage" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
+                  🗺️ Buka Rute Google Maps
+                </Button>
+              </a>
+              <Button
+                variant="secondary"
+                size="lg"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  const saved = localStorage.getItem('belalah_itinerary');
+                  let items: Destination[] = [];
+                  if (saved) {
+                    try { items = JSON.parse(saved); } catch (e) {}
+                  }
+                  if (!items.some((d) => d.id === destination.id)) {
+                    items.push(destination);
+                    localStorage.setItem('belalah_itinerary', JSON.stringify(items));
+                  }
+                  navigate('/planner');
+                }}
+              >
+                ➕ Tambah ke Rencana
               </Button>
 
               <div style={{ marginTop: 20, fontSize: 12, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 6 }}>
