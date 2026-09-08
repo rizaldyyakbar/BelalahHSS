@@ -1,0 +1,22 @@
+id,nama_destinasi,kategori,kecamatan,latitude,longitude,c1_fasilitas,c2_kebersihan_keamanan,c3_harga_tiket,c4_popularitas
+1,Air Terjun Haratai,Alam,Loksado,-2.791337,115.485124,5,4,10000,480
+2,Bamboo Rafting Loksado,Petualangan,Loksado,-2.793214,115.441208,4,5,300000,620
+3,Objek Wisata Air Panas Tanuhi,Alam,Loksado,-2.778942,115.426511,5,4,5000,750
+4,Air Terjun Kilap Api,Alam,Loksado,-2.774512,115.431201,4,4,5000,110
+5,Riam Barajang dan Riam Hanai,Alam,Loksado,-2.784511,115.448912,3,3,5000,210
+6,Balai Adat Malaris,Budaya,Loksado,-2.788912,115.452101,3,4,2000,85
+7,Bukit Langara,Alam,Loksado,-2.786521,115.438912,3,4,5000,540
+8,Wisata Sungai Pariangan,Alam,Padang Batung,-2.741201,115.368912,3,3,2000,95
+9,Bukit Batu Laki,Alam,Padang Batung,-2.748912,115.356211,3,3,2000,130
+10,Kalang Hadangan,Alam,Pahaungan,-2.685412,115.195412,3,3,2000,320
+11,Bukit Batu Baduduk,Alam,Telaga Langsat,-2.712311,115.312411,2,3,2000,160
+12,Situs Pemandangan,Alam,Loksado,-2.771211,115.421511,4,4,2000,140
+13,River Tubing Loksado,Petualangan,Loksado,-2.792511,115.440112,4,4,50000,380
+14,Air Terjun Mandin Mangapan,Alam,Loksado,-2.812411,115.512411,2,3,5000,90
+15,Air Terjun Rampah Menjangan,Alam,Loksado,-2.805412,115.465121,2,3,5000,75
+16,Air Terjun Tinggiran Hayam,Alam,Loksado,-2.821411,115.491211,2,3,5000,45
+17,Puncak Bukit Batu Butahal,Alam,Loksado,-2.784112,115.458912,2,3,2000,60
+18,Air Terjun Tinggiran Mawang,Alam,Loksado,-2.825112,115.485121,2,3,5000,35
+19,Masjid As-Suada (Wassah Hilir),Religi,Simpur,-2.715124,115.228912,4,5,2000,290
+20,Makam Datu Kandang Haji,Religi,Telaga Langsat,-2.701211,115.289121,4,5,2000,410
+21,Pemandian Alami Tirta Alam (Batu Bini),Alam,Padang Batung,-2.738912,115.371211,4,4,5000,230

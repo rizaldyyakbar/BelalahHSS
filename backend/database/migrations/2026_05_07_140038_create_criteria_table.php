@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('criteria', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->decimal('weight', 5, 2);
+            $table->decimal('weight', 12, 2);
             $table->string('type', 10); // 'benefit' atau 'cost'
             $table->timestamps();
         });
