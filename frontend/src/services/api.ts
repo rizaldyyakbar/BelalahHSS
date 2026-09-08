@@ -6,6 +6,7 @@ export interface RecommendationParams {
   lat?: number;
   lng?: number;
   limit?: number;
+  radius_meters?: number;
   sort?: 'rank' | 'distance' | 'popularitas' | 'price' | 'fasilitasScore';
   category_id?: number;
 }
@@ -42,6 +43,14 @@ export interface RecommendationApiResponse {
   };
 }
 
+export interface OptimizedRouteItem {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  distance_from_previous_km: number;
+}
+
 /**
  * Helper to build Google Maps Direction URL for route navigation
  */
@@ -67,6 +76,7 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
     if (params.lat !== undefined) query.append('lat', params.lat.toString());
     if (params.lng !== undefined) query.append('lng', params.lng.toString());
     if (params.limit !== undefined) query.append('limit', params.limit.toString());
+    if (params.radius_meters !== undefined) query.append('radius_meters', params.radius_meters.toString());
     if (params.sort !== undefined) query.append('sort', params.sort);
     if (params.category_id !== undefined) query.append('category_id', params.category_id.toString());
 
@@ -82,10 +92,11 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const resData: RecommendationApiResponse = await response.json();
+    const responseData: RecommendationApiResponse | ApiDestination[] = await response.json();
+    const responseItems = Array.isArray(responseData) ? responseData : responseData.data;
 
-    if (resData && Array.isArray(resData.data) && resData.data.length > 0) {
-      const formatted: Destination[] = resData.data.map((item, index) => {
+    if (Array.isArray(responseItems) && responseItems.length > 0) {
+      const formatted: Destination[] = responseItems.map((item, index) => {
         const lat = typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude;
         const lng = typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude;
         const distanceStr = item.distance_km !== undefined
@@ -117,4 +128,29 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
   }
 
   return { destinations: DESTINATIONS, isFromApi: false };
+}
+
+export async function optimizeRoute(
+  lat: number,
+  lng: number,
+  destinationIds: number[],
+): Promise<{ route: OptimizedRouteItem[]; total_distance_km: number }> {
+  const response = await fetch(`${API_BASE_URL}/routes/optimized`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      lat,
+      lng,
+      destination_ids: destinationIds,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Route optimization failed with status ${response.status}`);
+  }
+
+  return response.json();
 }

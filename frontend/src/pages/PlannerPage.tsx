@@ -4,24 +4,73 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import Button from '../components/atomic/Button';
 import { Icon } from '../components/atomic/Icons';
+import MapPickerModal from '../components/composite/MapPickerModal';
 import { DESTINATIONS, Destination } from '../constants/destinations';
+import { fetchRecommendations, optimizeRoute } from '../services/api';
 
 export const PlannerPage: React.FC = () => {
   const navigate = useNavigate();
   const [itinerary, setItinerary] = useState<Destination[]>([]);
+  const [availableDestinations, setAvailableDestinations] = useState<Destination[]>(DESTINATIONS);
+  const [userLocation, setUserLocation] = useState({ lat: -2.78, lng: 115.3 });
+  const [startMode, setStartMode] = useState<'current' | 'map'>('current');
+  const [mapLocation, setMapLocation] = useState({ lat: -2.78, lng: 115.3 });
+  const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+
+  const startingPoint = startMode === 'map'
+    ? mapLocation
+    : userLocation;
 
   useEffect(() => {
-    const saved = localStorage.getItem('belalah_itinerary');
-    if (saved) {
-      try {
-        setItinerary(JSON.parse(saved));
-      } catch (e) {
-        setItinerary(DESTINATIONS.slice(0, 3));
+    let isMounted = true;
+
+    navigator.geolocation?.getCurrentPosition((position) => {
+      if (isMounted) {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
       }
-    } else {
-      // Default initial itinerary recommendations
-      setItinerary(DESTINATIONS.slice(0, 3));
-    }
+    });
+
+    const loadDestinations = async () => {
+      const result = await fetchRecommendations({
+        lat: -2.78,
+        lng: 115.3,
+        radius_meters: 50000,
+        limit: 50,
+        sort: 'distance',
+      });
+      const destinations = result.destinations;
+      const saved = localStorage.getItem('belalah_itinerary');
+
+      if (!isMounted) return;
+
+      setAvailableDestinations(destinations);
+
+      if (saved) {
+        try {
+          const savedItems = JSON.parse(saved) as Destination[];
+          const refreshed = savedItems
+            .map((savedItem) => destinations.find((destination) => destination.id === savedItem.id))
+            .filter((destination): destination is Destination => Boolean(destination));
+          setItinerary(refreshed);
+          localStorage.setItem('belalah_itinerary', JSON.stringify(refreshed));
+          return;
+        } catch {
+          // Fall through to the default itinerary.
+        }
+      }
+
+      setItinerary(destinations.slice(0, 3));
+    };
+
+    loadDestinations();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const saveItinerary = (updated: Destination[]) => {
@@ -41,30 +90,69 @@ export const PlannerPage: React.FC = () => {
     }
   };
 
+  const handleOptimizeRoute = async () => {
+    if (itinerary.length < 2) return;
+
+    setIsOptimizing(true);
+
+    try {
+      const result = await optimizeRoute(
+        startingPoint.lat,
+        startingPoint.lng,
+        itinerary.map((destination) => destination.id),
+      );
+      const destinationsById = new Map(itinerary.map((destination) => [destination.id, destination]));
+      const optimizedItinerary = result.route.reduce<Destination[]>((ordered, routeItem) => {
+        const destination = destinationsById.get(routeItem.id);
+
+        if (destination) {
+          ordered.push({
+            ...destination,
+            latitude: routeItem.latitude,
+            longitude: routeItem.longitude,
+          });
+        }
+
+        return ordered;
+      }, []);
+
+      saveItinerary(optimizedItinerary);
+    } catch (error) {
+      console.error('Unable to optimize route:', error);
+      window.alert('Urutan rute gagal dibuat. Pastikan backend sedang berjalan.');
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
   // Generate multi-stop Google Maps Route URL
   const getMultiStopGoogleMapsUrl = (): string => {
     if (itinerary.length === 0) return 'https://www.google.com/maps';
 
-    const waypoints = itinerary.map((item) => {
+    const destinationPoints = itinerary.map((item) => {
       if (item.latitude && item.longitude) {
         return `${item.latitude},${item.longitude}`;
       }
       return encodeURIComponent(`${item.name}, Hulu Sungai Selatan`);
     });
 
-    if (waypoints.length === 1) {
-      return `https://www.google.com/maps/dir/?api=1&destination=${waypoints[0]}`;
+    const origin = `${startingPoint.lat},${startingPoint.lng}`;
+    const destination = destinationPoints[destinationPoints.length - 1];
+    if (!destination) return 'https://www.google.com/maps';
+
+    const waypoints = destinationPoints.slice(0, -1);
+    const params = new URLSearchParams({
+      api: '1',
+      origin,
+      destination,
+      travelmode: 'driving',
+    });
+
+    if (waypoints.length > 0) {
+      params.set('waypoints', waypoints.join('|'));
     }
 
-    const origin = waypoints[0];
-    const destination = waypoints[waypoints.length - 1];
-    const waypointsParam = waypoints.slice(1, waypoints.length - 1).join('|');
-
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-    if (waypointsParam) {
-      url += `&waypoints=${waypointsParam}`;
-    }
-    return url;
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
   };
 
   return (
@@ -91,6 +179,48 @@ export const PlannerPage: React.FC = () => {
           </p>
         </div>
 
+        <section style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', padding: 20, marginBottom: 28 }}>
+          <h2 className="bh-serif" style={{ fontSize: 22, margin: '0 0 14px' }}>Titik Awal Perjalanan</h2>
+          <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 }}>
+              <input
+                type="radio"
+                name="start-mode"
+                checked={startMode === 'current'}
+                onChange={() => setStartMode('current')}
+              />
+              Lokasi saya
+            </label>
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 14 }}>
+              <input
+                type="radio"
+                name="start-mode"
+                checked={startMode === 'map'}
+                onChange={() => setStartMode('map')}
+              />
+              Pilih di peta
+            </label>
+          </div>
+
+          <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="map-picker-trigger"
+              onClick={() => {
+                setStartMode('map');
+                setIsMapPickerOpen(true);
+              }}
+            >
+              Pilih titik di peta
+            </button>
+            {startMode === 'map' && (
+              <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>
+                Titik terpilih: {mapLocation.lat.toFixed(5)}, {mapLocation.lng.toFixed(5)}
+              </span>
+            )}
+          </div>
+        </section>
+
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 36 }}>
           {/* Active Itinerary List */}
           <div>
@@ -99,16 +229,26 @@ export const PlannerPage: React.FC = () => {
                 Rencana Kunjungan ({itinerary.length} Destinasi)
               </h2>
               {itinerary.length > 0 && (
-                <a
-                  href={getMultiStopGoogleMapsUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ textDecoration: 'none' }}
-                >
-                  <Button variant="sage" size="md">
-                    🗺️ Ekspor Rute Lengkap ke Google Maps
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={handleOptimizeRoute}
+                    disabled={itinerary.length < 2 || isOptimizing}
+                  >
+                    {isOptimizing ? 'Mengurutkan...' : 'Urutkan Rute Terpendek'}
                   </Button>
-                </a>
+                  <a
+                    href={getMultiStopGoogleMapsUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Button variant="sage" size="md">
+                      🗺️ Ekspor Rute ke Google Maps
+                    </Button>
+                  </a>
+                </div>
               )}
             </div>
 
@@ -201,7 +341,7 @@ export const PlannerPage: React.FC = () => {
           <div>
             <h3 className="bh-serif" style={{ fontSize: 20, marginBottom: 16 }}>Tambahkan Destinasi Lain</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {DESTINATIONS.filter((d) => !itinerary.some((item) => item.id === d.id)).map((dest) => (
+              {availableDestinations.filter((d) => !itinerary.some((item) => item.id === d.id)).map((dest) => (
                 <div
                   key={dest.id}
                   style={{
@@ -241,6 +381,17 @@ export const PlannerPage: React.FC = () => {
       </main>
 
       <Footer company="Belalah HSS" year={2026} />
+      {isMapPickerOpen && (
+        <MapPickerModal
+          initialPoint={mapLocation}
+          onClose={() => setIsMapPickerOpen(false)}
+          onConfirm={(point) => {
+            setMapLocation(point);
+            setStartMode('map');
+            setIsMapPickerOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };

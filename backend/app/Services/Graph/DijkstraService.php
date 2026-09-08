@@ -33,7 +33,7 @@ class DijkstraService
                 break;
             }
 
-            if ($currentNode === $target) {
+            if ((string) $currentNode === (string) $target) {
                 break;
             }
 
@@ -96,18 +96,23 @@ class DijkstraService
 
         $path = [];
         $cursor = $target;
+        $visited = [];
+        $steps = 0;
+        $maxSteps = count($previous) + 1;
 
-        while ($cursor !== null) {
+        while ($cursor !== null && $steps < $maxSteps && ! isset($visited[(string) $cursor])) {
+            $steps++;
+            $visited[(string) $cursor] = true;
             array_unshift($path, $cursor);
 
-            if ($cursor === $source) {
+            if ((string) $cursor === (string) $source) {
                 break;
             }
 
             $cursor = $previous[$cursor] ?? null;
         }
 
-        if (($path[0] ?? null) !== $source) {
+        if ((string) ($path[0] ?? '') !== (string) $source) {
             return [];
         }
 

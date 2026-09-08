@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\OptimizeRouteRequest;
 use App\Http\Requests\RecommendationRequest;
 use App\Models\Criteria;
 use App\Models\Destination;
@@ -15,6 +16,29 @@ use Illuminate\Support\Facades\DB;
 class RecommendationController extends Controller
 {
     public function __construct(protected RecommendationService $recommendationService) {}
+
+    public function optimizeRoute(OptimizeRouteRequest $request)
+    {
+        $data = $request->validated();
+        $destinations = Destination::query()
+            ->whereIn('id', $data['destination_ids'])
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get(['id', 'name', 'latitude', 'longitude'])
+            ->map(fn (Destination $destination): array => [
+                'id' => (int) $destination->id,
+                'name' => $destination->name,
+                'latitude' => (float) $destination->latitude,
+                'longitude' => (float) $destination->longitude,
+            ])
+            ->all();
+
+        return response()->json($this->recommendationService->optimizeRoute(
+            (float) $data['lat'],
+            (float) $data['lng'],
+            $destinations,
+        ));
+    }
 
     public function index(RecommendationRequest $request)
     {
@@ -206,6 +230,8 @@ SQL;
             $results[] = [
                 'id' => $dest->id,
                 'name' => $dest->name,
+                'latitude' => (float) $dest->latitude,
+                'longitude' => (float) $dest->longitude,
                 'image' => $imageUrl,
                 'distance_km' => $distanceById[$dest->id] ?? null,
                 'score' => $row['score'],

@@ -1,3 +1,118 @@
+ .map-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(19, 29, 27, 0.55);
+}
+
+.map-picker-modal {
+  position: relative;
+  z-index: 10001;
+  width: min(760px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 24px 70px rgba(19, 29, 27, 0.25);
+}
+
+.map-picker-header,
+.map-picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.map-picker-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.map-picker-header h2 {
+  margin: 0 0 4px;
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.map-picker-header p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.map-picker-close {
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.map-picker-marker {
+  display: grid;
+  place-items: center;
+}
+
+.map-picker-marker span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--sage);
+  box-shadow: 0 2px 8px rgba(19, 29, 27, 0.35);
+}
+
+.map-picker-canvas {
+  height: min(58vh, 460px);
+  min-height: 320px;
+}
+
+.map-picker-footer {
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.map-picker-footer > div {
+  display: flex;
+  gap: 8px;
+}
+
+.map-picker-trigger,
+.map-picker-cancel,
+.map-picker-confirm {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.map-picker-trigger,
+.map-picker-confirm {
+  background: var(--sage);
+  color: #fff;
+}
+
+.map-picker-cancel {
+  background: var(--bg-soft);
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .map-picker-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 /* ============================================
    Belalah HSS — App-Level Styles
    All design tokens & base styles are in tokens.css

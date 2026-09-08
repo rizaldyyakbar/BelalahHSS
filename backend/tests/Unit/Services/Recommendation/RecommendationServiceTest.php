@@ -54,6 +54,18 @@ class RecommendationServiceTest extends TestCase
         $this->assertEqualsWithDelta(8.0, $route['distance'], 0.0001);
     }
 
+    public function test_optimize_route_orders_destinations_from_user_location(): void
+    {
+        $result = $this->service->optimizeRoute(-6.2, 106.8, [
+            ['id' => 1, 'name' => 'A', 'latitude' => -6.2, 'longitude' => 106.9],
+            ['id' => 2, 'name' => 'B', 'latitude' => -6.2, 'longitude' => 107.1],
+            ['id' => 3, 'name' => 'C', 'latitude' => -6.2, 'longitude' => 107.0],
+        ]);
+
+        $this->assertSame([1, 3, 2], array_column($result['route'], 'id'));
+        $this->assertGreaterThan(0.0, $result['total_distance_km']);
+    }
+
     public function test_rank_with_saw_returns_sorted_scores(): void
     {
         $alternatives = [
