@@ -1,102 +1,219 @@
 import React from 'react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import { Icon } from '../components/atomic/Icons';
 
+/**
+ * AboutPage — Figma Belalah HSS Tentang Kami & Visi Pariwisata (Node 44:3068)
+ * Official institutional and methodological background for Belalah HSS.
+ */
 export const AboutPage: React.FC = () => {
   return (
-    <div className="bh-screen scroll web bh-topo-bg">
+    <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
 
-      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '110px 32px 60px' }}>
-        {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: 50 }}>
-          <span style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--sage-dark)',
-          }}>
-            Tentang Sistem & Pariwisata
-          </span>
-          <h1 className="bh-serif" style={{ fontSize: 44, fontWeight: 500, margin: '8px 0 16px', color: 'var(--ink)' }}>
-            Belalah HSS — Jelajahi Bumi Antaludin
+      <main style={{ flex: 1 }}>
+        {/* 1. Hero Ambient Header */}
+        <section className="catalog-hero-backdrop" style={{ paddingBottom: 48 }}>
+          <div className="catalog-tag-badge">
+            <Icon.Compass size={13} />
+            <span>Tentang Belalah HSS • Disporapar HSS</span>
+          </div>
+
+          <h1 className="catalog-title">
+            Harmoni Teknologi Cerdas &amp; Warisan Tradisi Pegunungan Meratus
           </h1>
-          <p style={{ fontSize: 16, color: 'var(--ink-2)', maxWidth: 650, margin: '0 auto' }}>
-            Platform rekomendasi destinasi wisata berbasis kecerdasan keputusan di Kabupaten Hulu Sungai Selatan, Kalimantan Selatan.
+
+          <p className="catalog-subtitle">
+            Sistem Pendukung Keputusan dan Perencana Itinerari Pariwisata Hulu Sungai Selatan, memadukan metode
+            Multi-Criteria Decision Making (SAW) dengan efisiensi rute shortest-path Dijkstra &amp; Haversine.
           </p>
-        </div>
 
-        {/* Info Cards Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 50 }}>
-          <div style={{
-            background: '#fff',
-            border: '1px solid var(--line)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 32,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-          }}>
-            <h2 className="bh-serif" style={{ fontSize: 24, marginBottom: 12, color: 'var(--ink)' }}>
-              🏛️ Kekayaan Pariwisata HSS
+          <div className="catalog-stats-row">
+            <div className="catalog-stat-pill">
+              <span style={{ color: 'var(--meratus-deep)' }}>🏛️</span>
+              <span>Kabupaten Hulu Sungai Selatan, Kalsel</span>
+            </div>
+            <div className="catalog-stat-pill">
+              <span style={{ color: 'var(--meratus-clay)' }}>⚙️</span>
+              <span>SAW + Dijkstra Routing Engine</span>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. 4 Vision Pillars Grid */}
+        <section style={{ maxWidth: 1280, margin: '48px auto 0', padding: '0 32px' }}>
+          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 36px' }}>
+            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
+              Pilar Pengembangan &amp; Visi Pariwisata
             </h2>
-            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-2)' }}>
-              Kabupaten Hulu Sungai Selatan menyimpan pesona alam yang luar biasa mulai dari kawasan pegunungan Meratus di Loksado, pesona arung jeram bambu tradisional (*Bamboo Rafting*), air terjun alami, hingga kekayaan budaya masyarakat Dayak Meratus dan kuliner khas Ketupat Kandangan.
+            <p style={{ fontSize: 15, color: 'var(--meratus-muted)', margin: 0 }}>
+              Komitmen kami menghadirkan pengalaman berwisata yang bermakna, bertanggung jawab, dan mudah diakses oleh semua penjelajah.
             </p>
           </div>
 
-          <div style={{
-            background: '#fff',
-            border: '1px solid var(--line)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 32,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-          }}>
-            <h2 className="bh-serif" style={{ fontSize: 24, marginBottom: 12, color: 'var(--ink)' }}>
-              📊 Metode Rekomendasi SAW
-            </h2>
-            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-2)' }}>
-              Sistem menggunakan metode **Simple Additive Weighting (SAW)** yang mengkombinasikan 4 kriteria utama: **Popularitas (15%)**, **Estimasi Biaya/Harga (20%)**, **Fasilitas (40%)**, dan **Kebersihan & Keamanan (25%)**, serta dipadukan dengan formula kalkulasi jarak **Haversine**.
-            </p>
-          </div>
-        </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 24,
+            }}
+          >
+            {/* Card 1 */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid var(--meratus-card-border)',
+                borderRadius: 18,
+                padding: 32,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
+              }}
+            >
+              <div style={{ fontSize: 28, marginBottom: 12 }}>🌿</div>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
+                Konservasi Rimba Meratus
+              </h3>
+              <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
+                Menjaga kelestarian Geopark Pegunungan Meratus yang berumur ratusan juta tahun dengan mengedepankan prinsip
+                pariwisata berkelanjutan (ecotourism) dan kampanye kebersihan zero-waste bagi seluruh wisatawan.
+              </p>
+            </div>
 
-        {/* Kriteria Matrix */}
-        <div style={{
-          background: 'rgba(255,255,255,0.7)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid var(--line)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 32,
-        }}>
-          <h2 className="bh-serif" style={{ fontSize: 24, marginBottom: 16, textAlign: 'center' }}>
-            Bobot Kriteria Penilaian
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, textAlign: 'center' }}>
-            <div style={{ padding: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>15%</div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>Popularitas</div>
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Benefit</div>
+            {/* Card 2 */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid var(--meratus-card-border)',
+                borderRadius: 18,
+                padding: 32,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
+              }}
+            >
+              <div style={{ fontSize: 28, marginBottom: 12 }}>🛶</div>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
+                Pemberdayaan Komunitas Adat
+              </h3>
+              <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
+                Mendukung perekonomian joki tradisional balanting paring, pemandu trekking lokal, pengelola homestay, dan pengrajin
+                di permukiman Dayak Loksado agar pariwisata membawa manfaat nyata bagi warga setempat.
+              </p>
             </div>
-            <div style={{ padding: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>20%</div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>Estimasi Biaya</div>
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Cost</div>
+
+            {/* Card 3 */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid var(--meratus-card-border)',
+                borderRadius: 18,
+                padding: 32,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
+              }}
+            >
+              <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
+                Metode Rekomendasi SAW
+              </h3>
+              <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
+                Sistem merekomendasikan destinasi terbaik dengan metode <strong>Simple Additive Weighting</strong> berdasarkan
+                4 kriteria ilmiah: Fasilitas (40%), Kebersihan &amp; Keamanan (25%), Biaya Kunjungan (20%), dan Popularitas (15%).
+              </p>
             </div>
-            <div style={{ padding: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>40%</div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>Kelengkapan Fasilitas</div>
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Benefit</div>
-            </div>
-            <div style={{ padding: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--sage)' }}>25%</div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>Kebersihan & Keamanan</div>
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Benefit</div>
+
+            {/* Card 4 */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid var(--meratus-card-border)',
+                borderRadius: 18,
+                padding: 32,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
+              }}
+            >
+              <div style={{ fontSize: 28, marginBottom: 12 }}>🔀</div>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
+                Optimasi Rute Dijkstra &amp; Haversine
+              </h3>
+              <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
+                Algoritma shortest-path menyusun urutan kunjungan multi-destinasi yang paling hemat jarak dan durasi tempuh,
+                serta siap diekspor langsung ke Google Maps rute multi-stop.
+              </p>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* 3. Official Institutional Contacts Box */}
+        <section style={{ maxWidth: 1280, margin: '48px auto 100px', padding: '0 32px' }}>
+          <div
+            style={{
+              background: '#012D1D',
+              borderRadius: 20,
+              padding: '40px 48px',
+              color: '#ffffff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 24,
+            }}
+          >
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#c1ecd4' }}>
+                Pusat Informasi Pariwisata Resmi
+              </span>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 700, margin: '6px 0 10px' }}>
+                Dinas Pemuda, Olahraga, dan Pariwisata HSS
+              </h3>
+              <p style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.85)', margin: 0, maxWidth: 640, lineHeight: 1.6 }}>
+                Jl. Jenderal Sudirman No. 1, Kandangan Kota, Kabupaten Hulu Sungai Selatan, Kalimantan Selatan 71213.
+                Layanan informasi tiket, reservasi homestay, dan panduan perizinan adat.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <a
+                href="mailto:disporapar@hulusungaiselatankab.go.id"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  padding: '12px 20px',
+                  borderRadius: 9999,
+                  textDecoration: 'none',
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <Icon.Mail size={16} />
+                <span>Kirim Email</span>
+              </a>
+
+              <a
+                href="tel:051721001"
+                style={{
+                  background: '#FD934C',
+                  color: '#2b1400',
+                  padding: '12px 22px',
+                  borderRadius: 9999,
+                  textDecoration: 'none',
+                  fontSize: 13.5,
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <Icon.Phone size={16} />
+                <span>Hubungi Kantor</span>
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <Footer company="Belalah HSS" year={2026} />
+      <Footer />
     </div>
   );
 };

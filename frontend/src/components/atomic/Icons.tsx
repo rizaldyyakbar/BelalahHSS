@@ -20,7 +20,8 @@ import {
   Wallet,
   Map,
   Save,
-  Bell
+  Bell,
+  Check
 } from 'lucide-react';
 
 
@@ -46,6 +47,14 @@ export const Icon = {
   
   Pin: ({ size = 14, color = "currentColor", style }: IconProps) => (
     <MapPin size={size} color={color} strokeWidth={1.4} style={style} />
+  ),
+  
+  Location: ({ size = 14, color = "currentColor", style }: IconProps) => (
+    <MapPin size={size} color={color} strokeWidth={1.4} style={style} />
+  ),
+
+  Check: ({ size = 14, color = "currentColor", style }: IconProps) => (
+    <Check size={size} color={color} strokeWidth={2} style={style} />
   ),
   
   Route: ({ size = 16, color = "currentColor", style }: IconProps) => (

@@ -1,118 +1,220 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '../atomic/Icons';
 
-interface NavItem {
-  id: string;
-  label: string;
-  path: string;
-}
-
 /**
- * Header — Floating Glass Capsule Navigation
- * Matches the premium centered design preview.
+ * Header — Figma Belalah HSS Navigation Bar
+ * Matches Node 44:3 in Figma
  */
 export const Header: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [lang, setLang] = useState<'ID' | 'EN'>('ID');
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems: NavItem[] = [
-    { id: 'destinations', label: 'Destinations', path: '/directory' },
-    { id: 'experiences', label: 'Experiences', path: '/experiences' },
-    { id: 'journal', label: 'Journal', path: '/journal' },
-    { id: 'plan', label: 'Plan Trip', path: '/planner' },
-    { id: 'about', label: 'About Us', path: '/about' },
-  ];
-
-  const isActive = (path: string): boolean => location.pathname === path;
+  const isActive = (path: string): boolean => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <div className="bh-nav-wrapper" style={{
-      position: 'fixed',
-      top: 24,
-      left: 0,
-      right: 0,
-      display: 'flex',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '0 24px',
-    }}>
-      <nav className="liquid-glass" style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '8px 12px 8px 24px',
-        width: '100%',
-        maxWidth: 1200,
-        gap: 32,
-        borderRadius: 'var(--radius-pill)',
+    <header
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        background: scrolled ? 'rgba(246, 251, 245, 0.95)' : 'rgba(246, 251, 245, 0.90)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        borderBottom: '1px solid rgba(193, 200, 194, 0.35)',
+        boxShadow: scrolled ? '0 4px 20px rgba(0, 0, 0, 0.05)' : 'none',
         transition: 'all var(--transition-base)',
-        transform: scrolled ? 'scale(0.98)' : 'scale(1)',
-        background: scrolled ? 'rgba(255, 251, 243, 0.6)' : 'rgba(255, 251, 243, 0.3)',
-      }}>
-        {/* Brand */}
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <div style={{
-            fontFamily: 'var(--serif)',
-            fontSize: 22,
-            fontWeight: 500,
-            color: 'var(--ink)',
-            letterSpacing: '-0.02em',
-          }}>
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: '0 auto',
+          padding: '0 32px',
+          height: 76,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Brand Logo */}
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <span
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 22,
+              fontWeight: 700,
+              color: 'var(--meratus-deep)',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.1,
+            }}
+          >
             Belalah HSS
-          </div>
+          </span>
+          <span
+            style={{
+              fontFamily: 'var(--sans)',
+              fontSize: 9.5,
+              fontWeight: 700,
+              letterSpacing: '0.16em',
+              color: 'var(--meratus-muted)',
+              textTransform: 'uppercase',
+            }}
+          >
+            Hulu Sungai Selatan
+          </span>
         </Link>
 
         {/* Navigation Links */}
-        <div style={{
-          display: 'flex',
-          gap: 24,
-          marginLeft: 'auto',
-          alignItems: 'center',
-        }}>
-          {navItems.map(item => (
-            <Link
-              key={item.id}
-              to={item.path}
-              style={{
-                fontSize: 14,
-                fontWeight: 500,
-                color: isActive(item.path) ? 'var(--sage)' : 'var(--ink-2)',
-                textDecoration: 'none',
-                transition: 'color var(--transition-fast)',
-              }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Search Action */}
-        <div style={{ marginLeft: 12 }}>
-          <button className="bh-iconbtn glass-dark" style={{
-            width: 42,
-            height: 42,
-            background: 'transparent',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
+        <nav
+          style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: '#fff',
-          }}>
-            <Icon.Search size={18} style={{ color: 'var(--ink)' }} />
+            gap: 28,
+          }}
+          className="bh-webnav-links"
+        >
+          <Link
+            to="/"
+            style={{
+              textDecoration: 'none',
+              fontSize: 14,
+              fontWeight: isActive('/') ? 700 : 500,
+              color: isActive('/') ? 'var(--meratus-deep)' : 'var(--meratus-muted)',
+              borderBottom: isActive('/') ? '2.5px solid var(--meratus-deep)' : '2.5px solid transparent',
+              paddingBottom: 6,
+              transition: 'all var(--transition-fast)',
+            }}
+          >
+            Beranda
+          </Link>
+
+          <Link
+            to="/directory"
+            style={{
+              textDecoration: 'none',
+              fontSize: 14,
+              fontWeight: isActive('/directory') ? 700 : 500,
+              color: isActive('/directory') ? 'var(--meratus-deep)' : 'var(--meratus-muted)',
+              borderBottom: isActive('/directory') ? '2.5px solid var(--meratus-deep)' : '2.5px solid transparent',
+              paddingBottom: 6,
+              transition: 'all var(--transition-fast)',
+            }}
+          >
+            Destinasi Wisata
+          </Link>
+
+          <Link
+            to="/planner"
+            style={{
+              textDecoration: 'none',
+              fontSize: 14,
+              fontWeight: isActive('/planner') ? 700 : 500,
+              color: isActive('/planner') ? 'var(--meratus-deep)' : 'var(--meratus-muted)',
+              borderBottom: isActive('/planner') ? '2.5px solid var(--meratus-deep)' : '2.5px solid transparent',
+              paddingBottom: 6,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              transition: 'all var(--transition-fast)',
+            }}
+          >
+            <span>Perencana Rute</span>
+            <span
+              style={{
+                background: 'var(--meratus-clay-soft)',
+                color: 'var(--meratus-clay-dark)',
+                fontSize: 10.5,
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 9999,
+                lineHeight: 1.3,
+              }}
+            >
+              Fitur Utama
+            </span>
+          </Link>
+
+          <Link
+            to="/journal"
+            style={{
+              textDecoration: 'none',
+              fontSize: 14,
+              fontWeight: isActive('/journal') ? 700 : 500,
+              color: isActive('/journal') ? 'var(--meratus-deep)' : 'var(--meratus-muted)',
+              borderBottom: isActive('/journal') ? '2.5px solid var(--meratus-deep)' : '2.5px solid transparent',
+              paddingBottom: 6,
+              transition: 'all var(--transition-fast)',
+            }}
+          >
+            Jurnal Wisata
+          </Link>
+        </nav>
+
+        {/* Right Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Language Toggle */}
+          <div
+            className="meratus-lang-toggle"
+            style={{ cursor: 'pointer' }}
+            onClick={() => setLang(lang === 'ID' ? 'EN' : 'ID')}
+            title="Ganti Bahasa"
+          >
+            <span style={{ color: lang === 'ID' ? 'var(--meratus-deep)' : 'var(--meratus-subtle)', fontWeight: lang === 'ID' ? 700 : 500, padding: '0 4px' }}>
+              ID
+            </span>
+            <span style={{ color: 'var(--meratus-card-border)' }}>|</span>
+            <span style={{ color: lang === 'EN' ? 'var(--meratus-deep)' : 'var(--meratus-subtle)', fontWeight: lang === 'EN' ? 700 : 500, padding: '0 4px' }}>
+              EN
+            </span>
+          </div>
+
+          {/* Mulai Rute CTA Button */}
+          <button
+            className="meratus-nav-btn"
+            onClick={() => navigate('/planner')}
+          >
+            <Icon.Compass size={16} />
+            <span>Mulai Rute</span>
+          </button>
+
+          {/* User Profile Avatar */}
+          <button
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              background: 'var(--meratus-deep)',
+              border: 'none',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#ffffff',
+              cursor: 'pointer',
+              transition: 'transform var(--transition-fast)',
+            }}
+            title="Profil Pengguna"
+            onClick={() => navigate('/about')}
+          >
+            <Icon.User size={16} />
           </button>
         </div>
-      </nav>
-    </div>
+      </div>
+    </header>
   );
 };
 

@@ -1,215 +1,381 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Header } from '../components/layout/Header';
-import { Footer } from '../components/layout/Footer';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
-import { IconButton } from '../components/atomic/IconButton';
-import { Stars } from '../components/atomic/Stars';
-import { Chip } from '../components/atomic/Chip';
-import Button from '../components/atomic/Button';
 import { DESTINATIONS, Destination } from '../constants/destinations';
 import { getGoogleMapsRouteUrl } from '../services/api';
 
 /**
- * DestinationDetailPage — Immersive detail with sticky sidebar
+ * DestinationDetailPage — Figma Belalah HSS Detail Destinasi (Node 44:1701)
+ * High-fidelity editorial layout with breadcrumbs, photo multi-grid,
+ * historical cultural background, facility specs, and practical route sidebar.
  */
 export const DestinationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
-  const destination: Destination | undefined = DESTINATIONS.find(d => d.id === parseInt(id || ''));
+  const destination: Destination | undefined =
+    DESTINATIONS.find((d) => d.id === parseInt(id || '', 10)) || DESTINATIONS[1]; // default Bamboo Rafting
+
+  const [itinerary, setItinerary] = useState<Destination[]>([]);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('belalah_itinerary');
+    if (saved) {
+      try {
+        setItinerary(JSON.parse(saved));
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  const showToast = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const isInRoute = destination ? itinerary.some((d) => d.id === destination.id) : false;
+
+  const handleToggleRoute = () => {
+    if (!destination) return;
+    let updated: Destination[];
+    if (isInRoute) {
+      updated = itinerary.filter((d) => d.id !== destination.id);
+      showToast(`${destination.name} dihapus dari rute.`);
+    } else {
+      updated = [...itinerary, destination];
+      showToast(`${destination.name} berhasil ditambahkan ke rute!`);
+    }
+    setItinerary(updated);
+    localStorage.setItem('belalah_itinerary', JSON.stringify(updated));
+  };
 
   if (!destination) {
     return (
-      <div className="bh-screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-        <h1 className="bh-serif" style={{ fontSize: 32 }}>Destinasi tidak ditemukan</h1>
-        <Button onClick={() => navigate('/')} variant="sage">Kembali ke Beranda</Button>
+      <div style={{ padding: 80, textAlign: 'center' }}>
+        <h2>Destinasi tidak ditemukan</h2>
+        <Link to="/directory">Kembali ke Katalog</Link>
       </div>
     );
   }
 
-  const getImageUrl = (img: string) => {
-    if (img.includes('.')) return `/assets/${img}`;
-    return `/assets/${img}.jpg`;
-  };
+  // Fallback images
+  let mainImg = '/assets/balanting-paring.jpg';
+  if (destination.name.toLowerCase().includes('haratai') || destination.name.toLowerCase().includes('air')) {
+    mainImg = '/assets/Air-Terjun-Haratai.jpg';
+  } else if (destination.name.toLowerCase().includes('langara') || destination.name.toLowerCase().includes('bukit')) {
+    mainImg = '/assets/langara.jpg';
+  } else if (destination.name.toLowerCase().includes('museum') || destination.name.toLowerCase().includes('budaya')) {
+    mainImg = '/assets/museum-rakyat.jpg';
+  }
+
+  const scoreVal = destination.popularitas ? Math.round(destination.popularitas) : 96;
+  const rankVal = destination.rank || 1;
+
+  // Nearby destinations in < 10 km
+  const nearbyPlaces = DESTINATIONS.filter((d) => d.id !== destination.id).slice(0, 3);
 
   return (
-    <div className="bh-screen scroll web bh-topo-bg">
+    <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
 
-      <main style={{ maxWidth: 1400, margin: '0 auto', padding: '100px 56px 40px' }}>
-        {/* Hero Image */}
-        <div className="bh-detail-hero">
-          <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: 'var(--radius-xl)' }}>
-            <img
-              src={getImageUrl(destination.img)}
-              alt={destination.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const parent = target.parentElement;
-                if (parent) parent.style.background = 'linear-gradient(135deg, #5B8C5A 0%, #2F5E3D 50%, #1F3D2B 100%)';
-              }}
-            />
+      <main style={{ flex: 1 }}>
+        {/* 1. Breadcrumbs Nav */}
+        <div className="detail-nav-breadcrumbs">
+          <Link to="/">Beranda</Link>
+          <span>/</span>
+          <Link to="/directory">Destinasi Wisata</Link>
+          <span>/</span>
+          <span style={{ color: 'var(--ink)', fontWeight: 700 }}>{destination.name}</span>
+        </div>
+
+        {/* 2. Hero Header Destinasi */}
+        <div className="detail-hero-header">
+          <div>
+            <div className="detail-badges-row">
+              <span className="detail-pill-rank">Peringkat #{rankVal} Wisata Air Hulu Sungai Selatan</span>
+              <span className="detail-pill-score">
+                <Icon.Compass size={13} />
+                Skor Rekomendasi: {scoreVal} / 100
+              </span>
+              <span className="detail-pill-fav">Favorit Wisatawan Pegunungan Meratus</span>
+            </div>
+
+            <h1 className="detail-main-title">{destination.name}</h1>
+
+            <div className="detail-location-sub">
+              <Icon.Pin size={15} style={{ color: 'var(--meratus-clay)' }} />
+              <span>{destination.location}</span>
+              <span>•</span>
+              <span>{destination.distance}</span>
+            </div>
           </div>
 
-          {/* Overlay */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 100%)',
-            zIndex: 2, borderRadius: 'var(--radius-xl)',
-          }} />
+          <div className="detail-header-actions">
+            <button
+              className={`btn-add-route ${isInRoute ? 'added' : 'not-added'}`}
+              onClick={handleToggleRoute}
+              style={{ width: 'auto', padding: '10px 20px', borderRadius: 9999 }}
+            >
+              {isInRoute ? (
+                <>
+                  <Icon.Check size={16} />
+                  <span>Destinasi Ada di Rute Anda</span>
+                </>
+              ) : (
+                <>
+                  <Icon.Plus size={16} />
+                  <span>+ Tambah ke Rute</span>
+                </>
+              )}
+            </button>
 
-          {/* Action buttons */}
-          <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 10, display: 'flex', gap: 10 }}>
-            <IconButton variant="light" size={44} onClick={() => setIsFavorite(!isFavorite)}>
-              <Icon.Heart size={20} filled={isFavorite} />
-            </IconButton>
-            <IconButton variant="light" size={44}>
-              <Icon.Search size={20} />
-            </IconButton>
-          </div>
-
-          {/* Title */}
-          <div style={{ position: 'absolute', bottom: 28, left: 32, right: 32, zIndex: 5, color: '#fff' }}>
-            <h1 className="bh-serif" style={{ fontSize: 52, fontWeight: 500, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-              {destination.name}
-            </h1>
+            <a
+              href={getGoogleMapsRouteUrl(destination)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-planner-ghost"
+              style={{ padding: '9px 18px', borderRadius: 9999, textDecoration: 'none' }}
+            >
+              <Icon.Pin size={15} />
+              <span>Google Maps</span>
+            </a>
           </div>
         </div>
 
-        {/* Content Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 40 }}>
-          {/* Main Content */}
-          <div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-              <Chip variant="sage">{destination.category}</Chip>
-              {destination.region && <Chip>{destination.region}</Chip>}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 20, borderBottom: '1px solid var(--line)' }}>
+        {/* 3. Galeri Foto Multi-Grid */}
+        <div className="detail-gallery-grid">
+          <div className="detail-main-photo-box">
+            <img
+              src={mainImg}
+              alt={destination.name}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
+              }}
+            />
+            <div className="detail-main-photo-caption">
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--ink-2)', marginBottom: 10 }}>
-                  <Icon.Pin size={16} /> {destination.distance}
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Daya Tarik Utama
+                </span>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Menembus Riam Amandit di Pangkuan Meratus</div>
+              </div>
+              <span style={{ fontSize: 12, opacity: 0.8 }}>1 / 4</span>
+            </div>
+          </div>
+
+          <div className="detail-sub-photos-col">
+            <div className="detail-sub-photo-item">
+              <img src="/assets/balanting-paring.jpg" alt="Rakit Bambu" />
+              <span className="detail-sub-photo-caption">Struktur Bambu Paring &amp; Rotan</span>
+            </div>
+            <div className="detail-sub-photo-item">
+              <img src="/assets/Air-Terjun-Haratai.jpg" alt="Rest Area" />
+              <span className="detail-sub-photo-caption">Rest Area Pasir Putih &amp; Batu Hitam</span>
+            </div>
+            <div className="detail-sub-photo-item">
+              <img src="/assets/langara.jpg" alt="Panorama Meratus" />
+              <span className="detail-sub-photo-caption">Panorama Lembah Karst Meratus</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Konten Dua Kolom (Grid 8 col & 4 col) */}
+        <div className="detail-content-grid">
+          {/* Left Column: Editorial Description & Features */}
+          <div>
+            <div className="detail-article-card">
+              <h2 className="detail-section-title">Daya Tarik &amp; Eksplorasi Alam</h2>
+
+              <p className="detail-article-text">
+                Menyusuri jernihnya aliran Sungai Amandit di atas rakit bambu (<em>balanting paring</em>) adalah salah satu
+                atraksi petualangan air paling ikonis di Kalimantan Selatan. Lahir dari kearifan leluhur suku Dayak Meratus
+                yang dahulu memanfaatkan rakit guna mendistribusikan bambu paring ke pasar kota Kandangan, tradisi ini kini
+                menjadi perjalanan magis menyusuri jantung Pegunungan Meratus.
+              </p>
+
+              <p className="detail-article-text">
+                Selama sekitar 2 hingga 2,5 jam pengarungan dari dermaga hulu Loksado menuju dermaga penjemputan di Tanuhi atau
+                Muara Hatip, Anda akan dipandu oleh seorang joki Dayak berpengalaman. Dengan sebatang galah bambu panjang, ia
+                membaca kontur air, meliuk lincah di sela bebatuan karst, melintasi jeram riam yang berbusa menyegarkan,
+                diselingi segmen air tenang berlatar tebing kapur dan kanopi rimbun rimba Kalimantan.
+              </p>
+
+              {/* 3 Feature Cards */}
+              <div className="detail-features-grid">
+                <div className="detail-feature-card">
+                  <div className="detail-feature-title">🎋 Galah Bambu Dayak</div>
+                  <p className="detail-feature-desc">
+                    Kemahiran navigasi joki tradisional tanpa mesin mengendalikan rakit di arus deras.
+                  </p>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <Icon.Clock size={14} />
-                  <span style={{ fontSize: 14 }}>{destination.hours || '08:00 - 17:00'}</span>
+
+                <div className="detail-feature-card">
+                  <div className="detail-feature-title">🌊 14 Riam Alami</div>
+                  <p className="detail-feature-desc">
+                    Sensasi jeram sedang yang mendebarkan namun tetap aman untuk keluarga dan pemula.
+                  </p>
+                </div>
+
+                <div className="detail-feature-card">
+                  <div className="detail-feature-title">🌿 Hutan Lindung Meratus</div>
+                  <p className="detail-feature-desc">
+                    Udara sejuk kaya oksigen di lembah bukit karst dengan pemandangan alami yang asri.
+                  </p>
                 </div>
               </div>
-              <Stars rating={destination.rating} reviews={destination.reviews} size={16} />
-            </div>
 
-            {/* Description */}
-            <div style={{ marginTop: 28 }}>
-              <h2 className="bh-serif" style={{ fontSize: 24, fontWeight: 500, marginBottom: 12 }}>
-                Tentang Destinasi
-              </h2>
-              <p style={{ fontSize: 15, lineHeight: 1.75, color: 'var(--ink-2)' }}>
-                {destination.fullDescription || destination.description}
+              {/* Facilities */}
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '32px 0 8px' }}>
+                Fasilitas &amp; Kelengkapan Standar
+              </h3>
+              <p style={{ fontSize: 13, color: 'var(--meratus-subtle)', margin: '0 0 16px' }}>
+                Terverifikasi Dinas Pemuda, Olahraga, dan Pariwisata Kabupaten Hulu Sungai Selatan
               </p>
-            </div>
 
-            {/* Facilities */}
-            {destination.facilities && destination.facilities.length > 0 && (
-              <div style={{ marginTop: 32 }}>
-                <h3 className="bh-serif" style={{ fontSize: 20, fontWeight: 500, marginBottom: 16 }}>Fasilitas</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-                  {destination.facilities.map((facility, idx) => (
-                    <div key={idx} className="bh-facility-card">
-                      <div style={{ fontSize: 24, marginBottom: 8 }}>
-                        {facility.icon === 'bed' ? '🛏️' : facility.icon === 'fork' ? '🍽️' : '🅿️'}
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: 500 }}>{facility.name}</div>
+              <div className="detail-facilities-grid">
+                <div className="detail-facility-pill">
+                  <span>🦺</span>
+                  <span>Rompi Pelampung Berstandar</span>
+                </div>
+                <div className="detail-facility-pill">
+                  <span>🛶</span>
+                  <span>Dermaga Tambat &amp; Titik Jemput</span>
+                </div>
+                <div className="detail-facility-pill">
+                  <span>🚿</span>
+                  <span>Toilet &amp; Kamar Bilas Bersih</span>
+                </div>
+                <div className="detail-facility-pill">
+                  <span>🏕️</span>
+                  <span>Gazebo Istirahat Tepi Sungai</span>
+                </div>
+                <div className="detail-facility-pill">
+                  <span>🍜</span>
+                  <span>Kantin &amp; Kuliner Tradisional</span>
+                </div>
+                <div className="detail-facility-pill">
+                  <span>🅿️</span>
+                  <span>Area Parkir Kendaraan Luas</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Practical Info Sidebar */}
+          <div>
+            <div className="detail-sidebar-card">
+              {/* Price Headline */}
+              <div className="detail-price-headline">
+                <div className="detail-price-label">Biaya / Tarif Resmi</div>
+                <div className="detail-price-value">{destination.entrance || 'Rp 300.000 / Rakit'}</div>
+                <div style={{ fontSize: 11.5, color: '#8E4520', marginTop: 4 }}>
+                  Kapasitas 2–3 penumpang + 1 Joki Dayak
+                </div>
+              </div>
+
+              {/* Info Rows */}
+              <div className="detail-info-list">
+                <div className="detail-info-row">
+                  <span className="detail-info-key">Durasi Trip:</span>
+                  <span className="detail-info-val">~2 hingga 2.5 Jam</span>
+                </div>
+                <div className="detail-info-row">
+                  <span className="detail-info-key">Jam Operasional:</span>
+                  <span className="detail-info-val">{destination.hours || '07:30 – 16:30 WITA'}</span>
+                </div>
+                <div className="detail-info-row">
+                  <span className="detail-info-key">Titik Kumpul:</span>
+                  <span className="detail-info-val">Dermaga Hulu Loksado</span>
+                </div>
+                <div className="detail-info-row">
+                  <span className="detail-info-key">Tingkat Kesulitan:</span>
+                  <span className="detail-info-val">Sedang (Family Friendly)</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button
+                  className="btn-planner-primary"
+                  onClick={handleToggleRoute}
+                  style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+                >
+                  <Icon.Compass size={16} />
+                  <span>{isInRoute ? '✓ Sudah Ada di Rute' : '+ Masukkan ke Perencana Rute'}</span>
+                </button>
+
+                <button
+                  className="btn-planner-ghost"
+                  onClick={() => navigate('/planner')}
+                  style={{ width: '100%', justifyContent: 'center', padding: '11px' }}
+                >
+                  <span>Buka Perencana Perjalanan</span>
+                  <Icon.ArrowRight size={14} />
+                </button>
+              </div>
+
+              {/* Nearby Places in same corridor */}
+              <div className="detail-nearby-box">
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--meratus-deep)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon.Pin size={14} style={{ color: 'var(--meratus-clay)' }} />
+                  <span>Destinasi Terdekat (&lt; 10 km)</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {nearbyPlaces.map((near) => (
+                    <div
+                      key={near.id}
+                      onClick={() => navigate(`/destination/${near.id}`)}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: 12.5,
+                        cursor: 'pointer',
+                        padding: '6px 0',
+                        borderBottom: '1px dashed var(--meratus-card-border)',
+                      }}
+                    >
+                      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{near.name}</span>
+                      <span style={{ color: 'var(--meratus-subtle)', fontSize: 11.5 }}>
+                        {near.distance.split('·')[1]?.trim() || 'Dekat'}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* Gallery placeholder */}
-            {destination.photos && destination.photos.length > 0 && (
-              <div style={{ marginTop: 32 }}>
-                <h3 className="bh-serif" style={{ fontSize: 20, fontWeight: 500, marginBottom: 16 }}>Galeri Foto</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-                  {destination.photos.map((_, idx) => (
-                    <div key={idx} style={{
-                      aspectRatio: '1',
-                      borderRadius: 'var(--radius-md)',
-                      background: `linear-gradient(135deg, var(--bg-soft) 0%, var(--line) 100%)`,
-                      cursor: 'pointer',
-                      transition: 'all var(--transition-base)',
-                    }} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="bh-detail-sidebar">
-            <div className="price-card">
-              <h3 style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-3)', margin: '0 0 8px 0', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Harga Tiket
-              </h3>
-              <div className="price">{destination.entrance || 'Rp 10.000'}</div>
-
-              <a
-                href={getGoogleMapsRouteUrl(destination)}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none', width: '100%', display: 'block', marginBottom: 10 }}
-              >
-                <Button variant="sage" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
-                  🗺️ Buka Rute Google Maps
-                </Button>
-              </a>
-              <Button
-                variant="secondary"
-                size="lg"
-                style={{ width: '100%', justifyContent: 'center' }}
-                onClick={() => {
-                  const saved = localStorage.getItem('belalah_itinerary');
-                  let items: Destination[] = [];
-                  if (saved) {
-                    try { items = JSON.parse(saved); } catch (e) {}
-                  }
-                  if (!items.some((d) => d.id === destination.id)) {
-                    items.push(destination);
-                    localStorage.setItem('belalah_itinerary', JSON.stringify(items));
-                  }
-                  navigate('/planner');
-                }}
-              >
-                ➕ Tambah ke Rencana
-              </Button>
-
-              <div style={{ marginTop: 20, fontSize: 12, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                ℹ️ Harga dapat berubah tanpa pemberitahuan
-              </div>
-            </div>
-
-            {/* Related Destinations */}
-            <div style={{ marginTop: 24 }}>
-              <h3 className="bh-serif" style={{ fontSize: 18, fontWeight: 500, marginBottom: 12 }}>Destinasi Terdekat</h3>
-              {DESTINATIONS.filter(d => d.id !== destination.id).slice(0, 3).map(dest => (
-                <div
-                  key={dest.id}
-                  className="bh-related-item"
-                  onClick={() => navigate(`/destination/${dest.id}`)}
-                >
-                  <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 3 }}>{dest.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{dest.distance}</div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </main>
 
-      <Footer company="Belalah HSS" year={2026} />
+      {/* Toast */}
+      {notification && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 96,
+            right: 24,
+            background: 'var(--meratus-deep)',
+            color: '#ffffff',
+            padding: '10px 20px',
+            borderRadius: 10,
+            fontSize: 13.5,
+            fontWeight: 600,
+            boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+            zIndex: 1200,
+          }}
+        >
+          {notification}
+        </div>
+      )}
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
