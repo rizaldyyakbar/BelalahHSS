@@ -47,7 +47,8 @@ class RecommendationController extends Controller
         $mode = $data['mode'] ?? 'near_user';
         $limit = isset($data['limit']) ? (int) $data['limit'] : 10;
         $sort = $data['sort'] ?? 'score';
-        $radiusMeters = isset($data['radius_meters']) ? (int) $data['radius_meters'] : 5000;
+        $radiusMeters = isset($data['radius_meters']) ? (int) $data['radius_meters'] : 50000;
+        $categoryId = isset($data['category_id']) && $data['category_id'] !== null ? (int) $data['category_id'] : null;
         $pretty = $request->boolean('pretty');
         $excludeDestinationId = null;
 
@@ -60,8 +61,8 @@ class RecommendationController extends Controller
             $userLng = (float) $centerDestination->longitude;
             $excludeDestinationId = (int) $centerDestination->id;
         } else {
-            $userLat = (float) $data['lat'];
-            $userLng = (float) $data['lng'];
+            $userLat = isset($data['lat']) && $data['lat'] !== null && $data['lat'] !== '' ? (float) $data['lat'] : -2.7758;
+            $userLng = isset($data['lng']) && $data['lng'] !== null && $data['lng'] !== '' ? (float) $data['lng'] : 115.2635;
         }
 
         $cacheKey = $this->generateCacheKey([
@@ -70,6 +71,7 @@ class RecommendationController extends Controller
             'lng' => round($userLng, 5),
             'destination_id' => $excludeDestinationId,
             'radius_meters' => $radiusMeters,
+            'category_id' => $categoryId,
             'limit' => $limit,
             'sort' => $sort,
         ]);
@@ -86,35 +88,40 @@ class RecommendationController extends Controller
 
         $candidateLimit = max($limit * 5, 50);
 
-                // Primary path: use PostGIS to fetch nearest candidates quickly.
-                $postgisSql = <<<SQL
+        // Primary path: use PostGIS to fetch nearest candidates quickly.
+        $postgisSql = <<<SQL
 SELECT id,
-             ROUND(
-                 ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng1, :lat1), 4326)::geography)::numeric / 1000,
-                 2
-             ) AS distance_km
+       ROUND(
+           ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng1, :lat1), 4326)::geography)::numeric / 1000,
+           2
+       ) AS distance_km
 FROM destinations
 WHERE location IS NOT NULL
-    AND ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng2, :lat2), 4326)::geography, :radius_meters)
+  AND ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng2, :lat2), 4326)::geography, :radius_meters)
 SQL;
 
-                $postgisBindings = [
-                        'lng1' => $userLng,
-                        'lat1' => $userLat,
-                        'lng2' => $userLng,
-                        'lat2' => $userLat,
-                        'radius_meters' => $radiusMeters,
-                ];
+        $postgisBindings = [
+            'lng1' => $userLng,
+            'lat1' => $userLat,
+            'lng2' => $userLng,
+            'lat2' => $userLat,
+            'radius_meters' => $radiusMeters,
+        ];
 
-                if ($excludeDestinationId !== null) {
-                        $postgisSql .= "\n  AND id <> :exclude_id";
-                        $postgisBindings['exclude_id'] = $excludeDestinationId;
-                }
+        if ($excludeDestinationId !== null) {
+            $postgisSql .= "\n  AND id <> :exclude_id";
+            $postgisBindings['exclude_id'] = $excludeDestinationId;
+        }
 
-                $postgisSql .= "\nORDER BY distance_km ASC\nLIMIT :candidate_limit";
-                $postgisBindings['candidate_limit'] = $candidateLimit;
+        if ($categoryId !== null) {
+            $postgisSql .= "\n  AND category_id = :category_id";
+            $postgisBindings['category_id'] = $categoryId;
+        }
 
-                $postgisRows = DB::select($postgisSql, $postgisBindings);
+        $postgisSql .= "\nORDER BY distance_km ASC\nLIMIT :candidate_limit";
+        $postgisBindings['candidate_limit'] = $candidateLimit;
+
+        $postgisRows = DB::select($postgisSql, $postgisBindings);
 
         $distanceById = [];
         $destinationIds = [];
@@ -129,10 +136,15 @@ SQL;
         if (empty($destinationIds)) {
             $allDestinationsQuery = Destination::whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                ->select(['id', 'name', 'latitude', 'longitude', 'image_thumb_url', 'image_url']);
+                ->with('category')
+                ->select(['id', 'category_id', 'name', 'description', 'address', 'latitude', 'longitude', 'image_thumb_url', 'image_url']);
 
             if ($excludeDestinationId !== null) {
                 $allDestinationsQuery->where('id', '<>', $excludeDestinationId);
+            }
+
+            if ($categoryId !== null) {
+                $allDestinationsQuery->where('category_id', $categoryId);
             }
 
             $allDestinations = $allDestinationsQuery->get();
@@ -155,9 +167,15 @@ SQL;
             $destinationIds = array_slice(array_column($distances, 'id'), 0, $candidateLimit);
             $destinations = $allDestinations->whereIn('id', $destinationIds)->values();
         } else {
-            $destinations = Destination::whereIn('id', $destinationIds)
-                ->select(['id', 'name', 'latitude', 'longitude', 'image_thumb_url', 'image_url'])
-                ->get();
+            $destinationsQuery = Destination::whereIn('id', $destinationIds)
+                ->with('category')
+                ->select(['id', 'category_id', 'name', 'description', 'address', 'latitude', 'longitude', 'image_thumb_url', 'image_url']);
+
+            if ($categoryId !== null) {
+                $destinationsQuery->where('category_id', $categoryId);
+            }
+
+            $destinations = $destinationsQuery->get();
         }
 
         // Cache plain arrays (not Eloquent objects) to avoid unserialize issues.
@@ -220,7 +238,7 @@ SQL;
             $imageUrl = null;
 
             if (is_string($imagePath) && $imagePath !== '') {
-                if (preg_match('~^https?://~i', $imagePath)) {
+                if (preg_match('~^https?://~i', $imagePath) || str_starts_with($imagePath, '/')) {
                     $imageUrl = $imagePath;
                 } else {
                     $imageUrl = Storage::disk('public')->url($imagePath);
@@ -230,11 +248,20 @@ SQL;
             $results[] = [
                 'id' => $dest->id,
                 'name' => $dest->name,
+                'category_id' => $dest->category_id,
+                'category' => $dest->category ? [
+                    'id' => $dest->category->id,
+                    'name' => $dest->category->name,
+                    'slug' => $dest->category->slug,
+                ] : null,
+                'description' => $dest->description,
+                'address' => $dest->address,
                 'latitude' => (float) $dest->latitude,
                 'longitude' => (float) $dest->longitude,
                 'image' => $imageUrl,
                 'distance_km' => $distanceById[$dest->id] ?? null,
                 'score' => $row['score'],
+                'values' => $valuesMap[$dest->id] ?? [],
             ];
         }
 

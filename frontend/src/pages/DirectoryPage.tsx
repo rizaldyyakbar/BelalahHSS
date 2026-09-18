@@ -266,7 +266,12 @@ export const DirectoryPage: React.FC = () => {
               }
 
               // Duration & distance display
-              const distKm = dest.distance ? dest.distance.replace(/[^0-9.]/g, '') || `${30 + index * 4}` : `${30 + index * 4}`;
+              const kmMatch = dest.distance?.match(/(\d+(?:\.\d+)?)\s*km/i);
+              const distKm = kmMatch
+                ? kmMatch[1]
+                : (dest as any).distance_km !== undefined
+                  ? Number((dest as any).distance_km).toFixed(1)
+                  : `${30 + index * 4}`;
               const durationEst = dest.name.toLowerCase().includes('rafting') ? '~2.5 Jam' : '~1.5 Jam';
               const ticketText = dest.entrance || 'Rp 5.000 – Rp 10.000';
 

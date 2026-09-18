@@ -20,15 +20,18 @@ export interface ApiDestination {
     name: string;
     slug: string;
   };
-  description: string;
+  description?: string;
   latitude: number | string;
   longitude: number | string;
   address?: string;
+  image?: string;
   image_url?: string;
   image_thumb_url?: string;
   distance_km?: number;
   saw_score?: number;
+  score?: number;
   rank?: number;
+  values?: Record<string, number>;
 }
 
 export interface RecommendationApiResponse {
@@ -73,10 +76,14 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
 }> {
   try {
     const query = new URLSearchParams();
-    if (params.lat !== undefined) query.append('lat', params.lat.toString());
-    if (params.lng !== undefined) query.append('lng', params.lng.toString());
+    // Default coordinates: Kandangan center (-2.7758, 115.2635)
+    const lat = params.lat !== undefined ? params.lat : -2.7758;
+    const lng = params.lng !== undefined ? params.lng : 115.2635;
+    query.append('lat', lat.toString());
+    query.append('lng', lng.toString());
+
     if (params.limit !== undefined) query.append('limit', params.limit.toString());
-    if (params.radius_meters !== undefined) query.append('radius_meters', params.radius_meters.toString());
+    query.append('radius_meters', (params.radius_meters || 50000).toString());
     if (params.sort !== undefined) query.append('sort', params.sort);
     if (params.category_id !== undefined) query.append('category_id', params.category_id.toString());
 
@@ -92,39 +99,65 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const responseData: RecommendationApiResponse | ApiDestination[] = await response.json();
-    const responseItems = Array.isArray(responseData) ? responseData : responseData.data;
+    const responseData = await response.json();
+    const responseItems: ApiDestination[] = Array.isArray(responseData) ? responseData : (responseData.data || []);
 
     if (Array.isArray(responseItems) && responseItems.length > 0) {
       const formatted: Destination[] = responseItems.map((item, index) => {
-        const lat = typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude;
-        const lng = typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude;
+        const itemLat = typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude;
+        const itemLng = typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude;
+
+        // Match local enriched metadata (facilities, photo assets, reviews)
+        const localMatch = DESTINATIONS.find(
+          (d) => d.id === item.id || d.name.toLowerCase().trim() === item.name.toLowerCase().trim()
+        );
+
         const distanceStr = item.distance_km !== undefined
-          ? `${item.distance_km.toFixed(1)} km dari lokasi Anda`
-          : 'Hulu Sungai Selatan';
+          ? `${item.distance_km.toFixed(1)} km dari Kandangan`
+          : localMatch?.distance || 'Hulu Sungai Selatan';
+
+        const regionStr = localMatch?.region ||
+          (item.address ? (item.address.replace(/^Kecamatan\s+/i, '').split(',')[0] || 'HSS').trim() : 'HSS');
+
+        const sawScoreNumber = item.score !== undefined
+          ? Math.round(item.score * 100)
+          : (item.saw_score !== undefined ? Math.round(item.saw_score * 100) : localMatch?.popularitas || (96 - index * 2));
+
+        const ticketPrice = item.values && item.values['3']
+          ? `Rp ${Number(item.values['3']).toLocaleString('id-ID')}`
+          : localMatch?.entrance || 'Rp 10.000';
 
         return {
           id: item.id,
           name: item.name,
-          category: item.category?.name || 'Wisata',
-          location: item.address || 'Hulu Sungai Selatan',
+          category: item.category?.name || localMatch?.category || 'Wisata Alam',
+          region: regionStr,
+          location: item.address || localMatch?.location || `Kecamatan ${regionStr}, Hulu Sungai Selatan`,
           distance: distanceStr,
-          img: item.image_url || item.image_thumb_url || 'langara.jpg',
-          rating: 4.8,
-          reviews: 120 + item.id * 15,
-          description: item.description || 'Destinasi wisata unggulan di Kabupaten Hulu Sungai Selatan.',
-          fullDescription: item.description,
+          img: item.image || item.image_url || localMatch?.img || '/assets/balanting-paring.jpg',
+          rating: localMatch?.rating || 4.8,
+          reviews: localMatch?.reviews || (120 + item.id * 15),
+          description: item.description || localMatch?.description || 'Destinasi wisata unggulan di Kabupaten Hulu Sungai Selatan.',
+          fullDescription: localMatch?.fullDescription || item.description,
+          photos: localMatch?.photos || ['photo1.jpg', 'photo2.jpg', 'photo3.jpg'],
+          facilities: localMatch?.facilities || [
+            { icon: 'map-pin', name: 'Area Parkir' },
+            { icon: 'camera', name: 'Spot Foto Alami' },
+            { icon: 'shield', name: 'Pos Retribusi Resmi' },
+          ],
           rank: item.rank || index + 1,
-          latitude: lat,
-          longitude: lng,
-          entrance: 'Rp 10.000',
+          latitude: itemLat,
+          longitude: itemLng,
+          entrance: ticketPrice,
+          popularitas: sawScoreNumber,
         };
       });
 
+      console.info(`[Belalah API] Successfully live-fetched ${formatted.length} destinations with PostGIS & SAW scores.`);
       return { destinations: formatted, isFromApi: true };
     }
   } catch (error) {
-    console.warn('Backend API unavailable, using fallback constants:', error);
+    console.warn('Backend API unavailable or error occurred, using fallback constants:', error);
   }
 
   return { destinations: DESTINATIONS, isFromApi: false };

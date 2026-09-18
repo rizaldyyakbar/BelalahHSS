@@ -72,16 +72,107 @@ class DatabaseSeeder extends Seeder
             'Religi' => 'religi',
         ];
 
+        $destDetails = [
+            'Air Terjun Haratai' => [
+                'description' => 'Objek wisata air terjun alami skala besar pada kawasan hutan lindung, dilengkapi perkebunan kayu manis dan peternakan madu kelulut.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Bamboo Rafting Loksado' => [
+                'description' => 'Atraksi wisata petualangan menyusuri riam Sungai Amandit menggunakan rakit bambu tradisional khas Dayak Meratus.',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+            'Objek Wisata Air Panas Tanuhi' => [
+                'description' => 'Pemandian air panas alami belerang dengan fasilitas kolam renang bertingkat dan penginapan di tengah lembah.',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+            'Air Terjun Kilap Api' => [
+                'description' => 'Air terjun alami dengan kolam penampungan jernih di bawah tebing karst rindang.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Riam Barajang dan Riam Hanai' => [
+                'description' => 'Jeram sungai berbatu dan air terjun kembar di aliran hulu sungai Amandit yang asri.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Balai Adat Malaris' => [
+                'description' => 'Pusat kebudayaan dan ritual adat suku Dayak Meratus (Aruh Bahanan / Aruh Ganal), rumah panggung tradisional ulin.',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+            'Bukit Langara' => [
+                'description' => 'Gugusan bukit karst batu kapur dengan panorama spektakuler bentang alam sungai Amandit dan belantara rimba Meratus.',
+                'image_url' => '/assets/langara.jpg',
+            ],
+            'Wisata Sungai Pariangan' => [
+                'description' => 'Kawasan pemandian dan arung sungai keluarga dengan bebatuan alami di Padang Batung.',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+            'Bukit Batu Laki' => [
+                'description' => 'Puncak perbukitan legendaris dengan lanskap batuan karst dan situs sejarah perjuangan rakyat Hulu Sungai.',
+                'image_url' => '/assets/langara.jpg',
+            ],
+            'Kalang Hadangan' => [
+                'description' => 'Wisata fenomena kerbau rawa berenang khas lahan basah Daha Utara dan susur rawa Danau Bangkau.',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+            'Bukit Batu Baduduk' => [
+                'description' => 'Gugusan batu unik berundak di perbukitan Telaga Langsat dengan panorama perladangan hijau.',
+                'image_url' => '/assets/langara.jpg',
+            ],
+            'Situs Pemandangan' => [
+                'description' => 'Gardu pandang panorama lembah Loksado dan bentang Pegunungan Meratus dari ketinggian.',
+                'image_url' => '/assets/langara.jpg',
+            ],
+            'River Tubing Loksado' => [
+                'description' => 'Sensasi arung jeram menggunakan ban dalam karet menyusuri arus riam sungai Amandit.',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+            'Air Terjun Mandin Mangapan' => [
+                'description' => 'Air terjun bertingkat eksotis dengan aliran air deras di tengah hutan perawan Loksado.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Air Terjun Rampah Menjangan' => [
+                'description' => 'Air terjun tersembunyi dengan vegetasi hutan lumut dan udara sejuk pegunungan.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Air Terjun Tinggiran Hayam' => [
+                'description' => 'Air terjun bertingkat dengan kolam alami yang dikelilingi tebing bebatuan purba.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Puncak Bukit Batu Butahal' => [
+                'description' => 'Spot pendakian ringan dengan panorama matahari terbit berkabut di atas lembah Meratus.',
+                'image_url' => '/assets/langara.jpg',
+            ],
+            'Air Terjun Tinggiran Mawang' => [
+                'description' => 'Air terjun alami dengan debit air deras di kawasan pedalaman Loksado.',
+                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+            ],
+            'Masjid As-Suada (Wassah Hilir)' => [
+                'description' => 'Cagar budaya masjid bersejarah berarsitektur kayu ulin khas Banjar tertua di Kalimantan Selatan.',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+            'Makam Datu Kandang Haji' => [
+                'description' => 'Wisata ziarah dan cagar budaya makam ulama pejuang penyebar agama Islam di Bumi Antaludin.',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+            'Pemandian Alami Tirta Alam (Batu Bini)' => [
+                'description' => 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+        ];
+
         while (($row = fgetcsv($handle, 1000, ',')) !== false) {
             $category = Category::where('slug', $categorySlugs[$row[2]] ?? $row[2])->first();
+            $destName = $row[1];
+            $details = $destDetails[$destName] ?? [];
 
             $dest = Destination::updateOrCreate(
-                ['name' => $row[1]],
+                ['name' => $destName],
                 [
                     'category_id' => $category?->id,
                     'address'     => "Kecamatan {$row[3]}, Kabupaten Hulu Sungai Selatan",
                     'latitude'    => $row[4],
                     'longitude'   => $row[5],
+                    'description' => $details['description'] ?? "Destinasi wisata unggulan di Kecamatan {$row[3]}, Kabupaten Hulu Sungai Selatan.",
+                    'image_url'   => $details['image_url'] ?? '/assets/balanting-paring.jpg',
                 ]
             );
 
