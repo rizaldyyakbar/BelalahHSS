@@ -21,7 +21,13 @@ import {
   Map,
   Save,
   Bell,
-  Check
+  Check,
+  Menu,
+  BookOpen,
+  Grid,
+  Info,
+  PhoneCall,
+  Layers
 } from 'lucide-react';
 
 
@@ -129,6 +135,30 @@ export const Icon = {
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" style={style}>
       <rect x="2" y="2" width="12" height="12" rx="3" ry="3" /><path d="M8 5a3 3 0 100 6 3 3 0 000-6z" /><path d="M11.5 4.5h.01" />
     </svg>
+  ),
+
+  Menu: ({ size = 18, color = "currentColor", style }: IconProps) => (
+    <Menu size={size} color={color} strokeWidth={1.7} style={style} />
+  ),
+
+  BookOpen: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <BookOpen size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Grid: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Grid size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Info: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Info size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  PhoneCall: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <PhoneCall size={size} color={color} strokeWidth={1.5} style={style} />
+  ),
+
+  Layers: ({ size = 16, color = "currentColor", style }: IconProps) => (
+    <Layers size={size} color={color} strokeWidth={1.5} style={style} />
   ),
 };
 

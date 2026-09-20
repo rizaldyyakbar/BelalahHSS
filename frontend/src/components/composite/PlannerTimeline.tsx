@@ -41,7 +41,6 @@ export const PlannerTimeline: React.FC<PlannerTimelineProps> = ({
       <div className="metrics-calculation-card">
         <div className="metrics-header">
           <h3 className="metrics-title">Kalkulasi Perjalanan</h3>
-          <span className="metrics-efficiency-badge">Efisiensi +21%</span>
         </div>
 
         <div className="metrics-numbers-grid">

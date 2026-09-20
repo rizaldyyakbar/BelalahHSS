@@ -102,6 +102,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     outline: 'none',
                     cursor: 'pointer',
                   }}
+                  aria-label="Pilih Titik Keberangkatan"
                 >
                   <option value="kandangan">Kota Kandangan (Pusat Kota / Alun-alun)</option>
                   <option value="current">Titik Lokasi Saya Sekarang (GPS)</option>
@@ -118,33 +119,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <Icon.Compass size={14} style={{ color: 'var(--meratus-deep)' }} />
                   Tujuan Wisata (Multi-destinasi)
                 </span>
-                <span
-                  style={{
-                    color: 'var(--meratus-clay-dark)',
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                  }}
-                >
-                  {selectedDestinations.length} Terpilih
+                <span style={{ color: 'var(--meratus-clay)', fontSize: 12, fontWeight: 700 }}>
+                  {selectedDestinations.length} Destinasi Dipilih
                 </span>
               </div>
 
+              {/* Chips + Add trigger */}
               <div
-                className="trip-builder-input-box"
-                style={{ flexWrap: 'wrap', gap: 6, padding: '6px 12px', minHeight: 48 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  minHeight: 48,
+                  padding: '6px 12px',
+                  background: '#fafcfa',
+                  border: '1.5px solid var(--meratus-card-border)',
+                  borderRadius: 12,
+                }}
               >
-                {selectedDestinations.length === 0 && (
-                  <span style={{ fontSize: 13, color: 'var(--meratus-subtle)' }}>
-                    Pilih destinasi wisata di bawah...
-                  </span>
-                )}
-
                 {selectedDestinations.map((dest) => (
                   <span
                     key={dest.id}
                     style={{
-                      background: '#EEF4EF',
-                      border: '1px solid var(--meratus-card-border)',
+                      background: 'var(--meratus-mint)',
                       borderRadius: 9999,
                       padding: '4px 10px',
                       fontSize: 12,

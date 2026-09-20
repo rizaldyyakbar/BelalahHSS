@@ -42,33 +42,19 @@ export const AboutPage: React.FC = () => {
         </section>
 
         {/* 2. 4 Vision Pillars Grid */}
-        <section style={{ maxWidth: 1280, margin: '48px auto 0', padding: '0 32px' }}>
-          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 36px' }}>
-            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 28, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
+        <section className="bh-container" style={{ marginTop: 36 }}>
+          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 28px' }}>
+            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
               Pilar Pengembangan &amp; Visi Pariwisata
             </h2>
-            <p style={{ fontSize: 15, color: 'var(--meratus-muted)', margin: 0 }}>
+            <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', margin: 0 }}>
               Komitmen kami menghadirkan pengalaman berwisata yang bermakna, bertanggung jawab, dan mudah diakses oleh semua penjelajah.
             </p>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: 24,
-            }}
-          >
+          <div className="about-pillars-grid">
             {/* Card 1 */}
-            <div
-              style={{
-                background: '#ffffff',
-                border: '1px solid var(--meratus-card-border)',
-                borderRadius: 18,
-                padding: 32,
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
-              }}
-            >
+            <div className="about-pillar-card">
               <div style={{ fontSize: 28, marginBottom: 12 }}>🌿</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
                 Konservasi Rimba Meratus
@@ -80,15 +66,7 @@ export const AboutPage: React.FC = () => {
             </div>
 
             {/* Card 2 */}
-            <div
-              style={{
-                background: '#ffffff',
-                border: '1px solid var(--meratus-card-border)',
-                borderRadius: 18,
-                padding: 32,
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
-              }}
-            >
+            <div className="about-pillar-card">
               <div style={{ fontSize: 28, marginBottom: 12 }}>🛶</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
                 Pemberdayaan Komunitas Adat
@@ -100,15 +78,7 @@ export const AboutPage: React.FC = () => {
             </div>
 
             {/* Card 3 */}
-            <div
-              style={{
-                background: '#ffffff',
-                border: '1px solid var(--meratus-card-border)',
-                borderRadius: 18,
-                padding: 32,
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
-              }}
-            >
+            <div className="about-pillar-card">
               <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
                 Metode Rekomendasi SAW
@@ -120,15 +90,7 @@ export const AboutPage: React.FC = () => {
             </div>
 
             {/* Card 4 */}
-            <div
-              style={{
-                background: '#ffffff',
-                border: '1px solid var(--meratus-card-border)',
-                borderRadius: 18,
-                padding: 32,
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)',
-              }}
-            >
+            <div className="about-pillar-card">
               <div style={{ fontSize: 28, marginBottom: 12 }}>🔀</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
                 Optimasi Rute Dijkstra &amp; Haversine

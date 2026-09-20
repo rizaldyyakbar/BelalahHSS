@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import StickyRouteSummaryBar from '../components/composite/StickyRouteSummaryBar';
 import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
 import { fetchRecommendations } from '../services/api';
 
-/**
- * DirectoryPage — Figma Belalah HSS Katalog Destinasi Wisata (Node 44:1060)
- * Comprehensive 3-column grid with SAW ranking, distance, stay duration,
- * entrance fee, interactive route toggle, and persistent active route bar.
- */
 export const DirectoryPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'Semua';
 
@@ -22,7 +18,6 @@ export const DirectoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [sortOption, setSortOption] = useState<string>('saw');
   const [itinerary, setItinerary] = useState<Destination[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   // Load itinerary from localStorage on mount
   useEffect(() => {
@@ -40,13 +35,9 @@ export const DirectoryPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     const loadAll = async () => {
-      setLoading(true);
       const res = await fetchRecommendations({ limit: 50 });
-      if (isMounted) {
-        if (res.destinations && res.destinations.length > 0) {
-          setDestinations(res.destinations);
-        }
-        setLoading(false);
+      if (isMounted && res.destinations && res.destinations.length > 0) {
+        setDestinations(res.destinations);
       }
     };
     loadAll();
@@ -58,6 +49,7 @@ export const DirectoryPage: React.FC = () => {
   const saveItinerary = (updated: Destination[]) => {
     setItinerary(updated);
     localStorage.setItem('belalah_itinerary', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleToggleRoute = (dest: Destination) => {
@@ -68,12 +60,16 @@ export const DirectoryPage: React.FC = () => {
     }
   };
 
-  // Category counts and definitions matching Figma
+  // Category counts
   const categoriesList = [
     { label: 'Semua', count: destinations.length },
     {
       label: 'Wisata Alam',
       count: destinations.filter((d) => d.category === 'Alam').length,
+    },
+    {
+      label: 'Wisata Budaya',
+      count: destinations.filter((d) => d.category === 'Budaya' || d.name.toLowerCase().includes('adat') || d.name.toLowerCase().includes('museum')).length,
     },
     {
       label: 'Air Terjun',
@@ -83,14 +79,6 @@ export const DirectoryPage: React.FC = () => {
       label: 'Petualangan Sungai',
       count: destinations.filter((d) => d.name.toLowerCase().includes('rafting') || d.name.toLowerCase().includes('sungai') || d.name.toLowerCase().includes('panas')).length,
     },
-    {
-      label: 'Perbukitan & Hiking',
-      count: destinations.filter((d) => d.name.toLowerCase().includes('bukit') || d.name.toLowerCase().includes('langara')).length,
-    },
-    {
-      label: 'Wisata Budaya',
-      count: destinations.filter((d) => d.category === 'Budaya' || d.name.toLowerCase().includes('adat') || d.name.toLowerCase().includes('museum')).length,
-    },
   ];
 
   // Filtering & Sorting
@@ -98,28 +86,21 @@ export const DirectoryPage: React.FC = () => {
     const q = searchQuery.toLowerCase();
     const matchesSearch =
       dest.name.toLowerCase().includes(q) ||
-      dest.description.toLowerCase().includes(q) ||
-      (dest.location && dest.location.toLowerCase().includes(q)) ||
+      (dest.description && dest.description.toLowerCase().includes(q)) ||
       (dest.region && dest.region.toLowerCase().includes(q));
 
-    let matchesCategory = true;
-    if (selectedCategory === 'Wisata Alam') matchesCategory = dest.category === 'Alam';
-    else if (selectedCategory === 'Air Terjun') matchesCategory = dest.name.toLowerCase().includes('air') || dest.name.toLowerCase().includes('riam');
-    else if (selectedCategory === 'Petualangan Sungai') matchesCategory = dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai') || dest.name.toLowerCase().includes('panas');
-    else if (selectedCategory === 'Perbukitan & Hiking') matchesCategory = dest.name.toLowerCase().includes('bukit') || dest.name.toLowerCase().includes('langara');
-    else if (selectedCategory === 'Wisata Budaya') matchesCategory = dest.category === 'Budaya' || dest.name.toLowerCase().includes('adat') || dest.name.toLowerCase().includes('museum');
-
-    return matchesSearch && matchesCategory;
+    if (!matchesSearch) return false;
+    if (selectedCategory === 'Semua') return true;
+    if (selectedCategory === 'Wisata Alam') return dest.category === 'Alam';
+    if (selectedCategory === 'Wisata Budaya') return dest.category === 'Budaya' || dest.name.toLowerCase().includes('adat');
+    if (selectedCategory === 'Air Terjun') return dest.name.toLowerCase().includes('air') || dest.name.toLowerCase().includes('riam');
+    if (selectedCategory === 'Petualangan Sungai') return dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai');
+    return true;
   });
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortOption === 'saw') {
-      const scoreA = a.popularitas || 80;
-      const scoreB = b.popularitas || 80;
-      return scoreB - scoreA;
-    }
-    if (sortOption === 'rating') {
-      return (b.rating || 0) - (a.rating || 0);
+      return (b.popularitas || 0) - (a.popularitas || 0);
     }
     if (sortOption === 'price_asc') {
       return (a.price || 0) - (b.price || 0);
@@ -127,83 +108,165 @@ export const DirectoryPage: React.FC = () => {
     return 0;
   });
 
-  // Calculate approximate total km for persistent banner
-  const bannerKm = Math.max(0, itinerary.length * 19.5);
+  // Category tag label helper
+  const getCategoryBadge = (dest: Destination) => {
+    const n = dest.name.toLowerCase();
+    if (n.includes('bamboo') || n.includes('rafting')) return 'WISATA PETUALANGAN';
+    if (n.includes('haratai')) return 'WISATA ALAM LINDUNG';
+    if (n.includes('malutu')) return 'WISATA TIRTA KELUARGA';
+    if (n.includes('langara')) return 'TREKKING KARST MERATUS';
+    if (n.includes('tanuhi')) return 'PEMANDIAN AIR PANAS';
+    if (n.includes('malaris') || n.includes('adat') || n.includes('museum')) return 'BUDAYA ADAT DAYAK';
+    return `${(dest.category || 'Wisata').toUpperCase()} MERATUS`;
+  };
 
   return (
     <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
 
-      <main style={{ flex: 1 }}>
-        {/* 1. Top Ambient Glow Backdrop */}
-        <section className="catalog-hero-backdrop">
-          <div className="catalog-tag-badge">
-            <Icon.Compass size={13} />
-            <span>Katalog Wisata Hulu Sungai Selatan</span>
+      <main style={{ flex: 1, paddingBottom: 90 }}>
+        {/* Top Header & Search Bar */}
+        <section className="bh-container" style={{ paddingTop: 96, paddingBottom: 16 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: 20,
+              flexWrap: 'wrap',
+              gap: 12,
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: '#994700',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  display: 'inline-block',
+                  marginBottom: 4,
+                }}
+              >
+                HULU SUNGAI SELATAN • MERATUS
+              </span>
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(28px, 4vw, 38px)',
+                  fontWeight: 800,
+                  color: 'var(--meratus-deep)',
+                  margin: '0 0 6px',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                Katalog Destinasi Wisata
+              </h1>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--meratus-muted)' }}>
+                Jelajahi {destinations.length} destinasi alam, budaya, riam, dan air terjun dengan rekomendasi cerdas.
+              </p>
+            </div>
+
+            {/* Sort Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, alignSelf: 'flex-end' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#57534E', textTransform: 'uppercase' }}>
+                Urutkan:
+              </span>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #E2EAE4',
+                  borderRadius: 10,
+                  padding: '8px 14px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--meratus-deep)',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                <option value="saw">Skor Rekomendasi (SAW) ▾</option>
+                <option value="price_asc">Biaya Terjangkau ▾</option>
+              </select>
+            </div>
           </div>
 
-          <h1 className="catalog-title">
-            Jelajahi {destinations.length} Destinasi &amp; Eksplorasi Jalur Meratus
-          </h1>
-
-          <p className="catalog-subtitle">
-            Temukan keindahan alam tropis Borneo, arung jeram bambu tradisional, air terjun tersembunyi, hingga
-            cagar budaya Dayak Meratus. Tambahkan langsung ke rancangan rute perjalanan Anda.
-          </p>
-
-          <div className="catalog-stats-row">
-            <div className="catalog-stat-pill">
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--meratus-deep)' }} />
-              <span>{destinations.length} TITIK • Terverifikasi GIS</span>
-            </div>
-            <div className="catalog-stat-pill">
-              <span style={{ color: 'var(--meratus-clay)' }}>★</span>
-              <span>SAW ENGINE • Kriteria Cerdas</span>
-            </div>
-          </div>
-
-          {/* Search Bar & Sort Dropdown */}
-          <div className="catalog-search-bar-wrapper">
-            <Icon.Search size={18} style={{ color: 'var(--meratus-deep)', marginLeft: 8 }} />
+          {/* Search Input Box */}
+          <div
+            style={{
+              position: 'relative',
+              background: '#ffffff',
+              border: '1.5px solid #E2EAE4',
+              borderRadius: 14,
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)',
+              marginBottom: 16,
+            }}
+          >
+            <Icon.Search size={18} style={{ color: '#012D1D', flexShrink: 0 }} />
             <input
               type="text"
-              className="catalog-search-input"
-              placeholder="Cari nama destinasi atau daya tarik (contoh: Loksado, Arung Jeram, Air Panas)..."
+              placeholder="Cari air terjun, bukit, sungai, gua, balai adat..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                width: '100%',
+                fontSize: 14,
+                color: '#1A1611',
+              }}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--meratus-subtle)', padding: 6 }}
+                style={{ background: 'none', border: 'none', color: '#6E7972', cursor: 'pointer', fontSize: 18 }}
               >
                 ×
               </button>
             )}
-
-            <select
-              className="catalog-sort-select"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="saw">Urutkan: Skor Rekomendasi Tertinggi (SAW)</option>
-              <option value="rating">Urutkan: Rating Pengunjung Tertinggi</option>
-              <option value="price_asc">Urutkan: Biaya Masuk Terjangkau</option>
-            </select>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="catalog-category-pills">
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--meratus-muted)', marginRight: 4 }}>
-              KATEGORI:
-            </span>
+          {/* Category Filter Pills (Responsive Wrap on Desktop, Scroll on Mobile) */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              flexWrap: 'wrap',
+              overflowX: 'auto',
+              paddingBottom: 4,
+              marginBottom: 20,
+            }}
+          >
             {categoriesList.map((cat) => {
               const active = selectedCategory === cat.label;
               return (
                 <button
                   key={cat.label}
-                  className={`catalog-cat-btn ${active ? 'active' : ''}`}
                   onClick={() => setSelectedCategory(cat.label)}
+                  style={{
+                    background: active ? '#012D1D' : '#ffffff',
+                    color: active ? '#ffffff' : '#57534E',
+                    border: '1px solid',
+                    borderColor: active ? '#012D1D' : '#E2EAE4',
+                    borderRadius: 9999,
+                    padding: '7px 16px',
+                    fontSize: 12.5,
+                    fontWeight: active ? 700 : 500,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flex: '0 0 auto',
+                    boxShadow: active ? '0 2px 8px rgba(1, 45, 29, 0.15)' : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
                 >
                   {cat.label} ({cat.count})
                 </button>
@@ -212,188 +275,257 @@ export const DirectoryPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 2. Main Destination Catalog Grid Section */}
-        <section style={{ maxWidth: 1280, margin: '36px auto 0', padding: '0 32px' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 12,
-              marginBottom: 20,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-              <h2 style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 700, color: 'var(--meratus-deep)', margin: 0 }}>
-                Katalog Destinasi
-              </h2>
-              <span style={{ fontSize: 13.5, color: 'var(--meratus-subtle)' }}>
-                (Menampilkan {sorted.length} dari {destinations.length})
-              </span>
-            </div>
-
-            <div
-              style={{
-                fontSize: 12,
-                color: 'var(--meratus-muted)',
-                background: '#ffffff',
-                border: '1px solid var(--meratus-card-border)',
-                padding: '4px 12px',
-                borderRadius: 9999,
-                fontWeight: 600,
-              }}
-            >
-              ⚙️ Skor dihitung otomatis via SAW Engine
-            </div>
-          </div>
-
-          {/* 3-Column Grid */}
-          <div className="catalog-grid" style={{ margin: '0 auto 120px' }}>
+        {/* Destination Cards Grid (3 Columns on Desktop, Responsive) */}
+        <section className="bh-container">
+          <div className="directory-cards-grid">
             {sorted.map((dest, index) => {
               const isInRoute = itinerary.some((d) => d.id === dest.id);
-              const rankVal = index + 1;
-              const scoreVal = dest.popularitas ? Math.round(dest.popularitas) : 96 - index * 2;
 
-              // Image fallback
+              // Fallback image
               let imgSrc = '/assets/balanting-paring.jpg';
               if (dest.name.toLowerCase().includes('haratai') || dest.name.toLowerCase().includes('air')) {
                 imgSrc = '/assets/Air-Terjun-Haratai.jpg';
+              } else if (dest.name.toLowerCase().includes('malutu') || dest.name.toLowerCase().includes('bendungan')) {
+                imgSrc = '/assets/malutu.jpg';
+              } else if (dest.name.toLowerCase().includes('tanuhi') || dest.name.toLowerCase().includes('panas')) {
+                imgSrc = '/assets/tanuhi.jpg';
               } else if (dest.name.toLowerCase().includes('langara') || dest.name.toLowerCase().includes('bukit')) {
                 imgSrc = '/assets/langara.jpg';
-              } else if (dest.name.toLowerCase().includes('museum') || dest.name.toLowerCase().includes('budaya')) {
+              } else if (dest.name.toLowerCase().includes('malaris') || dest.name.toLowerCase().includes('adat')) {
                 imgSrc = '/assets/museum-rakyat.jpg';
               }
 
-              // Duration & distance display
+              // Distance tag
               const kmMatch = dest.distance?.match(/(\d+(?:\.\d+)?)\s*km/i);
               const distKm = kmMatch
                 ? kmMatch[1]
                 : (dest as any).distance_km !== undefined
                   ? Number((dest as any).distance_km).toFixed(1)
                   : `${30 + index * 4}`;
-              const durationEst = dest.name.toLowerCase().includes('rafting') ? '~2.5 Jam' : '~1.5 Jam';
-              const ticketText = dest.entrance || 'Rp 5.000 – Rp 10.000';
+
+              // Pricing label
+              const isRafting = dest.name.toLowerCase().includes('rafting');
+              const priceCategory = isRafting ? 'TARIF RAKIT' : 'TIKET / ORG';
+              const priceText = isRafting
+                ? 'Rp 300.000 / Rakit'
+                : dest.price
+                  ? `Rp ${dest.price.toLocaleString('id-ID')} / Org`
+                  : (dest.entrance || 'Rp 10.000 / Org');
 
               return (
-                <div key={dest.id} className="catalog-card-figma">
-                  {/* Media */}
-                  <div className="catalog-card-media">
+                <div
+                  key={dest.id}
+                  style={{
+                    background: '#ffffff',
+                    borderRadius: 16,
+                    border: '1px solid #EBEFEA',
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                  }}
+                >
+                  {/* Media with Category & Distance Pills */}
+                  <div style={{ position: 'relative', width: '100%', height: 180, overflow: 'hidden' }}>
                     <img
                       src={imgSrc}
                       alt={dest.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
                       }}
                     />
 
-                    <div className="catalog-badge-rank">
-                      #{rankVal} • Skor {scoreVal}
+                    {/* Category Pill (Bottom Left) */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 8,
+                        left: 10,
+                        background: '#FD934C',
+                        color: '#ffffff',
+                        fontSize: 9.5,
+                        fontWeight: 800,
+                        letterSpacing: '0.04em',
+                        padding: '3px 8px',
+                        borderRadius: 9999,
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+                      }}
+                    >
+                      {getCategoryBadge(dest)}
                     </div>
 
-                    <div className="catalog-badge-category">
-                      {dest.category} • {dest.region || 'HSS'}
+                    {/* Distance Pill (Bottom Right) */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 8,
+                        right: 10,
+                        background: 'rgba(0, 0, 0, 0.65)',
+                        backdropFilter: 'blur(4px)',
+                        color: '#ffffff',
+                        fontSize: 10.5,
+                        fontWeight: 600,
+                        padding: '3px 8px',
+                        borderRadius: 9999,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      <Icon.Compass size={11} style={{ color: '#C1ECD4' }} />
+                      <span>{distKm} km</span>
                     </div>
                   </div>
 
                   {/* Body */}
-                  <div className="catalog-card-body">
-                    <h3 className="catalog-card-title">{dest.name}</h3>
+                  <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <h3
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontSize: 16.5,
+                        fontWeight: 700,
+                        color: 'var(--meratus-deep)',
+                        margin: '0 0 4px',
+                        lineHeight: 1.25,
+                      }}
+                    >
+                      {dest.name}
+                    </h3>
 
-                    <p className="catalog-card-desc">
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: '#57534E',
+                        margin: '0 0 12px',
+                        lineHeight: 1.4,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
                       {dest.description || 'Destinasi wisata unggulan di kawasan Pegunungan Meratus, Hulu Sungai Selatan.'}
                     </p>
 
-                    {/* Metrics Box (Jarak & Durasi) */}
-                    <div className="catalog-metrics-row">
-                      <div className="catalog-metric-box">
-                        <span className="catalog-metric-label">JARAK</span>
-                        <span className="catalog-metric-val">{distKm} km</span>
+                    {/* Price & Actions Row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingTop: 8,
+                        borderTop: '1px solid #F0F4F1',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: '#6E7972', letterSpacing: '0.04em' }}>
+                          {priceCategory}
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#012D1D', marginTop: 1 }}>
+                          {priceText}
+                        </div>
                       </div>
-                      <div className="catalog-metric-box">
-                        <span className="catalog-metric-label">DURASI</span>
-                        <span className="catalog-metric-val">{durationEst}</span>
+
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => navigate(`/destination/${dest.id}`)}
+                          style={{
+                            height: 34,
+                            padding: '0 12px',
+                            borderRadius: 10,
+                            border: '1px solid #E2EAE4',
+                            background: '#F1F4F1',
+                            color: '#1A1611',
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Detail
+                        </button>
+
+                        <button
+                          onClick={() => handleToggleRoute(dest)}
+                          style={{
+                            height: 34,
+                            padding: '0 12px',
+                            borderRadius: 10,
+                            border: 'none',
+                            background: isInRoute ? '#012D1D' : '#012D1D',
+                            color: '#ffffff',
+                            fontSize: 11.5,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          {isInRoute ? (
+                            <>
+                              <Icon.Check size={13} color="#C1ECD4" />
+                              <span>Ditambah</span>
+                            </>
+                          ) : (
+                            <span>+ Rute</span>
+                          )}
+                        </button>
                       </div>
-                    </div>
-
-                    {/* Ticket Price */}
-                    <div className="catalog-ticket-line">
-                      <span>TIKET MASUK:</span>
-                      <span className="catalog-ticket-price">{ticketText}</span>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="catalog-card-actions">
-                      <button
-                        className={`btn-add-route ${isInRoute ? 'added' : 'not-added'}`}
-                        onClick={() => handleToggleRoute(dest)}
-                      >
-                        {isInRoute ? (
-                          <>
-                            <Icon.Check size={14} />
-                            <span>Sudah di Rute (Terpilih)</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>+ Tambah ke Rute</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        className="btn-detail-outline"
-                        onClick={() => navigate(`/destination/${dest.id}`)}
-                      >
-                        Detail Wisata &amp; Fasilitas
-                      </button>
                     </div>
                   </div>
                 </div>
               );
             })}
+
+            {/* Tips Rute Berkelanjutan Card (Figma Image 5) */}
+            <div
+              style={{
+                background: '#EDF5F0',
+                border: '1px solid #D7E5DC',
+                borderRadius: 16,
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 12,
+                marginTop: 8,
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: '#FFF3EB',
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: '#FD934C',
+                  fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                💡
+              </div>
+              <div>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: '#012D1D', margin: '0 0 3px' }}>
+                  Tips Rute Berkelanjutan
+                </h4>
+                <p style={{ fontSize: 11.5, color: '#57534E', margin: 0, lineHeight: 1.45 }}>
+                  Rekomendasi ideal 2–3 destinasi per hari untuk rute yang nyaman dan aman saat menyusuri topografi pegunungan Meratus.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
       </main>
 
-      {/* 3. Persistent Sticky Active Route Banner */}
-      {itinerary.length > 0 && (
-        <div className="catalog-sticky-banner-wrapper">
-          <div className="catalog-sticky-banner-content">
-            <div className="catalog-banner-info">
-              <span
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  background: '#EEF6F0',
-                  color: 'var(--meratus-deep)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  fontWeight: 800,
-                  fontSize: 12,
-                }}
-              >
-                {itinerary.length}
-              </span>
-              <span>
-                <strong>{itinerary.length} Destinasi aktif di rute perjalanan:</strong>{' '}
-                {itinerary.map((d) => d.name).slice(0, 3).join(' • ')}
-                {itinerary.length > 3 ? ' ...' : ''}
-              </span>
-              <span style={{ color: 'var(--meratus-subtle)', marginLeft: 8 }}>
-                | Total Jarak: ~{bannerKm.toFixed(1)} km
-              </span>
-            </div>
+      {/* Floating Route Summary Bar */}
+      <StickyRouteSummaryBar
+        selectedDestinations={itinerary}
+        onContinue={() => navigate('/planner')}
+      />
 
-            <button className="catalog-banner-btn" onClick={() => navigate('/planner')}>
-              <span>Lihat di Perencana ({itinerary.length})</span>
-              <Icon.ArrowRight size={15} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 4. Footer */}
       <Footer />
     </div>
   );

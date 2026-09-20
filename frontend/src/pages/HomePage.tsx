@@ -23,12 +23,27 @@ export const HomePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [startPoint, setStartPoint] = useState<string>('kandangan');
 
-  // Initial selected destinations matching the Figma preview (Bamboo Rafting + Haratai)
+  // Initial selected destinations matching saved itinerary or default
   const [selectedDestinations, setSelectedDestinations] = useState<Destination[]>(() => {
+    try {
+      const saved = localStorage.getItem('belalah_itinerary');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
     const default1 = DESTINATIONS.find((d) => d.name.toLowerCase().includes('bamboo')) || DESTINATIONS[1];
     const default2 = DESTINATIONS.find((d) => d.name.toLowerCase().includes('haratai')) || DESTINATIONS[0];
     return [default1, default2].filter(Boolean) as Destination[];
   });
+
+  // Keep localStorage and other components in sync
+  useEffect(() => {
+    localStorage.setItem('belalah_itinerary', JSON.stringify(selectedDestinations));
+    window.dispatchEvent(new Event('storage'));
+  }, [selectedDestinations]);
 
   useEffect(() => {
     let isMounted = true;
@@ -97,7 +112,7 @@ export const HomePage: React.FC = () => {
     <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
 
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, paddingBottom: 48 }}>
         {/* 1. Hero Section with 3-Step Interactive Trip Builder */}
         <HeroSection
           selectedDestinations={selectedDestinations}

@@ -6,7 +6,7 @@ export const SmartRoutingCtaBanner: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section style={{ maxWidth: 1280, margin: '48px auto 0', padding: '0 32px' }}>
+    <section className="bh-container" style={{ marginTop: 40 }}>
       <div className="smart-routing-banner">
         <div>
           <div className="smart-routing-badge">

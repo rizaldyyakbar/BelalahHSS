@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDrawer } from '../../context/DrawerContext';
 import { Icon } from '../atomic/Icons';
 
 /**
@@ -9,6 +10,7 @@ import { Icon } from '../atomic/Icons';
 export const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isOpen: isDrawerOpen, toggleDrawer } = useDrawer();
   const [scrolled, setScrolled] = useState(false);
   const [lang, setLang] = useState<'ID' | 'EN'>('ID');
 
@@ -27,6 +29,7 @@ export const Header: React.FC = () => {
 
   return (
     <header
+      className={`bh-header ${scrolled ? 'scrolled' : ''}`}
       style={{
         position: 'fixed',
         top: 0,
@@ -42,6 +45,7 @@ export const Header: React.FC = () => {
       }}
     >
       <div
+        className="bh-header-inner"
         style={{
           maxWidth: 1280,
           margin: '0 auto',
@@ -167,10 +171,10 @@ export const Header: React.FC = () => {
         </nav>
 
         {/* Right Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div className="bh-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Language Toggle */}
           <div
-            className="meratus-lang-toggle"
+            className="meratus-lang-toggle bh-header-lang"
             style={{ cursor: 'pointer' }}
             onClick={() => setLang(lang === 'ID' ? 'EN' : 'ID')}
             title="Ganti Bahasa"
@@ -184,17 +188,18 @@ export const Header: React.FC = () => {
             </span>
           </div>
 
-          {/* Mulai Rute CTA Button */}
+          {/* Mulai Rute CTA Button (Desktop) */}
           <button
-            className="meratus-nav-btn"
+            className="meratus-nav-btn bh-header-cta"
             onClick={() => navigate('/planner')}
           >
             <Icon.Compass size={16} />
             <span>Mulai Rute</span>
           </button>
 
-          {/* User Profile Avatar */}
+          {/* User Profile Avatar (Desktop) */}
           <button
+            className="bh-header-avatar"
             style={{
               width: 34,
               height: 34,
@@ -207,10 +212,20 @@ export const Header: React.FC = () => {
               cursor: 'pointer',
               transition: 'transform var(--transition-fast)',
             }}
-            title="Profil Pengguna"
+            title="Tentang Belalah HSS"
             onClick={() => navigate('/about')}
           >
             <Icon.User size={16} />
+          </button>
+
+          {/* Mobile Menu Toggle Button (Mobile only) */}
+          <button
+            className="bh-mobile-menu-btn"
+            onClick={toggleDrawer}
+            aria-label={isDrawerOpen ? "Tutup menu" : "Buka menu navigasi"}
+            aria-expanded={isDrawerOpen}
+          >
+            {isDrawerOpen ? <Icon.Close size={20} /> : <Icon.Menu size={20} />}
           </button>
         </div>
       </div>

@@ -45,9 +45,9 @@ export const BrowseByCategory: React.FC = () => {
   ];
 
   return (
-    <section style={{ maxWidth: 1280, margin: '64px auto 0', padding: '0 32px' }}>
+    <section className="bh-container section-browse-category" style={{ marginTop: 52 }}>
       {/* Header */}
-      <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 36px' }}>
+      <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 28px' }}>
         <h2
           style={{
             fontFamily: 'var(--serif)',
