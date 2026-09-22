@@ -164,22 +164,6 @@ export const PlannerMapSection: React.FC<PlannerMapSectionProps> = ({
 
       {/* Leaflet Map Canvas */}
       <div ref={mapContainerRef} className="planner-leaflet-wrapper" />
-
-      {/* Field Notes & Weather Strip */}
-      <div className="map-field-notes">
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-          <span>⚠️</span>
-          <span>
-            <strong>Kondisi Jalur Loksado:</strong> Beraspal &amp; berkelok lereng. Disarankan kendaraan roda 2 / MPV dengan rem prima.
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span>⛅</span>
-          <span>
-            <strong>Cuaca:</strong> Cerah Berawan 27°C (Kawasan Pegunungan Meratus)
-          </span>
-        </div>
-      </div>
     </div>
   );
 };

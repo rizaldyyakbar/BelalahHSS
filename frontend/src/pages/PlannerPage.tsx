@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
-import { fetchRecommendations } from '../services/api';
+import { fetchRecommendations, optimizeRoute } from '../services/api';
 import { PlannerMapSection } from '../components/composite/PlannerMapSection';
+import { PlannerStickyExportBar } from '../components/composite/PlannerStickyExportBar';
 
 export const PlannerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ export const PlannerPage: React.FC = () => {
   const [itinerary, setItinerary] = useState<Destination[]>([]);
   const [availableDestinations, setAvailableDestinations] = useState<Destination[]>(DESTINATIONS);
   const [notification, setNotification] = useState<string | null>(null);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const hasAutoOptimized = useRef(false);
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -92,6 +95,46 @@ export const PlannerPage: React.FC = () => {
       waypoints ? `&waypoints=${waypoints}` : ''
     }&travelmode=driving`;
     window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleRecalculateRoute = async () => {
+    if (itinerary.length === 0 || isRecalculating) return;
+
+    setIsRecalculating(true);
+
+    try {
+      const result = await optimizeRoute(
+        startPoint.lat,
+        startPoint.lng,
+        itinerary.map((destination) => destination.id),
+      );
+      const destinationsById = new Map(itinerary.map((destination) => [destination.id, destination]));
+      const optimizedItinerary = result.route
+        .map((routeItem) => destinationsById.get(routeItem.id))
+        .filter((destination): destination is Destination => Boolean(destination));
+
+      if (optimizedItinerary.length !== itinerary.length) {
+        throw new Error('Hasil optimasi tidak lengkap.');
+      }
+
+      saveItinerary(optimizedItinerary);
+      showToast('Rute berhasil dioptimalkan');
+    } catch {
+      showToast('Kalkulasi rute gagal dioptimalkan');
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+  useEffect(() => {
+    if (itinerary.length === 0) return;
+    if (hasAutoOptimized.current) return;
+
+    hasAutoOptimized.current = true; // Prevent infinite loop
+    handleRecalculateRoute(); // Auto-optimize on first load if itinerary exists
+  }, [itinerary]);
+
+  const handleDownloadRoute = () => {
+    showToast('Unduh GPX/PDF belum tersedia.');
   };
 
   const handleInsertCorridorDestination = (destName: string) => {
@@ -771,7 +814,7 @@ export const PlannerPage: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN: STICKY MAP & OPS COMMAND (On desktop >960px) OR MOBILE TAB VIEWS */}
-          <div className="desktop-only" style={{ position: 'sticky', top: 96 }}>
+          <div className="desktop-only" style={{ position: 'sticky', top: 80 }}>
             {/* Desktop Tabs: Toggle between Map & Field ops */}
             <div
               style={{
@@ -828,45 +871,13 @@ export const PlannerPage: React.FC = () => {
                   boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
                 }}
               >
-                <div style={{ height: 460 }}>
+                <div style={{ height: 320 }}>
                   <PlannerMapSection itinerary={itinerary} startPoint={startPoint} />
                 </div>
 
-                <div style={{ padding: '16px 20px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#012D1D' }}>
-                        Navigasi Rute Langsung
-                      </div>
-                      <div style={{ fontSize: 11.5, color: '#6E7972' }}>
-                        Buka rute terurut dengan waypoint otomatis
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleOpenGoogleMaps}
-                      style={{
-                        background: '#012D1D',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: 10,
-                        padding: '10px 18px',
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        boxShadow: '0 2px 8px rgba(1, 45, 29, 0.25)',
-                      }}
-                    >
-                      <Icon.Compass size={16} style={{ color: '#C1ECD4' }} />
-                      <span>Buka Google Maps</span>
-                    </button>
-                  </div>
-
-                  <div style={{ fontSize: 11, color: '#57534E', lineHeight: 1.4 }}>
-                    💡 <em>Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.</em>
+                <div style={{ marginTop : '40px', padding: '16px 20px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
+                  <div style={{ fontSize: 12, color: '#57534E', textAlign: 'center' }}>
+                    Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.
                   </div>
                 </div>
               </div>
@@ -937,6 +948,16 @@ export const PlannerPage: React.FC = () => {
           )}
         </section>
       </main>
+
+      <PlannerStickyExportBar
+        destinationsCount={itinerary.length}
+        totalDistanceKm={Number(totalKm)}
+        totalTripMinutes={totalTourHours * 60 + totalTourMins}
+        onRecalculate={handleRecalculateRoute}
+        onDownload={handleDownloadRoute}
+        onOpenGoogleMaps={handleOpenGoogleMaps}
+        isRecalculating={isRecalculating}
+      />
 
       {/* Floating Bottom Bar with Google Maps CTA (Mobile Only) */}
       <div

@@ -2635,6 +2635,13 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
+.planner-leaflet-wrapper {
+  height: 320px;
+  width: 100%;
+  position: relative;
+  background: #e5ece6;
+}
+
 .map-view-switcher {
   display: flex;
   align-items: center;
@@ -2659,13 +2666,6 @@ body {
 .map-switcher-btn.active {
   background: var(--meratus-deep);
   color: #ffffff;
-}
-
-.planner-leaflet-wrapper {
-  height: 440px;
-  width: 100%;
-  position: relative;
-  background: #e5ece6;
 }
 
 .map-field-notes {
