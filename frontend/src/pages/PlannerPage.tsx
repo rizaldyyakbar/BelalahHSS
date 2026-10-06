@@ -85,10 +85,20 @@ export const PlannerPage: React.FC = () => {
     const origin = `${startPoint.lat},${startPoint.lng}`;
     const last = itinerary[itinerary.length - 1];
     if (!last) return;
-    const destination = `${last.latitude || -2.77},${last.longitude || 115.3}`;
+
+    const formatPoint = (dest: Destination) => {
+      const lat = typeof dest.latitude === 'string' ? parseFloat(dest.latitude) : dest.latitude;
+      const lng = typeof dest.longitude === 'string' ? parseFloat(dest.longitude) : dest.longitude;
+      if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+        return `${lat},${lng}`;
+      }
+      return encodeURIComponent(`${dest.name}, Hulu Sungai Selatan`);
+    };
+
+    const destination = formatPoint(last);
     const waypoints = itinerary
       .slice(0, -1)
-      .map((d) => `${d.latitude || -2.77},${d.longitude || 115.3}`)
+      .map(formatPoint)
       .join('|');
 
     const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${
@@ -118,7 +128,7 @@ export const PlannerPage: React.FC = () => {
       }
 
       saveItinerary(optimizedItinerary);
-      showToast('Rute berhasil dioptimalkan');
+      showToast('Rute berhasil dioptimalkan dengan Dijkstra');
     } catch {
       showToast('Kalkulasi rute gagal dioptimalkan');
     } finally {
@@ -134,7 +144,54 @@ export const PlannerPage: React.FC = () => {
   }, [itinerary]);
 
   const handleDownloadRoute = () => {
-    showToast('Unduh GPX/PDF belum tersedia.');
+    if (itinerary.length === 0) {
+      showToast('Belum ada destinasi dalam rute untuk diunduh.');
+      return;
+    }
+
+    const gpxPoints = [
+      `    <wpt lat="${startPoint.lat}" lon="${startPoint.lng}">\n      <name>${startPoint.name}</name>\n      <desc>Titik Awal (Basecamp Kandangan)</desc>\n    </wpt>`,
+      ...itinerary.map((dest, idx) => {
+        const lat = typeof dest.latitude === 'string' ? parseFloat(dest.latitude) : (dest.latitude || -2.77);
+        const lng = typeof dest.longitude === 'string' ? parseFloat(dest.longitude) : (dest.longitude || 115.31);
+        return `    <wpt lat="${lat}" lon="${lng}">\n      <name>Stop #${idx + 1}: ${dest.name}</name>\n      <desc>${dest.location || dest.category || 'Wisata HSS'}</desc>\n    </wpt>`;
+      }),
+    ].join('\n');
+
+    const routeTrack = [
+      `      <rtept lat="${startPoint.lat}" lon="${startPoint.lng}"><name>${startPoint.name}</name></rtept>`,
+      ...itinerary.map((dest, idx) => {
+        const lat = typeof dest.latitude === 'string' ? parseFloat(dest.latitude) : (dest.latitude || -2.77);
+        const lng = typeof dest.longitude === 'string' ? parseFloat(dest.longitude) : (dest.longitude || 115.31);
+        return `      <rtept lat="${lat}" lon="${lng}"><name>Stop #${idx + 1}: ${dest.name}</name></rtept>`;
+      }),
+    ].join('\n');
+
+    const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Belalah HSS Route Planner" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Rute Wisata Belalah HSS (${itinerary.length} Destinasi)</name>
+    <desc>Rute terpadu wisata Hulu Sungai Selatan hasil optimasi Dijkstra</desc>
+    <time>${new Date().toISOString()}</time>
+  </metadata>
+${gpxPoints}
+  <rte>
+    <name>Rute Terpadu Belalah HSS</name>
+${routeTrack}
+  </rte>
+</gpx>`;
+
+    const blob = new Blob([gpxContent], { type: 'application/gpx+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rute-belalah-hss-${Date.now()}.gpx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast('File GPS (.GPX) berhasil diunduh!');
   };
 
   const handleInsertCorridorDestination = (destName: string) => {

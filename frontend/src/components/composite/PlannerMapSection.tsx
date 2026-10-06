@@ -87,53 +87,87 @@ export const PlannerMapSection: React.FC<PlannerMapSectionProps> = ({
 
     const coordinates: [number, number][] = [];
 
-    // 1. Add Start point marker (Alun-Alun Kandangan)
-    const startCoord: [number, number] = [startPoint.lat || -2.7758, startPoint.lng || 115.2635];
+    // 1. Add Start point marker (Basecamp Kandangan)
+    const startLat = typeof startPoint.lat === 'string' ? parseFloat(startPoint.lat) : (startPoint.lat || -2.7758);
+    const startLng = typeof startPoint.lng === 'string' ? parseFloat(startPoint.lng) : (startPoint.lng || 115.2635);
+    const startCoord: [number, number] = [startLat, startLng];
     coordinates.push(startCoord);
 
     const startMarker = L.marker(startCoord, {
       icon: L.divIcon({
         className: 'custom-map-pin start',
-        html: `<div style="background:#C26B3C;color:#fff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;box-shadow:0 3px 8px rgba(0,0,0,0.3);border:2px solid #fff;">🚩</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
+        html: `<div style="background:#C26B3C;color:#fff;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.35);border:2px solid #fff;">🚩</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
       }),
-    }).bindPopup(`<b>Titik Awal:</b><br/>${startPoint.name || 'Alun-Alun Antaludin Kandangan'}`);
+    }).bindPopup(`
+      <div style="font-family: inherit; font-size: 13px; min-width: 170px;">
+        <div style="font-size: 10.5px; font-weight: 700; color: #C26B3C; text-transform: uppercase; margin-bottom: 2px;">Titik Awal (Basecamp)</div>
+        <div style="font-weight: 800; color: #012D1D; font-size: 14px; margin-bottom: 4px;">${startPoint.name || 'Alun-Alun Antaludin Kandangan'}</div>
+        <div style="color: #666; font-size: 11.5px;">KM 0.0 • Pusat Keberangkatan Rute</div>
+      </div>
+    `);
     layerGroup.addLayer(startMarker);
 
-    // 2. Add Stop markers
+    // 2. Add Stop markers with sequence numbers
     itinerary.forEach((dest, index) => {
-      const lat = dest.latitude || -2.77 - index * 0.02;
-      const lng = dest.longitude || 115.31 + index * 0.02;
-      const coord: [number, number] = [lat, lng];
+      const rawLat = typeof dest.latitude === 'string' ? parseFloat(dest.latitude) : dest.latitude;
+      const rawLng = typeof dest.longitude === 'string' ? parseFloat(dest.longitude) : dest.longitude;
+      const validLat = rawLat && !isNaN(rawLat) ? rawLat : -2.77 - index * 0.02;
+      const validLng = rawLng && !isNaN(rawLng) ? rawLng : 115.31 + index * 0.02;
+      const coord: [number, number] = [validLat, validLng];
       coordinates.push(coord);
 
       const stopMarker = L.marker(coord, {
         icon: L.divIcon({
           className: `custom-map-pin stop-${index + 1}`,
-          html: `<div style="background:#012D1D;color:#fff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.3);border:2px solid #fff;">${index + 1}</div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14],
+          html: `<div style="background:#012D1D;color:#fff;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.35);border:2px solid #fff;">${index + 1}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
         }),
-      }).bindPopup(`<b>Stop #${index + 1}: ${dest.name}</b><br/>${dest.location || dest.category}`);
+      }).bindPopup(`
+        <div style="font-family: inherit; font-size: 13px; min-width: 180px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size: 10.5px; font-weight: 700; background: #012D1D; color: #fff; padding: 2px 7px; border-radius: 4px;">STOP #${index + 1}</span>
+            <span style="font-size: 11px; color: #777;">${dest.category || 'Wisata'}</span>
+          </div>
+          <div style="font-weight: 800; color: #012D1D; font-size: 14px; margin-bottom: 4px;">${dest.name}</div>
+          <div style="color: #666; font-size: 11.5px; margin-bottom: 6px;">${dest.location || 'Hulu Sungai Selatan'}</div>
+          ${dest.distance ? `<div style="font-size: 11px; color: #C26B3C; font-weight: 600;">📍 ${dest.distance}</div>` : ''}
+        </div>
+      `);
 
       layerGroup.addLayer(stopMarker);
     });
 
-    // 3. Connect path with Polyline
+    // 3. Connect path with Dual-layered Polyline (Outer halo + inner directional line)
     if (coordinates.length > 1) {
-      const polyline = L.polyline(coordinates, {
-        color: '#012D1D',
-        weight: 4,
-        opacity: 0.85,
-        dashArray: '6, 6',
+      // Background halo line for contrast
+      const haloLine = L.polyline(coordinates, {
+        color: '#ffffff',
+        weight: 6,
+        opacity: 0.9,
       });
-      layerGroup.addLayer(polyline);
+      layerGroup.addLayer(haloLine);
+
+      // Main route polyline
+      const mainPolyline = L.polyline(coordinates, {
+        color: '#012D1D',
+        weight: 3.5,
+        opacity: 0.9,
+        dashArray: '8, 6',
+      });
+      layerGroup.addLayer(mainPolyline);
 
       mapInstanceRef.current.fitBounds(L.latLngBounds(coordinates), {
-        padding: [40, 40],
+        padding: [50, 50],
       });
     }
+
+    // Ensure map tiles re-render properly on layout adjustments
+    setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize();
+    }, 200);
   }, [itinerary, startPoint]);
 
   return (
