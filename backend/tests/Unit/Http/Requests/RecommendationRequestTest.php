@@ -27,11 +27,23 @@ class RecommendationRequestTest extends TestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_rules_fail_when_required_coordinates_missing(): void
+    public function test_rules_pass_when_coordinates_omitted(): void
     {
         $request = new RecommendationRequest();
 
         $validator = Validator::make([], $request->rules(), $request->messages());
+
+        $this->assertFalse($validator->fails());
+    }
+
+    public function test_rules_fail_when_coordinates_not_numeric(): void
+    {
+        $request = new RecommendationRequest();
+
+        $validator = Validator::make([
+            'lat' => 'invalid-lat',
+            'lng' => 'invalid-lng',
+        ], $request->rules(), $request->messages());
 
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('lat', $validator->errors()->messages());

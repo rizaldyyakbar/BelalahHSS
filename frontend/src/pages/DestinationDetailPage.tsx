@@ -11,10 +11,15 @@ export const DestinationDetailPage: React.FC = () => {
   const navigate = useNavigate();
 
   const destination: Destination | undefined =
-    DESTINATIONS.find((d) => d.id === parseInt(id || '', 10)) || DESTINATIONS[1]; // default Bamboo Rafting
+    DESTINATIONS.find((d) => d.id === Number(id));
 
   const [itinerary, setItinerary] = useState<Destination[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
+  const facilityIcon: Record<string, string> = {
+  bed: '🛏️',
+  fork: '🍽️',
+  parking: '🅿️',
+};
 
   useEffect(() => {
     const saved = localStorage.getItem('belalah_itinerary');
@@ -100,27 +105,12 @@ export const DestinationDetailPage: React.FC = () => {
   }
 
   const isRafting = lowerName.includes('rafting');
-  const priceDisplay = isRafting ? 'Rp 300.000 / Rakit' : (destination.entrance || 'Rp 10.000 / Org');
-  const durationDisplay = isRafting ? '2–3 Jam' : (destination.hours || '1.5–2 Jam');
+  const priceDisplay = destination.entrance || 'Hubungi pengelola';
+  const durationDisplay = isRafting ? '2–3 Jam' : (destination.hours || 'Menyesuaikan kondisi lapangan');
 
   // Nearby waypoint recommendations matching corridor
-  const nearbyPlaces = [
-    {
-      name: 'Balai Adat Malaris',
-      sub: 'Arsitektur Adat Dayak Meratus • 0.8 km',
-      targetName: 'Balai Adat Malaris',
-    },
-    {
-      name: 'Pemandian Air Panas Tanuhi',
-      sub: 'Relaksasi alami pasca-arung • 3.1 km',
-      targetName: 'Pemandian Air Panas Tanuhi',
-    },
-    {
-      name: 'Puncak Bukit Langara',
-      sub: 'Panorama bukit karst Meratus • 4.5 km',
-      targetName: 'Bukit Langara',
-    },
-  ];
+  const nearbyPlaces = DESTINATIONS
+    .filter((d) => d.id !== destination.id && d.region === destination.region).slice(0, 3)
 
   return (
     <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -163,10 +153,22 @@ export const DestinationDetailPage: React.FC = () => {
         <section className="detail-hero-header">
           <div style={{ flex: 1, minWidth: 280 }}>
             <div className="detail-badges-row">
-              <span className="detail-pill-rank">★ Peringkat #1 Wisata HSS</span>
-              <span className="detail-pill-score">9.8 Skor SAW</span>
-              <span className="detail-pill-fav">Petualangan Sungai &amp; Budaya</span>
-              <span className="detail-pill-fav">Geopark Meratus</span>
+              {destination.rank && (
+                <span className="detail-pill-rank" style={{ background: '#F5EFE6', color: '#6A432D' }}>
+                  ★ Peringkat #{destination.rank} Wisata HSS
+                </span>
+              )}
+              <span className="detail-pill-score"> 
+                ★ {destination.rating.toFixed(1)} Rating ({destination.reviews} ulasan)
+              </span>
+              <span className="detail-pill-fav">
+                {destination.category}
+              </span>
+              {destination.region && (
+                <span className="detail-pill-fav">
+                  {destination.region}
+                </span>
+              )}
             </div>
 
             <h1 className="detail-main-title">{destination.name}</h1>
@@ -178,7 +180,7 @@ export const DestinationDetailPage: React.FC = () => {
               </span>
               <span>•</span>
               <span style={{ color: '#994700', fontWeight: 700 }}>
-                34.2 km (52 menit dari Basecamp Kota Kandangan)
+                {destination.distance ? `${destination.distance} km dari Lokasi Anda` : 'Jarak tidak tersedia'}
               </span>
             </div>
           </div>
@@ -314,35 +316,27 @@ export const DestinationDetailPage: React.FC = () => {
             {/* Editorial Story Article */}
             <div className="detail-article-card">
               <h2 className="detail-section-title">
-                {isRafting ? 'Pesona Balanting Paring Sungai Amandit' : `Kisah & Daya Tarik ${destination.name}`}
+                {`Kisah & Daya Tarik ${destination.name}`}
               </h2>
 
               <p className="detail-article-text">
-                Menyusuri jernihnya riam Sungai Amandit di atas untaian rakit bambu utuh (&quot;balanting paring&quot;) adalah pengalaman batiniah yang mengalir bersama kearifan Suku Dayak Meratus. Berawal dari dermaga hulu Loksado, Anda akan melintasi riak bebatuan andesit purba, rimbun pohon ulin yang rindang, serta siluet pegunungan berkabut yang menenteramkan jiwa.
-              </p>
-
-              <p className="detail-article-text" style={{ marginBottom: 0 }}>
-                Setiap rakit dirakit secara teliti menggunakan belasan batang bambu gunung kokoh, dipandu oleh juru mudi lokal piawai yang menavigasi arus dangkal dengan sebatang galah bambu panjang tanpa mesin pendorong. Suasana hening berpadu gemercik riam menjadikan perjalanan ini warisan ekowisata tak ternilai di Kalimantan Selatan.
+                {destination.fullDescription || destination.description || 'Deskripsi destinasi belum tersedia.'}
               </p>
 
               {/* 3 Highlight Feature Cards */}
               <div className="detail-features-grid">
                 <div className="detail-feature-card">
-                  <div style={{ fontSize: 20, marginBottom: 6 }}>🎓</div>
-                  <h4 className="detail-feature-title">Joki Rakit Berlisensi</h4>
-                  <p className="detail-feature-desc">Dipandu juru mudi Dayak yang membaca jeram dan arus secara turun-temurun.</p>
-                </div>
-
-                <div className="detail-feature-card">
-                  <div style={{ fontSize: 20, marginBottom: 6 }}>🛡️</div>
-                  <h4 className="detail-feature-title">Standar Keselamatan</h4>
-                  <p className="detail-feature-desc">Dilengkapi pelampung terstandar dan drybag gawai kedap air untuk perlindungan maksimal.</p>
-                </div>
-
-                <div className="detail-feature-card">
-                  <div style={{ fontSize: 20, marginBottom: 6 }}>🚐</div>
-                  <h4 className="detail-feature-title">Shuttle Titik Finis</h4>
-                  <p className="detail-feature-desc">Layanan antar-jemput Tanuhi kembali ke dermaga awal parkir Loksado.</p>
+                  {(destination.facilities || []).slice(0,3).map((f) => (
+                    <div className="detail-feature-item" key={f.name}>
+                      <div style={{ fontSize: 20, marginBottom: 6 }}>
+                        {facilityIcon[f.icon] || '📍'}
+                      </div>
+                      <h4 className="detail-feature-title">{f.name}</h4>
+                      <p className="detail-feature-desc">
+                        Fasilitas pendukung yang tersedia di area {destination.name}.
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -355,30 +349,12 @@ export const DestinationDetailPage: React.FC = () => {
               </p>
 
               <div className="detail-facilities-grid">
-                <div className="detail-facility-pill">
-                  <span>🚣‍♂️</span>
-                  <span>Rakit Bambu Segar &amp; Galah Kemudi</span>
-                </div>
-                <div className="detail-facility-pill">
-                  <span>🦺</span>
-                  <span>Rompi Pelampung (Life Jacket) SNI</span>
-                </div>
-                <div className="detail-facility-pill">
-                  <span>🚿</span>
-                  <span>Kamar Bilas &amp; Toilet Tanuhi</span>
-                </div>
-                <div className="detail-facility-pill">
-                  <span>🍽️</span>
-                  <span>Warung Kuliner Khas Dodol &amp; Kopi</span>
-                </div>
-                <div className="detail-facility-pill">
-                  <span>🅿️</span>
-                  <span>Area Parkir Roda 2 &amp; Roda 4 Aman</span>
-                </div>
-                <div className="detail-facility-pill">
-                  <span>🛖</span>
-                  <span>Gazebo &amp; Balai Istirahat Pinggir Sungai</span>
-                </div>
+                {(destination.facilities || []).map((f) => (
+                  <div className="detail-facility-pill" key={f.name}>
+                    <span> {f.icon} </span>
+                    <span> {f.name} </span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -395,7 +371,7 @@ export const DestinationDetailPage: React.FC = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {nearbyPlaces.map((place) => {
-                  const matched = DESTINATIONS.find((d) => d.name.toLowerCase().includes(place.targetName.toLowerCase()));
+                  const matched = DESTINATIONS.find((d) => d.name.toLowerCase().includes(place.name.toLowerCase()));
                   const inItin = matched && itinerary.some((d) => d.id === matched.id);
 
                   return (
@@ -417,7 +393,7 @@ export const DestinationDetailPage: React.FC = () => {
                           {place.name}
                         </h4>
                         <p style={{ fontSize: 12, color: 'var(--meratus-muted)', margin: 0 }}>
-                          {place.sub}
+                          {place.distance}
                         </p>
                       </div>
 
@@ -565,15 +541,15 @@ export const DestinationDetailPage: React.FC = () => {
               <div className="detail-info-list">
                 <div className="detail-info-row">
                   <span className="detail-info-key">Jarak dari Basecamp</span>
-                  <span className="detail-info-val">34.2 km</span>
+                  <span className="detail-info-val"> {destination.distance} </span>
                 </div>
                 <div className="detail-info-row">
                   <span className="detail-info-key">Estimasi Berkendara</span>
-                  <span className="detail-info-val">52 menit (Roda 2/4)</span>
+                  <span className="detail-info-val">{durationDisplay}</span>
                 </div>
                 <div className="detail-info-row">
                   <span className="detail-info-key">Jam Operasional</span>
-                  <span className="detail-info-val">07.00 – 17.00 WITA</span>
+                  <span className="detail-info-val">{destination.hours || 'Informasi belum tersedia'}</span>
                 </div>
                 <div className="detail-info-row">
                   <span className="detail-info-key">Kondisi Jalan</span>

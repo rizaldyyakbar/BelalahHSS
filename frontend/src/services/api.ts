@@ -128,7 +128,7 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
           : localMatch?.entrance || 'Rp 10.000';
 
         return {
-          id: item.id,
+          id: localMatch?.id ?? item.id,
           name: item.name,
           category: item.category?.name || localMatch?.category || 'Wisata Alam',
           region: regionStr,

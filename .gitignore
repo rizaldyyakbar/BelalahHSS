@@ -11,6 +11,7 @@ backend/public/storage
 # Frontend
 frontend/node_modules/
 frontend/build/
+frontend/dist/
 frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
