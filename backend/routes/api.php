@@ -9,9 +9,13 @@ Route::get('/user', function (Request $request) {
 
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DestinationController;
+use App\Http\Controllers\Api\FacilityController;
 use App\Http\Controllers\Api\RecommendationController;
 
 // Public endpoints with rate limiting
+Route::get('/facilities/nearby', [FacilityController::class, 'nearby'])
+    ->middleware('throttle:100,1')
+    ->name('facilities.nearby');
 Route::get('/categories', [CategoryController::class, 'index'])
     ->middleware('throttle:100,1')
     ->name('categories.index');

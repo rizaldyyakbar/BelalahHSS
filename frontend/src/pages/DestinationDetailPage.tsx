@@ -4,7 +4,14 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
-import { fetchDestinationById, fetchRecommendations, getGoogleMapsRouteUrl } from '../services/api';
+import {
+  fetchDestinationById,
+  fetchRecommendations,
+  getGoogleMapsRouteUrl,
+  fetchNearbyFacilities,
+  getGoogleMapsSearchUrl,
+  ApiFacility,
+} from '../services/api';
 import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../utils/geo';
 
 export const DestinationDetailPage: React.FC = () => {
@@ -16,6 +23,7 @@ export const DestinationDetailPage: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(!destination);
   const [allDestinations, setAllDestinations] = useState<Destination[]>(DESTINATIONS);
+  const [nearbyFacilities, setNearbyFacilities] = useState<ApiFacility[]>([]);
 
   const [itinerary, setItinerary] = useState<Destination[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
@@ -26,16 +34,37 @@ export const DestinationDetailPage: React.FC = () => {
       if (!id) return;
       const data = await fetchDestinationById(Number(id));
       if (isMounted) {
-        if (data) setDestination(data);
+        if (data) {
+          setDestination(data);
+          const lat = typeof data.latitude === 'string' ? parseFloat(data.latitude) : data.latitude;
+          const lng = typeof data.longitude === 'string' ? parseFloat(data.longitude) : data.longitude;
+          if (lat && lng) {
+            fetchNearbyFacilities(lat, lng).then((facs) => {
+              if (isMounted) setNearbyFacilities(facs);
+            });
+          }
+        }
         setLoading(false);
       }
     };
     loadDetail();
+
     fetchRecommendations({ limit: 50 }).then((res) => {
       if (isMounted && res.destinations.length > 0) {
         setAllDestinations(res.destinations);
       }
     });
+
+    if (destination?.latitude && destination?.longitude) {
+      const lat = typeof destination.latitude === 'string' ? parseFloat(destination.latitude) : destination.latitude;
+      const lng = typeof destination.longitude === 'string' ? parseFloat(destination.longitude) : destination.longitude;
+      if (lat && lng) {
+        fetchNearbyFacilities(lat, lng).then((facs) => {
+          if (isMounted) setNearbyFacilities(facs);
+        });
+      }
+    }
+
     return () => {
       isMounted = false;
     };
@@ -396,6 +425,180 @@ export const DestinationDetailPage: React.FC = () => {
                     <span>{f.name}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Fasilitas Terdekat (Akomodasi, Kuliner, SPBU, Ibadah) dengan integrasi Google Maps */}
+            <div className="detail-article-card" style={{ marginTop: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
+                <h3 className="detail-section-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>📍 Fasilitas &amp; Layanan Sekitar</span>
+                </h3>
+                <span style={{ fontSize: 11.5, background: '#EAF4EE', color: '#012D1D', padding: '3px 10px', borderRadius: 999, fontWeight: 700 }}>
+                  Terhubung ke Google Maps
+                </span>
+              </div>
+              <p style={{ fontSize: 13, color: 'var(--meratus-muted)', marginBottom: 18, lineHeight: 1.5 }}>
+                Penginapan, sentra kuliner, SPBU, dan sarana ibadah terdekat di sekitar {destination.name}. Klik untuk langsung membuka rute &amp; ulasan di Google Maps:
+              </p>
+
+              {/* List of nearby facilities */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                {nearbyFacilities.length > 0 ? (
+                  nearbyFacilities.slice(0, 5).map((fac) => {
+                    const typeLabel =
+                      fac.type === 'penginapan' ? '🛏️ Penginapan' :
+                      fac.type === 'kuliner' ? '🍽️ Kuliner' :
+                      fac.type === 'spbu' ? '⛽ SPBU' :
+                      fac.type === 'masjid' ? '🕌 Masjid' : '📍 Fasilitas';
+
+                    const mapsUrl = fac.google_maps_url || `https://www.google.com/maps/dir/?api=1&destination=${fac.latitude},${fac.longitude}`;
+
+                    return (
+                      <div
+                        key={fac.id}
+                        style={{
+                          background: '#ffffff',
+                          border: '1.5px solid #E2EAE4',
+                          borderRadius: 14,
+                          padding: '14px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 14,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                background: '#F1F5F2',
+                                color: '#012D1D',
+                                padding: '2px 8px',
+                                borderRadius: 6,
+                              }}
+                            >
+                              {typeLabel}
+                            </span>
+                            {fac.rating && (
+                              <span style={{ fontSize: 11, color: '#C26B3C', fontWeight: 700 }}>
+                                ★ {Number(fac.rating).toFixed(1)}
+                              </span>
+                            )}
+                            {fac.distance_km !== undefined && fac.distance_km !== null && (
+                              <span style={{ fontSize: 11, color: '#6E7972' }}>
+                                • ~{fac.distance_km} km dari sini
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 14.5,
+                              fontWeight: 700,
+                              color: 'var(--meratus-deep)',
+                              marginBottom: 2,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {fac.name}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--meratus-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {fac.address || 'Hulu Sungai Selatan'}
+                          </div>
+                        </div>
+
+                        <a
+                          href={mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            background: '#012D1D',
+                            color: '#ffffff',
+                            textDecoration: 'none',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            padding: '8px 14px',
+                            borderRadius: 10,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            flexShrink: 0,
+                            boxShadow: '0 2px 6px rgba(1, 45, 29, 0.2)',
+                            transition: 'all 0.15s ease',
+                          }}
+                          title={`Buka ${fac.name} di Google Maps`}
+                        >
+                          <span>🗺️ Buka Rute</span>
+                          <span style={{ fontSize: 11 }}>↗</span>
+                        </a>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ fontSize: 12.5, color: '#6E7972', fontStyle: 'italic', padding: '12px 0' }}>
+                    Memuat daftar fasilitas pendukung...
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Intent Buttons to Google Maps */}
+              <div
+                style={{
+                  background: '#F8FAF8',
+                  border: '1px dashed #C1DBC9',
+                  borderRadius: 12,
+                  padding: '14px 16px',
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--meratus-deep)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>🔍 Pencarian Cepat di Sekitar via Google Maps</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {[
+                    { label: '🛏️ Penginapan Terdekat', query: 'Penginapan Homestay Hotel' },
+                    { label: '🍽️ Warung Makan & Kuliner', query: 'Warung Makan Rumah Makan Ketupat Kandangan' },
+                    { label: '⛽ SPBU & Pertashop', query: 'SPBU Pertashop Pom Bensin' },
+                    { label: '🕌 Masjid & Musholla', query: 'Masjid Musholla' },
+                    { label: '🏧 Minimarket & ATM', query: 'Minimarket ATM Indomaret Alfamart' },
+                  ].map((item) => {
+                    const destLat = typeof destination.latitude === 'string' ? parseFloat(destination.latitude) : destination.latitude;
+                    const destLng = typeof destination.longitude === 'string' ? parseFloat(destination.longitude) : destination.longitude;
+                    const searchUrl = getGoogleMapsSearchUrl(item.query, destLat, destLng);
+
+                    return (
+                      <a
+                        key={item.label}
+                        href={searchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #D7E5DC',
+                          color: '#012D1D',
+                          textDecoration: 'none',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          padding: '6px 12px',
+                          borderRadius: 8,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          transition: 'all 0.15s ease',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                        }}
+                      >
+                        <span>{item.label}</span>
+                        <span style={{ fontSize: 10, color: '#C26B3C' }}>↗</span>
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

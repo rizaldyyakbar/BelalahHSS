@@ -306,4 +306,58 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
   ];
 }
 
+export interface ApiFacility {
+  id: number;
+  name: string;
+  type?: string;
+  latitude: number | string;
+  longitude: number | string;
+  rating?: number | string;
+  address?: string;
+  image_url?: string;
+  distance_km?: number;
+  google_maps_url?: string;
+}
+
+/**
+ * Fetch facilities near a coordinate (lodging, dining, mosque, fuel)
+ */
+export async function fetchNearbyFacilities(
+  lat?: number,
+  lng?: number,
+  radiusKm = 30
+): Promise<ApiFacility[]> {
+  try {
+    const query = new URLSearchParams();
+    if (lat !== undefined) query.append('lat', lat.toString());
+    if (lng !== undefined) query.append('lng', lng.toString());
+    query.append('radius_km', radiusKm.toString());
+
+    const response = await fetch(`${API_BASE_URL}/facilities/nearby?${query.toString()}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (response.ok) {
+      const res = await response.json();
+      if (Array.isArray(res.data)) {
+        return res.data;
+      }
+    }
+  } catch (error) {
+    console.warn('[Belalah API] Failed fetching nearby facilities, using fallback:', error);
+  }
+
+  return [];
+}
+
+/**
+ * Build dynamic Google Maps search link for a category centered around coordinates
+ */
+export function getGoogleMapsSearchUrl(categoryQuery: string, lat?: number, lng?: number): string {
+  if (lat !== undefined && lng !== undefined) {
+    return `https://www.google.com/maps/search/${encodeURIComponent(categoryQuery)}/@${lat},${lng},14z`;
+  }
+  return `https://www.google.com/maps/search/${encodeURIComponent(categoryQuery + ' Hulu Sungai Selatan')}`;
+}
+
+
 
