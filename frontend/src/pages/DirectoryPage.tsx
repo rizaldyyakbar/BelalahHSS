@@ -31,20 +31,34 @@ export const DirectoryPage: React.FC = () => {
     }
   }, []);
 
-  // Fetch live destinations from backend or fall back to authentic list
+  const categoryMapToId: Record<string, number | undefined> = {
+    'Semua': undefined,
+    'Wisata Alam': 1,
+    'Wisata Budaya': 2,
+    'Petualangan': 3,
+    'Petualangan Sungai': 3,
+  };
+
+  // Fetch live destinations from backend with live search and category query
   useEffect(() => {
     let isMounted = true;
-    const loadAll = async () => {
-      const res = await fetchRecommendations({ limit: 50 });
+    const timer = setTimeout(async () => {
+      const catId = categoryMapToId[selectedCategory];
+      const res = await fetchRecommendations({
+        limit: 50,
+        search: searchQuery.trim() || undefined,
+        category_id: catId,
+      });
       if (isMounted && res.destinations && res.destinations.length > 0) {
         setDestinations(res.destinations);
       }
-    };
-    loadAll();
+    }, 250);
+
     return () => {
       isMounted = false;
+      clearTimeout(timer);
     };
-  }, []);
+  }, [searchQuery, selectedCategory]);
 
   const saveItinerary = (updated: Destination[]) => {
     setItinerary(updated);

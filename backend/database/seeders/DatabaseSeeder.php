@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Criteria;
 use App\Models\Destination;
 use App\Models\DestinationValue;
+use App\Models\Facility;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -199,5 +200,67 @@ class DatabaseSeeder extends Seeder
         }
 
         fclose($handle);
+
+        // 5. Seed Facilities (Akomodasi, Kuliner, Masjid, SPBU di Hulu Sungai Selatan)
+        $facilities = [
+            [
+                'name' => 'Wisma Pemandian Air Panas Tanuhi',
+                'type' => 'penginapan',
+                'latitude' => -2.8122,
+                'longitude' => 115.3789,
+                'rating' => 4.5,
+                'address' => 'Desa Hulu Banyu, Kecamatan Loksado',
+                'image_url' => '/assets/tanuhi.jpg',
+            ],
+            [
+                'name' => 'Lodge Alam Meratus Loksado',
+                'type' => 'penginapan',
+                'latitude' => -2.7981,
+                'longitude' => 115.3524,
+                'rating' => 4.6,
+                'address' => 'Desa Loksado, Kecamatan Loksado',
+                'image_url' => '/assets/balanting-paring.jpg',
+            ],
+            [
+                'name' => 'Warung Ketupat Kandangan Pak Haji',
+                'type' => 'kuliner',
+                'latitude' => -2.7750,
+                'longitude' => 115.2642,
+                'rating' => 4.8,
+                'address' => 'Jl. Jenderal Sudirman, Kandangan Kota',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+            [
+                'name' => 'Sentra Kuliner Dodol Asli Kandangan',
+                'type' => 'kuliner',
+                'latitude' => -2.7712,
+                'longitude' => 115.2618,
+                'rating' => 4.7,
+                'address' => 'Kawasan Pasar Los Batu Kandangan',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+            [
+                'name' => 'Masjid Besar Syuhada Kandangan',
+                'type' => 'masjid',
+                'latitude' => -2.7745,
+                'longitude' => 115.2630,
+                'rating' => 4.9,
+                'address' => 'Pusat Kota Kandangan, HSS',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+            [
+                'name' => 'SPBU Kandangan Kota',
+                'type' => 'spbu',
+                'latitude' => -2.7788,
+                'longitude' => 115.2665,
+                'rating' => 4.4,
+                'address' => 'Jl. A. Yani, Kandangan',
+                'image_url' => '/assets/museum-rakyat.jpg',
+            ],
+        ];
+
+        foreach ($facilities as $fac) {
+            Facility::updateOrCreate(['name' => $fac['name']], $fac);
+        }
     }
 }

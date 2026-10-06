@@ -49,6 +49,7 @@ class RecommendationController extends Controller
         $sort = $data['sort'] ?? 'score';
         $radiusMeters = isset($data['radius_meters']) ? (int) $data['radius_meters'] : 50000;
         $categoryId = isset($data['category_id']) && $data['category_id'] !== null ? (int) $data['category_id'] : null;
+        $search = isset($data['search']) && trim($data['search']) !== '' ? trim($data['search']) : null;
         $pretty = $request->boolean('pretty');
         $excludeDestinationId = null;
 
@@ -72,6 +73,7 @@ class RecommendationController extends Controller
             'destination_id' => $excludeDestinationId,
             'radius_meters' => $radiusMeters,
             'category_id' => $categoryId,
+            'search' => $search,
             'limit' => $limit,
             'sort' => $sort,
         ]);
@@ -118,6 +120,11 @@ SQL;
             $postgisBindings['category_id'] = $categoryId;
         }
 
+        if ($search !== null) {
+            $postgisSql .= "\n  AND (name ILIKE :search OR address ILIKE :search)";
+            $postgisBindings['search'] = '%' . $search . '%';
+        }
+
         $postgisSql .= "\nORDER BY distance_km ASC\nLIMIT :candidate_limit";
         $postgisBindings['candidate_limit'] = $candidateLimit;
 
@@ -147,6 +154,13 @@ SQL;
                 $allDestinationsQuery->where('category_id', $categoryId);
             }
 
+            if ($search !== null) {
+                $allDestinationsQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'ilike', "%{$search}%")
+                      ->orWhere('address', 'ilike', "%{$search}%");
+                });
+            }
+
             $allDestinations = $allDestinationsQuery->get();
 
             $destArray = $allDestinations->map(fn ($d) => [
@@ -173,6 +187,13 @@ SQL;
 
             if ($categoryId !== null) {
                 $destinationsQuery->where('category_id', $categoryId);
+            }
+
+            if ($search !== null) {
+                $destinationsQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'ilike', "%{$search}%")
+                      ->orWhere('address', 'ilike', "%{$search}%");
+                });
             }
 
             $destinations = $destinationsQuery->get();

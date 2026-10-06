@@ -24,6 +24,7 @@ class RecommendationRequest extends FormRequest
             'radius_meters' => ['sometimes', 'integer', 'min:500', 'max:100000'],
             'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'category_id' => ['sometimes', 'nullable', 'integer', 'exists:categories,id'],
+            'search' => ['sometimes', 'nullable', 'string', 'max:100'],
             'pretty' => ['sometimes'],
             'sort' => ['sometimes', 'in:score,distance'],
         ];

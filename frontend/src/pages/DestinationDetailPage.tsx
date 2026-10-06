@@ -4,22 +4,41 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
-import { getGoogleMapsRouteUrl } from '../services/api';
+import { fetchDestinationById, getGoogleMapsRouteUrl } from '../services/api';
 
 export const DestinationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const destination: Destination | undefined =
-    DESTINATIONS.find((d) => d.id === Number(id));
+  const [destination, setDestination] = useState<Destination | null>(() => {
+    return DESTINATIONS.find((d) => d.id === Number(id)) || null;
+  });
+  const [loading, setLoading] = useState<boolean>(!destination);
 
   const [itinerary, setItinerary] = useState<Destination[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const facilityIcon: Record<string, string> = {
-  bed: '🛏️',
-  fork: '🍽️',
-  parking: '🅿️',
-};
+    bed: '🛏️',
+    fork: '🍽️',
+    parking: '🅿️',
+    camera: '📷',
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadDetail = async () => {
+      if (!id) return;
+      const data = await fetchDestinationById(Number(id));
+      if (isMounted) {
+        if (data) setDestination(data);
+        setLoading(false);
+      }
+    };
+    loadDetail();
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   useEffect(() => {
     const saved = localStorage.getItem('belalah_itinerary');
@@ -53,6 +72,15 @@ export const DestinationDetailPage: React.FC = () => {
     localStorage.setItem('belalah_itinerary', JSON.stringify(updated));
     window.dispatchEvent(new Event('storage'));
   };
+
+  if (loading && !destination) {
+    return (
+      <div style={{ padding: 120, textAlign: 'center', background: 'var(--meratus-bg)', minHeight: '100vh' }}>
+        <Header />
+        <h2 style={{ color: 'var(--meratus-deep)' }}>Memuat informasi destinasi...</h2>
+      </div>
+    );
+  }
 
   if (!destination) {
     return (

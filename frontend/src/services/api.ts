@@ -9,6 +9,7 @@ export interface RecommendationParams {
   radius_meters?: number;
   sort?: 'rank' | 'distance' | 'popularitas' | 'price' | 'fasilitasScore';
   category_id?: number;
+  search?: string;
 }
 
 export interface ApiDestination {
@@ -86,6 +87,7 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
     query.append('radius_meters', (params.radius_meters || 50000).toString());
     if (params.sort !== undefined) query.append('sort', params.sort);
     if (params.category_id !== undefined) query.append('category_id', params.category_id.toString());
+    if (params.search !== undefined && params.search.trim() !== '') query.append('search', params.search.trim());
 
     const response = await fetch(`${API_BASE_URL}/recommendations?${query.toString()}`, {
       method: 'GET',
@@ -187,3 +189,85 @@ export async function optimizeRoute(
 
   return response.json();
 }
+
+/**
+ * Fetch single destination detail dynamically from backend API with fallback
+ */
+export async function fetchDestinationById(
+  id: number,
+  lat?: number,
+  lng?: number,
+): Promise<Destination | null> {
+  try {
+    const query = new URLSearchParams();
+    if (lat !== undefined) query.append('lat', lat.toString());
+    if (lng !== undefined) query.append('lng', lng.toString());
+
+    const url = `${API_BASE_URL}/destinations/${id}${query.toString() ? `?${query.toString()}` : ''}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const res = await response.json();
+      const item = res.data;
+      if (item) {
+        const localMatch = DESTINATIONS.find(
+          (d) => d.id === item.id || d.name.toLowerCase().trim() === item.name.toLowerCase().trim(),
+        );
+
+        const distanceStr =
+          item.distance_km !== null && item.distance_km !== undefined
+            ? `${item.distance_km} km dari Lokasi Anda`
+            : localMatch?.distance || 'Hulu Sungai Selatan';
+
+        const regionStr =
+          localMatch?.region ||
+          (item.address ? (item.address.replace(/^Kecamatan\s+/i, '').split(',')[0] || 'HSS').trim() : 'HSS');
+
+        const ticketPrice =
+          item.values && item.values['Harga Tiket']
+            ? `Rp ${Number(item.values['Harga Tiket']).toLocaleString('id-ID')}`
+            : localMatch?.entrance || 'Rp 10.000';
+
+        const itemLat = typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude;
+        const itemLng = typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude;
+
+        return {
+          id: item.id,
+          name: item.name,
+          category: item.category?.name || localMatch?.category || 'Wisata Alam',
+          region: regionStr,
+          location: item.address || localMatch?.location || `Kecamatan ${regionStr}, Hulu Sungai Selatan`,
+          distance: distanceStr,
+          img: item.image || localMatch?.img || '/assets/balanting-paring.jpg',
+          rating: localMatch?.rating || 4.8,
+          reviews: localMatch?.reviews || 240,
+          description: item.description || localMatch?.description || 'Destinasi wisata unggulan di Kabupaten Hulu Sungai Selatan.',
+          fullDescription: item.description || localMatch?.fullDescription,
+          photos: localMatch?.photos || ['photo1.jpg', 'photo2.jpg', 'photo3.jpg'],
+          facilities: localMatch?.facilities || [
+            { icon: 'parking', name: 'Area Parkir' },
+            { icon: 'camera', name: 'Spot Foto Alami' },
+            { icon: 'bed', name: 'Gazebo & Rest Area' },
+          ],
+          latitude: itemLat,
+          longitude: itemLng,
+          entrance: ticketPrice,
+          popularitas:
+            item.values && item.values['Popularitas']
+              ? Number(item.values['Popularitas'])
+              : localMatch?.popularitas || 90,
+        };
+      }
+    }
+  } catch (error) {
+    console.warn(`[Belalah API] Failed fetching destination ${id}, using local fallback:`, error);
+  }
+
+  return DESTINATIONS.find((d) => d.id === id) || null;
+}
+
