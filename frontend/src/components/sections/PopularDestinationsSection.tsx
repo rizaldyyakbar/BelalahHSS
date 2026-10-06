@@ -2,6 +2,8 @@ import React from 'react';
 import { Icon } from '../atomic/Icons';
 import { Destination } from '../../constants/destinations';
 
+import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../../utils/geo';
+
 interface PopularDestinationsSectionProps {
   destinations: Destination[];
   selectedDestinations: Destination[];
@@ -15,7 +17,7 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
   onToggleDestination,
   onViewDetail,
 }) => {
-  // Take top 4 destinations matching Figma (Bamboo Rafting, Haratai, Malutu, Tanuhi)
+  // Take top 4 destinations matching SAW ranking
   const top4 = destinations.slice(0, 4);
 
   const isSelected = (id: number) => selectedDestinations.some((d) => d.id === id);
@@ -50,29 +52,33 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
 
       {/* Cards Grid */}
       <div className="popular-cards-grid">
-        {top4.map((dest, idx) => {
+        {top4.map((dest) => {
           const selected = isSelected(dest.id);
 
-          // Image fallback matching destination
-          let imgSrc = '/assets/balanting-paring.jpg';
-          if (dest.name.toLowerCase().includes('haratai') || dest.name.toLowerCase().includes('air')) {
-            imgSrc = '/assets/Air-Terjun-Haratai.jpg';
-          } else if (dest.name.toLowerCase().includes('malutu') || dest.name.toLowerCase().includes('bendungan')) {
-            imgSrc = '/assets/malutu.jpg';
-          } else if (dest.name.toLowerCase().includes('tanuhi') || dest.name.toLowerCase().includes('panas')) {
-            imgSrc = '/assets/tanuhi.jpg';
-          } else if (dest.name.toLowerCase().includes('langara') || dest.name.toLowerCase().includes('bukit')) {
-            imgSrc = '/assets/langara.jpg';
+          // Resolve image dynamically from dest.img or contextual asset
+          let imgSrc = dest.img || '/assets/balanting-paring.jpg';
+          if (!dest.img || dest.img === '/assets/balanting-paring.jpg') {
+            const lower = dest.name.toLowerCase();
+            if (lower.includes('haratai') || lower.includes('air')) {
+              imgSrc = '/assets/Air-Terjun-Haratai.jpg';
+            } else if (lower.includes('malutu') || lower.includes('bendungan')) {
+              imgSrc = '/assets/malutu.jpg';
+            } else if (lower.includes('tanuhi') || lower.includes('panas')) {
+              imgSrc = '/assets/tanuhi.jpg';
+            } else if (lower.includes('langara') || lower.includes('bukit')) {
+              imgSrc = '/assets/langara.jpg';
+            }
           }
 
-          // Exact distances from Figma Image 1
-          const distMap: Record<number, string> = {
-            0: '34.2 km dari Kandangan',
-            1: '42.1 km dari Kandangan',
-            2: '16.5 km dari Kandangan',
-            3: '31.8 km dari Kandangan',
-          };
-          const distLabel = distMap[idx] || (dest.distance || '30 km dari Kandangan');
+          // Dynamic distance from Kandangan Basecamp (-2.7758, 115.2635)
+          let distLabel = dest.distance || '30 km dari Kandangan';
+          const coords = parseCoords(dest);
+          if (coords) {
+            const calculatedKm = estimateRoadDistanceKm(
+              calculateHaversineDistance(-2.7758, 115.2635, coords.lat, coords.lng)
+            );
+            distLabel = `${formatDistanceKm(calculatedKm)} dari Kandangan`;
+          }
 
           return (
             <div

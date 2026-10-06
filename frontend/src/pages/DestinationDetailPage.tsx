@@ -4,7 +4,8 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
-import { fetchDestinationById, getGoogleMapsRouteUrl } from '../services/api';
+import { fetchDestinationById, fetchRecommendations, getGoogleMapsRouteUrl } from '../services/api';
+import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../utils/geo';
 
 export const DestinationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,15 +15,10 @@ export const DestinationDetailPage: React.FC = () => {
     return DESTINATIONS.find((d) => d.id === Number(id)) || null;
   });
   const [loading, setLoading] = useState<boolean>(!destination);
+  const [allDestinations, setAllDestinations] = useState<Destination[]>(DESTINATIONS);
 
   const [itinerary, setItinerary] = useState<Destination[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
-  const facilityIcon: Record<string, string> = {
-    bed: '🛏️',
-    fork: '🍽️',
-    parking: '🅿️',
-    camera: '📷',
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -35,6 +31,11 @@ export const DestinationDetailPage: React.FC = () => {
       }
     };
     loadDetail();
+    fetchRecommendations({ limit: 50 }).then((res) => {
+      if (isMounted && res.destinations.length > 0) {
+        setAllDestinations(res.destinations);
+      }
+    });
     return () => {
       isMounted = false;
     };
@@ -104,41 +105,53 @@ export const DestinationDetailPage: React.FC = () => {
     );
   }
 
-  // Fallback images
-  let mainImg = '/assets/balanting-paring.jpg';
-  let subImg1 = '/assets/Air-Terjun-Haratai.jpg';
-  let subImg2 = '/assets/langara.jpg';
+  // Photos resolution dynamically from backend data
+  const mainImg = destination.img || '/assets/balanting-paring.jpg';
+  const subImg1 = (destination.photos && destination.photos[0])
+    ? (destination.photos[0].startsWith('/') ? destination.photos[0] : `/assets/${destination.photos[0]}`)
+    : (mainImg.includes('Haratai') ? '/assets/balanting-paring.jpg' : '/assets/Air-Terjun-Haratai.jpg');
+  const subImg2 = (destination.photos && destination.photos[1])
+    ? (destination.photos[1].startsWith('/') ? destination.photos[1] : `/assets/${destination.photos[1]}`)
+    : '/assets/langara.jpg';
 
-  const lowerName = destination.name.toLowerCase();
-  if (lowerName.includes('haratai') || lowerName.includes('air')) {
-    mainImg = '/assets/Air-Terjun-Haratai.jpg';
-    subImg1 = '/assets/balanting-paring.jpg';
-    subImg2 = '/assets/tanuhi.jpg';
-  } else if (lowerName.includes('langara') || lowerName.includes('bukit')) {
-    mainImg = '/assets/langara.jpg';
-    subImg1 = '/assets/balanting-paring.jpg';
-    subImg2 = '/assets/Air-Terjun-Haratai.jpg';
-  } else if (lowerName.includes('malutu') || lowerName.includes('bendungan')) {
-    mainImg = '/assets/malutu.jpg';
-    subImg1 = '/assets/balanting-paring.jpg';
-    subImg2 = '/assets/museum-rakyat.jpg';
-  } else if (lowerName.includes('tanuhi') || lowerName.includes('panas')) {
-    mainImg = '/assets/tanuhi.jpg';
-    subImg1 = '/assets/balanting-paring.jpg';
-    subImg2 = '/assets/langara.jpg';
-  } else if (lowerName.includes('museum') || lowerName.includes('budaya') || lowerName.includes('malaris')) {
-    mainImg = '/assets/museum-rakyat.jpg';
-    subImg1 = '/assets/balanting-paring.jpg';
-    subImg2 = '/assets/Air-Terjun-Haratai.jpg';
-  }
-
-  const isRafting = lowerName.includes('rafting');
+  const isAdventure = (destination.category || '').toLowerCase().includes('petualang');
+  const isRafting = destination.name.toLowerCase().includes('rafting') || isAdventure;
   const priceDisplay = destination.entrance || 'Hubungi pengelola';
-  const durationDisplay = isRafting ? '2–3 Jam' : (destination.hours || 'Menyesuaikan kondisi lapangan');
+  const durationDisplay = isAdventure ? '2–3 Jam' : (destination.hours || '08.00 – 17.00 WITA');
 
-  // Nearby waypoint recommendations matching corridor
-  const nearbyPlaces = DESTINATIONS
-    .filter((d) => d.id !== destination.id && d.region === destination.region).slice(0, 3)
+  // Dynamic nearby waypoint recommendations calculated via Haversine distance
+  const currentCoords = parseCoords(destination);
+  const nearbyPlaces = allDestinations
+    .filter((d) => d.id !== destination.id)
+    .map((d) => {
+      const dCoords = parseCoords(d);
+      let distKm = 10;
+      if (currentCoords && dCoords) {
+        distKm = estimateRoadDistanceKm(
+          calculateHaversineDistance(currentCoords.lat, currentCoords.lng, dCoords.lat, dCoords.lng)
+        );
+      }
+      return {
+        ...d,
+        calculatedDistKm: distKm,
+        calculatedDistStr: formatDistanceKm(distKm),
+      };
+    })
+    .sort((a, b) => a.calculatedDistKm - b.calculatedDistKm)
+    .slice(0, 3);
+
+  const getFacilityIcon = (icon?: string, name?: string) => {
+    const text = `${icon || ''} ${name || ''}`.toLowerCase();
+    if (text.includes('parkir') || text.includes('parking')) return '🅿️';
+    if (text.includes('makan') || text.includes('kuliner') || text.includes('kantin') || text.includes('fork') || text.includes('warung')) return '🍽️';
+    if (text.includes('inap') || text.includes('bed') || text.includes('lodge') || text.includes('gazebo')) return '🛏️';
+    if (text.includes('foto') || text.includes('camera') || text.includes('selfie')) return '📷';
+    if (text.includes('sholat') || text.includes('musholla') || text.includes('masjid')) return '🕌';
+    if (text.includes('toilet') || text.includes('wc') || text.includes('bilas')) return '🚿';
+    if (text.includes('pelampung') || text.includes('life') || text.includes('shield') || text.includes('retribusi')) return '🛡️';
+    if (text.includes('rakit') || text.includes('boat') || text.includes('tubing')) return '🚣';
+    return '📍';
+  };
 
   return (
     <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -172,7 +185,7 @@ export const DestinationDetailPage: React.FC = () => {
           <span>/</span>
           <Link to="/directory" style={{ color: 'var(--meratus-muted)', textDecoration: 'none' }}>Katalog Destinasi</Link>
           <span>/</span>
-          <span style={{ color: 'var(--meratus-subtle)' }}>Loksado</span>
+          <span style={{ color: 'var(--meratus-subtle)' }}>{destination.region || destination.category || 'HSS'}</span>
           <span>/</span>
           <span style={{ color: 'var(--meratus-deep)', fontWeight: 700 }}>{destination.name}</span>
         </div>
@@ -208,7 +221,7 @@ export const DestinationDetailPage: React.FC = () => {
               </span>
               <span>•</span>
               <span style={{ color: '#994700', fontWeight: 700 }}>
-                {destination.distance ? `${destination.distance} km dari Lokasi Anda` : 'Jarak tidak tersedia'}
+                {destination.distance || 'Hulu Sungai Selatan'}
               </span>
             </div>
           </div>
@@ -279,7 +292,7 @@ export const DestinationDetailPage: React.FC = () => {
             <div className="detail-main-photo-caption">
               <div>
                 <strong style={{ fontSize: 14 }}>{destination.name}</strong>
-                <div style={{ fontSize: 11.5, opacity: 0.85 }}>Lanskap Warisan Geopark Meratus Loksado</div>
+                <div style={{ fontSize: 11.5, opacity: 0.85 }}>{destination.location || 'Kabupaten Hulu Sungai Selatan'}</div>
               </div>
               <span
                 style={{
@@ -300,23 +313,23 @@ export const DestinationDetailPage: React.FC = () => {
             <div className="detail-sub-photo-item">
               <img
                 src={subImg1}
-                alt="Riam Sungai Amandit"
+                alt={destination.name}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/Air-Terjun-Haratai.jpg';
                 }}
               />
-              <div className="detail-sub-photo-caption">Riam Alami &amp; Hutan Ulin</div>
+              <div className="detail-sub-photo-caption">Area Wisata {destination.name}</div>
             </div>
 
             <div className="detail-sub-photo-item">
               <img
                 src={subImg2}
-                alt="Karst Meratus"
+                alt={destination.name}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/langara.jpg';
                 }}
               />
-              <div className="detail-sub-photo-caption">Siluet Tebing Karst Meratus</div>
+              <div className="detail-sub-photo-caption">Panorama Lanskap {destination.region || 'HSS'}</div>
             </div>
           </div>
         </section>
@@ -334,10 +347,10 @@ export const DestinationDetailPage: React.FC = () => {
                 <span>🏷️ Tarif: {priceDisplay}</span>
               </span>
               <span style={{ background: '#F5EFE6', color: '#6A432D', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span>👥 {isRafting ? 'Maks 3 Orang / Rakit' : 'Semua Usia'}</span>
+                <span>👥 {isAdventure ? 'Didampingi Pemandu Lokal' : 'Semua Usia & Wisatawan'}</span>
               </span>
               <span style={{ background: '#F5EFE6', color: '#6A432D', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span>👨‍👩‍👧 Ramah Keluarga &amp; Pemula</span>
+                <span>👨‍👩‍👧 Ramah Keluarga &amp; Pengunjung</span>
               </span>
             </div>
 
@@ -351,13 +364,13 @@ export const DestinationDetailPage: React.FC = () => {
                 {destination.fullDescription || destination.description || 'Deskripsi destinasi belum tersedia.'}
               </p>
 
-              {/* 3 Highlight Feature Cards */}
+              {/* Highlight Feature Cards */}
               <div className="detail-features-grid">
                 <div className="detail-feature-card">
                   {(destination.facilities || []).slice(0,3).map((f) => (
                     <div className="detail-feature-item" key={f.name}>
                       <div style={{ fontSize: 20, marginBottom: 6 }}>
-                        {facilityIcon[f.icon] || '📍'}
+                        {getFacilityIcon(f.icon, f.name)}
                       </div>
                       <h4 className="detail-feature-title">{f.name}</h4>
                       <p className="detail-feature-desc">
@@ -373,14 +386,14 @@ export const DestinationDetailPage: React.FC = () => {
             <div className="detail-article-card">
               <h3 className="detail-section-title">Fasilitas &amp; Layanan Lapangan</h3>
               <p style={{ fontSize: 13, color: 'var(--meratus-muted)', marginBottom: 16 }}>
-                Kenyamanan sarana dan akomodasi pendukung yang tersedia di sekitar lokasi destinasi:
+                Kenyamanan sarana dan sarana pendukung yang tersedia di sekitar lokasi destinasi:
               </p>
 
               <div className="detail-facilities-grid">
                 {(destination.facilities || []).map((f) => (
                   <div className="detail-facility-pill" key={f.name}>
-                    <span> {f.icon} </span>
-                    <span> {f.name} </span>
+                    <span>{getFacilityIcon(f.icon, f.name)}</span>
+                    <span>{f.name}</span>
                   </div>
                 ))}
               </div>
@@ -399,12 +412,11 @@ export const DestinationDetailPage: React.FC = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {nearbyPlaces.map((place) => {
-                  const matched = DESTINATIONS.find((d) => d.name.toLowerCase().includes(place.name.toLowerCase()));
-                  const inItin = matched && itinerary.some((d) => d.id === matched.id);
+                  const inItin = itinerary.some((d) => d.id === place.id);
 
                   return (
                     <div
-                      key={place.name}
+                      key={place.id}
                       style={{
                         background: '#F8FAF8',
                         border: '1px solid #E2EAE4',
@@ -421,36 +433,35 @@ export const DestinationDetailPage: React.FC = () => {
                           {place.name}
                         </h4>
                         <p style={{ fontSize: 12, color: 'var(--meratus-muted)', margin: 0 }}>
-                          {place.distance}
+                          {place.calculatedDistStr} dari sini • {place.category || 'Wisata HSS'}
                         </p>
                       </div>
 
                       <button
                         onClick={() => {
-                          if (matched && !inItin) {
-                            const updated = [...itinerary, matched];
+                          if (!inItin) {
+                            const updated = [...itinerary, place];
                             setItinerary(updated);
                             localStorage.setItem('belalah_itinerary', JSON.stringify(updated));
                             window.dispatchEvent(new Event('storage'));
-                            showToast(`${matched.name} ditambahkan ke rute!`);
+                            showToast(`${place.name} ditambahkan ke rute!`);
                           }
                         }}
                         disabled={inItin}
                         style={{
-                          height: 36,
-                          padding: '0 14px',
-                          borderRadius: 10,
-                          border: '1px solid #E2EAE4',
-                          background: inItin ? '#012D1D' : '#ffffff',
-                          color: inItin ? '#ffffff' : 'var(--meratus-deep)',
+                          background: inItin ? '#012D1D' : '#EDF5F0',
+                          border: 'none',
+                          color: inItin ? '#ffffff' : '#012D1D',
+                          borderRadius: 8,
+                          padding: '7px 14px',
                           fontSize: 12,
                           fontWeight: 700,
                           cursor: inItin ? 'default' : 'pointer',
-                          whiteSpace: 'nowrap',
                           transition: 'all 0.15s ease',
+                          flexShrink: 0,
                         }}
                       >
-                        {inItin ? '✓ Di Rute' : '+ Tambah'}
+                        {inItin ? '✓ Ada di Rute' : '+ Sisipkan'}
                       </button>
                     </div>
                   );

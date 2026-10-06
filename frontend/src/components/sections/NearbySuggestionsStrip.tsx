@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Destination } from '../../constants/destinations';
+import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../../utils/geo';
 
 interface NearbySuggestionsStripProps {
   destinations: Destination[];
@@ -12,29 +13,44 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
   selectedDestinations,
   onAddDestination,
 }) => {
-  const suggestions = [
-    {
-      name: 'Bukit Langara',
-      category: 'Karst Panorama',
-      distance: '3.2 km',
-      extraTime: '+ 6 mnt perjalanan',
-      targetName: 'Bukit Langara',
-    },
-    {
-      name: 'Balai Adat Malaris',
-      category: 'Budaya Dayak Meratus',
-      distance: '0.8 km',
-      extraTime: '+ 12 mnt perjalanan',
-      targetName: 'Balai Adat Malaris',
-    },
-    {
-      name: 'Air Terjun Riam Hanai',
-      category: 'Wisata Air Terjun',
-      distance: '2.1 km',
-      extraTime: '+ 8 mnt perjalanan',
-      targetName: 'Riam Barajang dan Riam Hanai',
-    },
-  ];
+  // Reference point: last selected destination or Basecamp Kandangan
+  const referencePoint = useMemo(() => {
+    if (selectedDestinations.length > 0) {
+      const last = selectedDestinations[selectedDestinations.length - 1];
+      const coords = parseCoords(last);
+      if (coords) return coords;
+    }
+    return { lat: -2.7758, lng: 115.2635 };
+  }, [selectedDestinations]);
+
+  // Compute nearby unselected suggestions dynamically via Haversine
+  const dynamicSuggestions = useMemo(() => {
+    const unselected = destinations.filter(
+      (d) => !selectedDestinations.some((sd) => sd.id === d.id)
+    );
+
+    const scored = unselected.map((item) => {
+      const coords = parseCoords(item);
+      let distKm = 10;
+      if (coords) {
+        distKm = estimateRoadDistanceKm(
+          calculateHaversineDistance(referencePoint.lat, referencePoint.lng, coords.lat, coords.lng)
+        );
+      }
+      const extraMinutes = Math.max(4, Math.round((distKm / 35) * 60));
+
+      return {
+        item,
+        distanceStr: formatDistanceKm(distKm),
+        extraTimeStr: `+ ${extraMinutes} mnt perjalanan`,
+        distKm,
+      };
+    });
+
+    // Sort by shortest distance
+    scored.sort((a, b) => a.distKm - b.distKm);
+    return scored.slice(0, 4);
+  }, [destinations, selectedDestinations, referencePoint]);
 
   return (
     <div className="bh-container" style={{ marginTop: 32, marginBottom: 80 }}>
@@ -61,7 +77,7 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
             Destinasi Terdekat Sekitarmu
           </h2>
           <p style={{ fontSize: 12.5, color: '#57534E', margin: 0 }}>
-            Optimal untuk disinggahi searah alur utama
+            Optimal untuk disinggahi searah koridor perjalanan
           </p>
         </div>
 
@@ -76,7 +92,7 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
             fontWeight: 700,
           }}
         >
-          <span>↗ Haversine 0/2</span>
+          <span>↗ Haversine ({dynamicSuggestions.length} Pilihan)</span>
         </div>
       </div>
 
@@ -91,23 +107,18 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
           msOverflowStyle: 'none',
         }}
       >
-        {suggestions.map((item) => {
-          const matched = destinations.find(
-            (d) =>
-              d.name.toLowerCase().includes(item.targetName.toLowerCase()) ||
-              item.targetName.toLowerCase().includes(d.name.toLowerCase())
-          );
-          const isAlreadyAdded = matched && selectedDestinations.some((sd) => sd.id === matched.id);
+        {dynamicSuggestions.map(({ item, distanceStr, extraTimeStr }) => {
+          const isAlreadyAdded = selectedDestinations.some((sd) => sd.id === item.id);
 
           return (
             <div
-              key={item.name}
+              key={item.id}
               style={{
                 background: '#EDF5F0',
                 border: '1px solid #D7E5DC',
                 borderRadius: 16,
                 padding: '12px 14px',
-                minWidth: 190,
+                minWidth: 200,
                 flex: '0 0 auto',
                 display: 'flex',
                 flexDirection: 'column',
@@ -133,7 +144,9 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      maxWidth: 130,
                     }}
+                    title={item.name}
                   >
                     {item.name}
                   </span>
@@ -146,14 +159,15 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
                       padding: '2px 7px',
                       borderRadius: 9999,
                       marginLeft: 6,
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    {item.distance}
+                    {distanceStr}
                   </span>
                 </div>
 
                 <div style={{ fontSize: 11, color: '#57534E', marginBottom: 12 }}>
-                  {item.category}
+                  {item.category || item.region || 'Wisata HSS'}
                 </div>
               </div>
 
@@ -166,13 +180,13 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
                 }}
               >
                 <span style={{ fontSize: 11, color: '#6E7972', fontWeight: 500 }}>
-                  {item.extraTime}
+                  {extraTimeStr}
                 </span>
 
                 <button
                   onClick={() => {
-                    if (matched && !isAlreadyAdded) {
-                      onAddDestination(matched);
+                    if (!isAlreadyAdded) {
+                      onAddDestination(item);
                     }
                   }}
                   disabled={isAlreadyAdded}

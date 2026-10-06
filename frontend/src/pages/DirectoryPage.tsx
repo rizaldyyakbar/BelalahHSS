@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import StickyRouteSummaryBar from '../components/composite/StickyRouteSummaryBar';
 import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
-import { fetchRecommendations } from '../services/api';
+import { fetchRecommendations, fetchCategories, ApiCategory } from '../services/api';
+import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../utils/geo';
 
 export const DirectoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const DirectoryPage: React.FC = () => {
   const initialCategory = searchParams.get('category') || 'Semua';
 
   const [destinations, setDestinations] = useState<Destination[]>(DESTINATIONS);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [sortOption, setSortOption] = useState<string>('saw');
@@ -31,23 +33,38 @@ export const DirectoryPage: React.FC = () => {
     }
   }, []);
 
-  const categoryMapToId: Record<string, number | undefined> = {
-    'Semua': undefined,
-    'Wisata Alam': 1,
-    'Wisata Budaya': 2,
-    'Petualangan': 3,
-    'Petualangan Sungai': 3,
-  };
+  // Fetch dynamic categories from backend
+  useEffect(() => {
+    let isMounted = true;
+    fetchCategories().then((cats) => {
+      if (isMounted && cats && cats.length > 0) {
+        setCategories(cats);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Category ID resolution for API querying
+  const activeCategoryId = useMemo(() => {
+    if (!selectedCategory || selectedCategory === 'Semua') return undefined;
+    const match = categories.find(
+      (c) => c.name.toLowerCase() === selectedCategory.toLowerCase() ||
+             selectedCategory.toLowerCase().includes(c.name.toLowerCase()) ||
+             c.name.toLowerCase().includes(selectedCategory.toLowerCase())
+    );
+    return match ? match.id : undefined;
+  }, [selectedCategory, categories]);
 
   // Fetch live destinations from backend with live search and category query
   useEffect(() => {
     let isMounted = true;
     const timer = setTimeout(async () => {
-      const catId = categoryMapToId[selectedCategory];
       const res = await fetchRecommendations({
         limit: 50,
         search: searchQuery.trim() || undefined,
-        category_id: catId,
+        category_id: activeCategoryId,
       });
       if (isMounted && res.destinations && res.destinations.length > 0) {
         setDestinations(res.destinations);
@@ -58,7 +75,7 @@ export const DirectoryPage: React.FC = () => {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, activeCategoryId]);
 
   const saveItinerary = (updated: Destination[]) => {
     setItinerary(updated);
@@ -74,26 +91,43 @@ export const DirectoryPage: React.FC = () => {
     }
   };
 
-  // Category counts
-  const categoriesList = [
-    { label: 'Semua', count: destinations.length },
-    {
-      label: 'Wisata Alam',
-      count: destinations.filter((d) => d.category === 'Alam').length,
-    },
-    {
-      label: 'Wisata Budaya',
-      count: destinations.filter((d) => d.category === 'Budaya' || d.name.toLowerCase().includes('adat') || d.name.toLowerCase().includes('museum')).length,
-    },
-    {
-      label: 'Air Terjun',
-      count: destinations.filter((d) => d.name.toLowerCase().includes('air') || d.name.toLowerCase().includes('riam')).length,
-    },
-    {
-      label: 'Petualangan Sungai',
-      count: destinations.filter((d) => d.name.toLowerCase().includes('rafting') || d.name.toLowerCase().includes('sungai') || d.name.toLowerCase().includes('panas')).length,
-    },
-  ];
+  // Dynamic category pills list with real counts
+  const categoriesList = useMemo(() => {
+    const list = [{ label: 'Semua', count: destinations.length }];
+
+    if (categories.length > 0) {
+      categories.forEach((cat) => {
+        const count = destinations.filter((d) => {
+          if (!d.category) return false;
+          return d.category.toLowerCase().includes(cat.name.toLowerCase()) ||
+                 cat.name.toLowerCase().includes(d.category.toLowerCase());
+        }).length;
+
+        list.push({
+          label: cat.name,
+          count: count > 0 ? count : (cat.destinations_count || 0),
+        });
+      });
+    } else {
+      // Fallback categories if API is offline
+      list.push(
+        {
+          label: 'Wisata Alam',
+          count: destinations.filter((d) => d.category?.toLowerCase().includes('alam')).length,
+        },
+        {
+          label: 'Wisata Budaya',
+          count: destinations.filter((d) => d.category?.toLowerCase().includes('budaya') || d.name.toLowerCase().includes('adat') || d.name.toLowerCase().includes('museum')).length,
+        },
+        {
+          label: 'Petualangan',
+          count: destinations.filter((d) => d.category?.toLowerCase().includes('petualangan') || d.name.toLowerCase().includes('rafting') || d.name.toLowerCase().includes('sungai')).length,
+        }
+      );
+    }
+
+    return list;
+  }, [categories, destinations]);
 
   // Filtering & Sorting
   const filtered = destinations.filter((dest) => {
@@ -105,11 +139,18 @@ export const DirectoryPage: React.FC = () => {
 
     if (!matchesSearch) return false;
     if (selectedCategory === 'Semua') return true;
-    if (selectedCategory === 'Wisata Alam') return dest.category === 'Alam';
-    if (selectedCategory === 'Wisata Budaya') return dest.category === 'Budaya' || dest.name.toLowerCase().includes('adat');
-    if (selectedCategory === 'Air Terjun') return dest.name.toLowerCase().includes('air') || dest.name.toLowerCase().includes('riam');
-    if (selectedCategory === 'Petualangan Sungai') return dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai');
-    return true;
+
+    const destCat = (dest.category || '').toLowerCase();
+    const selCat = selectedCategory.toLowerCase();
+
+    return (
+      destCat.includes(selCat) ||
+      selCat.includes(destCat) ||
+      (selCat.includes('alam') && destCat.includes('alam')) ||
+      (selCat.includes('budaya') && (destCat.includes('budaya') || dest.name.toLowerCase().includes('adat'))) ||
+      (selCat.includes('terjun') && (dest.name.toLowerCase().includes('air') || dest.name.toLowerCase().includes('riam'))) ||
+      (selCat.includes('sungai') && (dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai')))
+    );
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -122,16 +163,12 @@ export const DirectoryPage: React.FC = () => {
     return 0;
   });
 
-  // Category tag label helper
+  // Dynamic Category Badge helper
   const getCategoryBadge = (dest: Destination) => {
-    const n = dest.name.toLowerCase();
-    if (n.includes('bamboo') || n.includes('rafting')) return 'WISATA PETUALANGAN';
-    if (n.includes('haratai')) return 'WISATA ALAM LINDUNG';
-    if (n.includes('malutu')) return 'WISATA TIRTA KELUARGA';
-    if (n.includes('langara')) return 'TREKKING KARST MERATUS';
-    if (n.includes('tanuhi')) return 'PEMANDIAN AIR PANAS';
-    if (n.includes('malaris') || n.includes('adat') || n.includes('museum')) return 'BUDAYA ADAT DAYAK';
-    return `${(dest.category || 'Wisata').toUpperCase()} MERATUS`;
+    if (dest.category) {
+      return dest.category.toUpperCase();
+    }
+    return 'WISATA MERATUS';
   };
 
   return (
@@ -295,27 +332,37 @@ export const DirectoryPage: React.FC = () => {
             {sorted.map((dest, index) => {
               const isInRoute = itinerary.some((d) => d.id === dest.id);
 
-              // Fallback image
-              let imgSrc = '/assets/balanting-paring.jpg';
-              if (dest.name.toLowerCase().includes('haratai') || dest.name.toLowerCase().includes('air')) {
-                imgSrc = '/assets/Air-Terjun-Haratai.jpg';
-              } else if (dest.name.toLowerCase().includes('malutu') || dest.name.toLowerCase().includes('bendungan')) {
-                imgSrc = '/assets/malutu.jpg';
-              } else if (dest.name.toLowerCase().includes('tanuhi') || dest.name.toLowerCase().includes('panas')) {
-                imgSrc = '/assets/tanuhi.jpg';
-              } else if (dest.name.toLowerCase().includes('langara') || dest.name.toLowerCase().includes('bukit')) {
-                imgSrc = '/assets/langara.jpg';
-              } else if (dest.name.toLowerCase().includes('malaris') || dest.name.toLowerCase().includes('adat')) {
-                imgSrc = '/assets/museum-rakyat.jpg';
+              // Image resolution
+              let imgSrc = dest.img || '/assets/balanting-paring.jpg';
+              if (!dest.img || dest.img === '/assets/balanting-paring.jpg') {
+                const lower = dest.name.toLowerCase();
+                if (lower.includes('haratai') || lower.includes('air')) {
+                  imgSrc = '/assets/Air-Terjun-Haratai.jpg';
+                } else if (lower.includes('malutu') || lower.includes('bendungan')) {
+                  imgSrc = '/assets/malutu.jpg';
+                } else if (lower.includes('tanuhi') || lower.includes('panas')) {
+                  imgSrc = '/assets/tanuhi.jpg';
+                } else if (lower.includes('langara') || lower.includes('bukit')) {
+                  imgSrc = '/assets/langara.jpg';
+                } else if (lower.includes('malaris') || lower.includes('adat') || lower.includes('museum')) {
+                  imgSrc = '/assets/museum-rakyat.jpg';
+                }
               }
 
-              // Distance tag
-              const kmMatch = dest.distance?.match(/(\d+(?:\.\d+)?)\s*km/i);
-              const distKm = kmMatch
-                ? kmMatch[1]
-                : (dest as any).distance_km !== undefined
-                  ? Number((dest as any).distance_km).toFixed(1)
-                  : `${30 + index * 4}`;
+              // Dynamic distance tag from Basecamp Kandangan
+              let distKm = '25.0';
+              const coords = parseCoords(dest);
+              if (coords) {
+                const calculatedKm = estimateRoadDistanceKm(
+                  calculateHaversineDistance(-2.7758, 115.2635, coords.lat, coords.lng)
+                );
+                distKm = calculatedKm.toFixed(1);
+              } else if (dest.distance) {
+                const kmMatch = dest.distance.match(/(\d+(?:\.\d+)?)\s*km/i);
+                if (kmMatch && kmMatch[1]) distKm = kmMatch[1];
+              } else if ((dest as any).distance_km !== undefined) {
+                distKm = Number((dest as any).distance_km).toFixed(1);
+              }
 
               // Pricing label
               const isRafting = dest.name.toLowerCase().includes('rafting');

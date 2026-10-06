@@ -1,48 +1,120 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../atomic/Icons';
+import { fetchCategories, ApiCategory } from '../../services/api';
+
+interface CategoryCardItem {
+  id: string | number;
+  name: string;
+  icon: string;
+  count: string;
+  description: string;
+  image: string;
+  filterKey: string;
+}
+
+const CATEGORY_META: Record<string, { icon: string; description: string; image: string }> = {
+  'wisata-alam': {
+    icon: '🌿',
+    description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
+    image: '/assets/langara.jpg',
+  },
+  'wisata-budaya': {
+    icon: '🏛️',
+    description: 'Balai Adat Malaris, Rumah Adat Dayak Bukit, museum, dan warisan kearifan lokal.',
+    image: '/assets/museum-rakyat.jpg',
+  },
+  'petualangan': {
+    icon: '🚣',
+    description: 'Bamboo rafting Sungai Amandit, arung riam alami, dan ekspedisi rimba Meratus.',
+    image: '/assets/balanting-paring.jpg',
+  },
+  'religi': {
+    icon: '🕌',
+    description: 'Ziarah makam ulama kharismatik dan situs spiritual bersejarah di bumi Antaludin.',
+    image: '/assets/museum-rakyat.jpg',
+  },
+  'kuliner': {
+    icon: '🍲',
+    description: 'Ketupat Kandangan otentik, dodol HSS, dan ragam kuliner khas Banjar Pahuluan.',
+    image: '/assets/balanting-paring.jpg',
+  },
+};
 
 export const BrowseByCategory: React.FC = () => {
   const navigate = useNavigate();
-
-  const categories = [
+  const [categories, setCategories] = useState<CategoryCardItem[]>([
     {
-      id: 'alam',
+      id: 'wisata-alam',
       name: 'Wisata Alam',
       icon: '🌿',
-      count: '45 DESTINASI',
+      count: '16 DESTINASI',
       description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
       image: '/assets/langara.jpg',
-      filterKey: 'Alam',
+      filterKey: 'Wisata Alam',
     },
     {
-      id: 'air-terjun',
-      name: 'Air Terjun',
-      icon: '💧',
-      count: '28 DESTINASI',
-      description: 'Haratai, Riam Hanai, Kilat Api, Rampah Menjangan, dan gemericik air pegunungan alami.',
-      image: '/assets/Air-Terjun-Haratai.jpg',
-      filterKey: 'Air Terjun',
+      id: 'wisata-budaya',
+      name: 'Wisata Budaya',
+      icon: '🏛️',
+      count: '1 DESTINASI',
+      description: 'Balai Adat Malaris, Rumah Adat Dayak Bukit, museum, dan warisan kearifan lokal.',
+      image: '/assets/museum-rakyat.jpg',
+      filterKey: 'Wisata Budaya',
     },
     {
-      id: 'hiking',
-      name: 'Perbukitan & Hiking',
-      icon: '⛰️',
-      count: '18 DESTINASI',
-      description: 'Bukit Langara, Bukit Buan, tebing karst Meratus, dan spot sunrise di atas awan.',
-      image: '/assets/langara.jpg',
-      filterKey: 'Hiking',
-    },
-    {
-      id: 'sungai',
-      name: 'Petualangan Sungai',
+      id: 'petualangan',
+      name: 'Petualangan',
       icon: '🚣',
-      count: '14 DESTINASI',
-      description: 'Bamboo rafting Sungai Amandit, pemandian air panas Tanuhi, dan arung riam alami.',
+      count: '2 DESTINASI',
+      description: 'Bamboo rafting Sungai Amandit, arung jeram alami, dan ekspedisi rimba Meratus.',
       image: '/assets/balanting-paring.jpg',
-      filterKey: 'Sungai',
+      filterKey: 'Petualangan',
     },
-  ];
+    {
+      id: 'religi',
+      name: 'Wisata Religi',
+      icon: '🕌',
+      count: '2 DESTINASI',
+      description: 'Ziarah makam ulama kharismatik dan situs spiritual bersejarah di bumi Antaludin.',
+      image: '/assets/museum-rakyat.jpg',
+      filterKey: 'Religi',
+    },
+  ]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchCategories().then((apiCats) => {
+      if (!isMounted || !apiCats || apiCats.length === 0) return;
+
+      const dynamicCards: CategoryCardItem[] = apiCats.map((cat: ApiCategory) => {
+        const slug = cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-');
+        const meta = CATEGORY_META[slug] || {
+          icon: '📍',
+          description: `Jelajahi ragam destinasi ${cat.name} terbaik di Kabupaten Hulu Sungai Selatan.`,
+          image: '/assets/balanting-paring.jpg',
+        };
+
+        const countNum = cat.destinations_count !== undefined ? cat.destinations_count : 0;
+
+        return {
+          id: cat.id,
+          name: cat.name,
+          icon: meta.icon,
+          count: `${countNum} DESTINASI`,
+          description: meta.description,
+          image: meta.image,
+          filterKey: cat.name,
+        };
+      });
+
+      setCategories(dynamicCards);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="bh-container section-browse-category" style={{ marginTop: 52 }}>

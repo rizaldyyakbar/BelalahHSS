@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Icon } from '../atomic/Icons';
 import { Destination } from '../../constants/destinations';
+import { calculateRouteMetrics } from '../../utils/geo';
 
 interface StickyRouteSummaryBarProps {
   selectedDestinations: Destination[];
@@ -44,11 +45,11 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
   const count = selectedDestinations.length;
   const isDirectory = location.pathname.startsWith('/directory');
 
-  const estimatedKm = count === 2 ? '68.4' : (30 + count * 18.5).toFixed(1);
-  const durationText =
-    count === 2
-      ? '2 jam 15 mnt'
-      : `${Math.floor((Number(estimatedKm) * 1.95) / 60)}j ${Math.round((Number(estimatedKm) * 1.95) % 60)}m`;
+  const metrics = calculateRouteMetrics({ lat: -2.7758, lng: 115.2635 }, selectedDestinations);
+  const estimatedKm = metrics.totalDistanceKm.toFixed(1);
+  const durationText = metrics.totalDrivingHours > 0
+    ? `${metrics.totalDrivingHours} jam ${metrics.totalDrivingMins} mnt`
+    : `${metrics.totalDrivingMins} mnt`;
   const isOptimal = count >= 2 && count <= 3;
 
   return (

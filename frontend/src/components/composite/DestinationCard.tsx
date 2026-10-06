@@ -26,8 +26,12 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   onViewDetail = () => { },
   imageClass = 'forest',
 }) => {
-  const getImageUrl = (img: string) => {
-    if (!img) return '';
+  const getImageUrl = (img?: string) => {
+    if (!img) return '/assets/balanting-paring.jpg';
+    if (img.startsWith('http://') || img.startsWith('https://')) return img;
+    if (img.startsWith('/storage/')) return `http://127.0.0.1:8000${img}`;
+    if (img.startsWith('storage/')) return `http://127.0.0.1:8000/${img}`;
+    if (img.startsWith('/assets/')) return img;
     if (img.includes('.')) return `/assets/${img}`;
     return `/assets/${img}.jpg`;
   };

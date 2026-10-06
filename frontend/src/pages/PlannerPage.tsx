@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -7,6 +7,13 @@ import { DESTINATIONS, Destination } from '../constants/destinations';
 import { fetchRecommendations, optimizeRoute } from '../services/api';
 import { PlannerMapSection } from '../components/composite/PlannerMapSection';
 import { PlannerStickyExportBar } from '../components/composite/PlannerStickyExportBar';
+import {
+  calculateHaversineDistance,
+  estimateRoadDistanceKm,
+  formatDistanceKm,
+  parseCoords,
+  calculateRouteMetrics,
+} from '../utils/geo';
 
 export const PlannerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -214,23 +221,61 @@ ${routeTrack}
     showToast('Rute dikembalikan ke koridor standar Loksado.');
   };
 
-  // Distance / metric calculations
-  const totalKm = (itinerary.length * 15.8 + 8.4).toFixed(1);
-  const totalDrivingHours = Math.floor((itinerary.length * 40 + 20) / 60);
-  const totalDrivingMins = (itinerary.length * 40 + 20) % 60;
-  const totalTourHours = Math.floor((itinerary.length * 110 + 60) / 60);
-  const totalTourMins = (itinerary.length * 110 + 60) % 60;
+  // Dynamic route metrics computed from coordinates
+  const routeMetrics = useMemo(() => {
+    return calculateRouteMetrics(startPoint, itinerary);
+  }, [startPoint, itinerary]);
 
-  // Fallback image helper
+  const totalKm = routeMetrics.totalDistanceKm.toFixed(1);
+  const totalDrivingHours = routeMetrics.totalDrivingHours;
+  const totalDrivingMins = routeMetrics.totalDrivingMins;
+  const totalTourHours = routeMetrics.totalTourHours;
+  const totalTourMins = routeMetrics.totalTourMins;
+
+  // Image helper prioritizing dynamic dest.img
   const getDestImg = (dest: Destination) => {
+    if (dest.img && !dest.img.includes('balanting-paring.jpg')) {
+      return dest.img;
+    }
     const n = dest.name.toLowerCase();
     if (n.includes('haratai') || n.includes('air')) return '/assets/Air-Terjun-Haratai.jpg';
     if (n.includes('malutu') || n.includes('bendungan')) return '/assets/malutu.jpg';
     if (n.includes('tanuhi') || n.includes('panas')) return '/assets/tanuhi.jpg';
     if (n.includes('langara') || n.includes('bukit')) return '/assets/langara.jpg';
     if (n.includes('museum') || n.includes('budaya') || n.includes('malaris')) return '/assets/museum-rakyat.jpg';
-    return '/assets/balanting-paring.jpg';
+    return dest.img || '/assets/balanting-paring.jpg';
   };
+
+  // Dynamic candidate corridor stops (< 15 km along current itinerary)
+  const corridorSuggestions = useMemo(() => {
+    const unselected = availableDestinations.filter(
+      (d) => !itinerary.some((item) => item.id === d.id)
+    );
+
+    const scored = unselected.map((cand) => {
+      const cCoords = parseCoords(cand);
+      let minDeviation = 999;
+      if (cCoords) {
+        const points = [
+          { lat: startPoint.lat, lng: startPoint.lng },
+          ...(itinerary.map(parseCoords).filter(Boolean) as Array<{ lat: number; lng: number }>),
+        ];
+        for (const pt of points) {
+          const d = estimateRoadDistanceKm(
+            calculateHaversineDistance(pt.lat, pt.lng, cCoords.lat, cCoords.lng)
+          );
+          if (d < minDeviation) minDeviation = d;
+        }
+      }
+      return {
+        item: cand,
+        deviationKm: minDeviation === 999 ? 3.5 : minDeviation,
+      };
+    });
+
+    scored.sort((a, b) => a.deviationKm - b.deviationKm);
+    return scored.slice(0, 3);
+  }, [availableDestinations, itinerary, startPoint]);
 
   // Timeline UI renderer
   const renderTimelineStops = () => (
@@ -280,8 +325,18 @@ ${routeTrack}
       {itinerary.map((dest, idx) => {
         const stepNum = String(idx + 1).padStart(2, '0');
         const isLast = idx === itinerary.length - 1;
-        const distFromPrev = `${(14 + idx * 7.5).toFixed(1)} km`;
-        const timeFromPrev = `${25 + idx * 10} mnt`;
+        const prevCoords = idx === 0
+          ? { lat: startPoint.lat, lng: startPoint.lng }
+          : parseCoords(itinerary[idx - 1]);
+        const currCoords = parseCoords(dest);
+        let distNum = 14 + idx * 7.5;
+        if (prevCoords && currCoords) {
+          distNum = estimateRoadDistanceKm(
+            calculateHaversineDistance(prevCoords.lat, prevCoords.lng, currCoords.lat, currCoords.lng)
+          );
+        }
+        const distFromPrev = formatDistanceKm(distNum);
+        const timeFromPrev = `${Math.max(5, Math.round((distNum / 35) * 60))} mnt`;
 
         return (
           <div key={dest.id} style={{ display: 'flex', gap: 14, position: 'relative' }}>
@@ -463,37 +518,67 @@ ${routeTrack}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <img src="/assets/langara.jpg" alt="Bukit Langara" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: '#012D1D' }}>Bukit Langara</div>
-                <div style={{ fontSize: 11.5, color: '#FD934C', fontWeight: 600 }}>+1.2 km deviasi • Panorama Karst</div>
-              </div>
+          {corridorSuggestions.length === 0 ? (
+            <div style={{ fontSize: 12, color: '#6E7972', fontStyle: 'italic', padding: '10px 0' }}>
+              Semua destinasi utama sudah masuk dalam rute perjalanan Anda.
             </div>
-            <button
-              onClick={() => handleInsertCorridorDestination('Bukit Langara')}
-              style={{ background: '#EDF5F0', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 700, color: '#012D1D', cursor: 'pointer' }}
-            >
-              + Sisipkan
-            </button>
-          </div>
-
-          <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <img src="/assets/museum-rakyat.jpg" alt="Balai Adat Malaris" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: '#012D1D' }}>Balai Adat Malaris</div>
-                <div style={{ fontSize: 11.5, color: '#FD934C', fontWeight: 600 }}>+0.8 km deviasi • Adat Dayak Meratus</div>
+          ) : (
+            corridorSuggestions.map(({ item, deviationKm }) => (
+              <div
+                key={item.id}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #EBEFEA',
+                  borderRadius: 14,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <img
+                    src={getDestImg(item)}
+                    alt={item.name}
+                    style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
+                    }}
+                  />
+                  <div>
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: '#012D1D' }}>
+                      {item.name}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: '#FD934C', fontWeight: 600 }}>
+                      +{formatDistanceKm(deviationKm)} deviasi • {item.category || item.region || 'Meratus'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    if (!itinerary.some((d) => d.id === item.id)) {
+                      saveItinerary([...itinerary, item]);
+                      showToast(`${item.name} berhasil disisipkan ke koridor rute!`);
+                    }
+                  }}
+                  style={{
+                    background: '#EDF5F0',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '7px 14px',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#012D1D',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  + Sisipkan
+                </button>
               </div>
-            </div>
-            <button
-              onClick={() => handleInsertCorridorDestination('Balai Adat Malaris')}
-              style={{ background: '#EDF5F0', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 700, color: '#012D1D', cursor: 'pointer' }}
-            >
-              + Sisipkan
-            </button>
-          </div>
+            ))
+          )}
         </div>
       </div>
     </div>

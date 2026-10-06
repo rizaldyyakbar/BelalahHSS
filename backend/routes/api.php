@@ -7,10 +7,15 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DestinationController;
 use App\Http\Controllers\Api\RecommendationController;
 
-// Public endpoint with rate limiting (100 requests per minute per IP)
+// Public endpoints with rate limiting
+Route::get('/categories', [CategoryController::class, 'index'])
+    ->middleware('throttle:100,1')
+    ->name('categories.index');
+
 Route::get('/destinations/{id}', [DestinationController::class, 'show'])
     ->middleware('throttle:100,1')
     ->name('destinations.show');

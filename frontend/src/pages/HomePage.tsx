@@ -77,11 +77,17 @@ export const HomePage: React.FC = () => {
   // Filtered destinations for the popular section based on category selection
   const filteredDestinations = destinations.filter((d) => {
     if (selectedCategory === 'Semua') return true;
-    if (selectedCategory === 'Wisata Alam') return d.category === 'Alam';
-    if (selectedCategory === 'Wisata Budaya') return d.category === 'Budaya';
-    if (selectedCategory === 'Air Terjun') return d.name.toLowerCase().includes('air terjun') || d.name.toLowerCase().includes('riam');
-    if (selectedCategory === 'Petualangan Sungai') return d.name.toLowerCase().includes('rafting') || d.name.toLowerCase().includes('sungai') || d.name.toLowerCase().includes('panas');
-    return true;
+    const destCat = (d.category || '').toLowerCase();
+    const selCat = selectedCategory.toLowerCase();
+
+    return (
+      destCat.includes(selCat) ||
+      selCat.includes(destCat) ||
+      (selCat.includes('alam') && destCat.includes('alam')) ||
+      (selCat.includes('budaya') && (destCat.includes('budaya') || d.name.toLowerCase().includes('adat'))) ||
+      (selCat.includes('terjun') && (d.name.toLowerCase().includes('air') || d.name.toLowerCase().includes('riam'))) ||
+      (selCat.includes('sungai') && (d.name.toLowerCase().includes('rafting') || d.name.toLowerCase().includes('sungai') || d.name.toLowerCase().includes('panas')))
+    );
   });
 
   const handleAddDestination = (dest: Destination) => {

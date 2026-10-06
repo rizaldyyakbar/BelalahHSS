@@ -125,12 +125,13 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
           ? Math.round(item.score * 100)
           : (item.saw_score !== undefined ? Math.round(item.saw_score * 100) : localMatch?.popularitas || (96 - index * 2));
 
-        const ticketPrice = item.values && item.values['3']
-          ? `Rp ${Number(item.values['3']).toLocaleString('id-ID')}`
+        const rawTicketPrice = item.values?.['3'] ?? item.values?.['Harga Tiket'];
+        const ticketPrice = rawTicketPrice !== undefined
+          ? `Rp ${Number(rawTicketPrice).toLocaleString('id-ID')}`
           : localMatch?.entrance || 'Rp 10.000';
 
         return {
-          id: localMatch?.id ?? item.id,
+          id: item.id,
           name: item.name,
           category: item.category?.name || localMatch?.category || 'Wisata Alam',
           region: regionStr,
@@ -270,4 +271,39 @@ export async function fetchDestinationById(
 
   return DESTINATIONS.find((d) => d.id === id) || null;
 }
+
+export interface ApiCategory {
+  id: number;
+  name: string;
+  slug: string;
+  destinations_count?: number;
+}
+
+/**
+ * Fetch list of tourism categories with destination count from backend
+ */
+export async function fetchCategories(): Promise<ApiCategory[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (response.ok) {
+      const res = await response.json();
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        return res.data;
+      }
+    }
+  } catch (error) {
+    console.warn('[Belalah API] Failed fetching categories, using fallback:', error);
+  }
+
+  return [
+    { id: 1, name: 'Wisata Alam', slug: 'wisata-alam', destinations_count: 14 },
+    { id: 2, name: 'Wisata Budaya', slug: 'wisata-budaya', destinations_count: 3 },
+    { id: 3, name: 'Petualangan', slug: 'petualangan', destinations_count: 2 },
+    { id: 4, name: 'Religi', slug: 'religi', destinations_count: 2 },
+    { id: 5, name: 'Kuliner', slug: 'kuliner', destinations_count: 0 },
+  ];
+}
+
 

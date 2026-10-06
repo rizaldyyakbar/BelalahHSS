@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Icon } from '../atomic/Icons';
 import { Destination } from '../../constants/destinations';
 
@@ -14,14 +14,6 @@ interface HeroSectionProps {
   onBuildRoute: () => void;
 }
 
-const CATEGORIES = [
-  'Semua',
-  'Wisata Alam',
-  'Wisata Budaya',
-  'Air Terjun',
-  'Petualangan Sungai',
-];
-
 export const HeroSection: React.FC<HeroSectionProps> = ({
   selectedDestinations,
   onRemoveDestination,
@@ -34,6 +26,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onBuildRoute,
 }) => {
   const [showAddDropdown, setShowAddDropdown] = useState(false);
+
+  // Dynamic categories derived from live destinations
+  const categoriesList = useMemo(() => {
+    const set = new Set<string>();
+    availableDestinations.forEach((d) => {
+      if (d.category) set.add(d.category);
+    });
+    if (set.size > 0) {
+      return ['Semua', ...Array.from(set)];
+    }
+    return ['Semua', 'Wisata Alam', 'Wisata Budaya', 'Petualangan', 'Religi'];
+  }, [availableDestinations]);
 
   // Filter unselected destinations for the dropdown
   const unselectedDestinations = availableDestinations.filter(
@@ -289,7 +293,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span style={{ fontWeight: 700, color: 'var(--meratus-muted)', marginRight: 4, letterSpacing: '0.05em' }}>
                 KATEGORI:
               </span>
-              {CATEGORIES.map((cat) => {
+              {categoriesList.map((cat) => {
                 const isSelected = selectedCategory === cat;
                 return (
                   <button
