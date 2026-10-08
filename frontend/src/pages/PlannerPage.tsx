@@ -14,6 +14,7 @@ import {
   parseCoords,
   calculateRouteMetrics,
 } from '../utils/geo';
+import { getImageUrl } from '../utils/imageUrl';
 
 export const PlannerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -235,7 +236,7 @@ ${routeTrack}
   // Image helper prioritizing dynamic dest.img
   const getDestImg = (dest: Destination) => {
     if (dest.img && !dest.img.includes('balanting-paring.jpg')) {
-      return dest.img;
+      return getImageUrl(dest.img);
     }
     const n = dest.name.toLowerCase();
     if (n.includes('haratai') || n.includes('air')) return '/assets/Air-Terjun-Haratai.jpg';

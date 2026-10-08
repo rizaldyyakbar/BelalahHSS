@@ -13,6 +13,7 @@ import {
   ApiFacility,
 } from '../services/api';
 import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../utils/geo';
+import { getImageUrl } from '../utils/imageUrl';
 
 export const DestinationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,12 +136,12 @@ export const DestinationDetailPage: React.FC = () => {
   }
 
   // Photos resolution dynamically from backend data
-  const mainImg = destination.img || '/assets/balanting-paring.jpg';
+  const mainImg = getImageUrl(destination.img);
   const subImg1 = (destination.photos && destination.photos[0])
-    ? (destination.photos[0].startsWith('/') ? destination.photos[0] : `/assets/${destination.photos[0]}`)
+    ? getImageUrl(destination.photos[0])
     : (mainImg.includes('Haratai') ? '/assets/balanting-paring.jpg' : '/assets/Air-Terjun-Haratai.jpg');
   const subImg2 = (destination.photos && destination.photos[1])
-    ? (destination.photos[1].startsWith('/') ? destination.photos[1] : `/assets/${destination.photos[1]}`)
+    ? getImageUrl(destination.photos[1])
     : '/assets/langara.jpg';
 
   const isAdventure = (destination.category || '').toLowerCase().includes('petualang');

@@ -7,6 +7,7 @@ import RankBadge from '../atomic/RankBadge';
 import Button from '../atomic/Button';
 import { Destination } from '../../constants/destinations';
 import { getGoogleMapsRouteUrl } from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -26,15 +27,6 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   onViewDetail = () => { },
   imageClass = 'forest',
 }) => {
-  const getImageUrl = (img?: string) => {
-    if (!img) return '/assets/balanting-paring.jpg';
-    if (img.startsWith('http://') || img.startsWith('https://')) return img;
-    if (img.startsWith('/storage/')) return `http://127.0.0.1:8000${img}`;
-    if (img.startsWith('storage/')) return `http://127.0.0.1:8000/${img}`;
-    if (img.startsWith('/assets/')) return img;
-    if (img.includes('.')) return `/assets/${img}`;
-    return `/assets/${img}.jpg`;
-  };
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;

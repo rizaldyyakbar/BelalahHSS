@@ -17,12 +17,16 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // 1. Seed User
+        // 1. Seed User (Bisa dikustomisasi via ADMIN_EMAIL, ADMIN_PASSWORD di .env)
+        $adminEmail = env('ADMIN_EMAIL', 'admin@belalah-hss.id');
+        $adminPassword = env('ADMIN_PASSWORD', 'password');
+        $adminName = env('ADMIN_NAME', 'Administrator Belalah HSS');
+
         User::updateOrCreate([
-            'email' => 'test@example.com',
+            'email' => $adminEmail,
         ], [
-            'name' => 'Test User',
-            'password' => bcrypt('password'),
+            'name' => $adminName,
+            'password' => bcrypt($adminPassword),
         ]);
 
         // 2. Seed Criteria (Wajib lebih dulu agar criteria_id tersedia)

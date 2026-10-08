@@ -7,6 +7,7 @@ import { Icon } from '../components/atomic/Icons';
 import { DESTINATIONS, Destination } from '../constants/destinations';
 import { fetchRecommendations, fetchCategories, ApiCategory } from '../services/api';
 import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../utils/geo';
+import { getImageUrl } from '../utils/imageUrl';
 
 export const DirectoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -333,8 +334,8 @@ export const DirectoryPage: React.FC = () => {
               const isInRoute = itinerary.some((d) => d.id === dest.id);
 
               // Image resolution
-              let imgSrc = dest.img || '/assets/balanting-paring.jpg';
-              if (!dest.img || dest.img === '/assets/balanting-paring.jpg') {
+              let imgSrc = getImageUrl(dest.img);
+              if (!dest.img || dest.img === '/assets/balanting-paring.jpg' || dest.img === 'balanting-paring.jpg') {
                 const lower = dest.name.toLowerCase();
                 if (lower.includes('haratai') || lower.includes('air')) {
                   imgSrc = '/assets/Air-Terjun-Haratai.jpg';

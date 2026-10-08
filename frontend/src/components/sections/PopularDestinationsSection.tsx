@@ -3,6 +3,7 @@ import { Icon } from '../atomic/Icons';
 import { Destination } from '../../constants/destinations';
 
 import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../../utils/geo';
+import { getImageUrl } from '../../utils/imageUrl';
 
 interface PopularDestinationsSectionProps {
   destinations: Destination[];
@@ -56,8 +57,8 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
           const selected = isSelected(dest.id);
 
           // Resolve image dynamically from dest.img or contextual asset
-          let imgSrc = dest.img || '/assets/balanting-paring.jpg';
-          if (!dest.img || dest.img === '/assets/balanting-paring.jpg') {
+          let imgSrc = getImageUrl(dest.img);
+          if (!dest.img || dest.img === '/assets/balanting-paring.jpg' || dest.img === 'balanting-paring.jpg') {
             const lower = dest.name.toLowerCase();
             if (lower.includes('haratai') || lower.includes('air')) {
               imgSrc = '/assets/Air-Terjun-Haratai.jpg';

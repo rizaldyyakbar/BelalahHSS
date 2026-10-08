@@ -90,8 +90,13 @@ class RecommendationController extends Controller
 
         $candidateLimit = max($limit * 5, 50);
 
-        // Primary path: use PostGIS to fetch nearest candidates quickly.
-        $postgisSql = <<<SQL
+        $distanceById = [];
+        $destinationIds = [];
+
+        // Primary path: use PostGIS on PostgreSQL if available, otherwise fallback cleanly to Haversine.
+        if (DB::getDriverName() === 'pgsql') {
+            try {
+                $postgisSql = <<<SQL
 SELECT id,
        ROUND(
            ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng1, :lat1), 4326)::geography)::numeric / 1000,
@@ -102,44 +107,47 @@ WHERE location IS NOT NULL
   AND ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng2, :lat2), 4326)::geography, :radius_meters)
 SQL;
 
-        $postgisBindings = [
-            'lng1' => $userLng,
-            'lat1' => $userLat,
-            'lng2' => $userLng,
-            'lat2' => $userLat,
-            'radius_meters' => $radiusMeters,
-        ];
+                $postgisBindings = [
+                    'lng1' => $userLng,
+                    'lat1' => $userLat,
+                    'lng2' => $userLng,
+                    'lat2' => $userLat,
+                    'radius_meters' => $radiusMeters,
+                ];
 
-        if ($excludeDestinationId !== null) {
-            $postgisSql .= "\n  AND id <> :exclude_id";
-            $postgisBindings['exclude_id'] = $excludeDestinationId;
+                if ($excludeDestinationId !== null) {
+                    $postgisSql .= "\n  AND id <> :exclude_id";
+                    $postgisBindings['exclude_id'] = $excludeDestinationId;
+                }
+
+                if ($categoryId !== null) {
+                    $postgisSql .= "\n  AND category_id = :category_id";
+                    $postgisBindings['category_id'] = $categoryId;
+                }
+
+                if ($search !== null) {
+                    $postgisSql .= "\n  AND (name ILIKE :search OR address ILIKE :search)";
+                    $postgisBindings['search'] = '%' . $search . '%';
+                }
+
+                $postgisSql .= "\nORDER BY distance_km ASC\nLIMIT :candidate_limit";
+                $postgisBindings['candidate_limit'] = $candidateLimit;
+
+                $postgisRows = DB::select($postgisSql, $postgisBindings);
+
+                foreach ($postgisRows as $row) {
+                    $id = (int) $row->id;
+                    $destinationIds[] = $id;
+                    $distanceById[$id] = (float) $row->distance_km;
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('PostGIS spatial query failed, falling back to Haversine: ' . $e->getMessage());
+                $destinationIds = [];
+                $distanceById = [];
+            }
         }
 
-        if ($categoryId !== null) {
-            $postgisSql .= "\n  AND category_id = :category_id";
-            $postgisBindings['category_id'] = $categoryId;
-        }
-
-        if ($search !== null) {
-            $postgisSql .= "\n  AND (name ILIKE :search OR address ILIKE :search)";
-            $postgisBindings['search'] = '%' . $search . '%';
-        }
-
-        $postgisSql .= "\nORDER BY distance_km ASC\nLIMIT :candidate_limit";
-        $postgisBindings['candidate_limit'] = $candidateLimit;
-
-        $postgisRows = DB::select($postgisSql, $postgisBindings);
-
-        $distanceById = [];
-        $destinationIds = [];
-
-        foreach ($postgisRows as $row) {
-            $id = (int) $row->id;
-            $destinationIds[] = $id;
-            $distanceById[$id] = (float) $row->distance_km;
-        }
-
-        // Fallback path: if PostGIS returns no row, use Haversine for backward compatibility.
+        // Fallback path: if PostGIS is unavailable or returned no rows, use Haversine.
         if (empty($destinationIds)) {
             $allDestinationsQuery = Destination::whereNotNull('latitude')
                 ->whereNotNull('longitude')
@@ -155,9 +163,10 @@ SQL;
             }
 
             if ($search !== null) {
-                $allDestinationsQuery->where(function ($q) use ($search) {
-                    $q->where('name', 'ilike', "%{$search}%")
-                      ->orWhere('address', 'ilike', "%{$search}%");
+                $likeOp = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                $allDestinationsQuery->where(function ($q) use ($search, $likeOp) {
+                    $q->where('name', $likeOp, "%{$search}%")
+                      ->orWhere('address', $likeOp, "%{$search}%");
                 });
             }
 
@@ -190,9 +199,10 @@ SQL;
             }
 
             if ($search !== null) {
-                $destinationsQuery->where(function ($q) use ($search) {
-                    $q->where('name', 'ilike', "%{$search}%")
-                      ->orWhere('address', 'ilike', "%{$search}%");
+                $likeOp = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                $destinationsQuery->where(function ($q) use ($search, $likeOp) {
+                    $q->where('name', $likeOp, "%{$search}%")
+                      ->orWhere('address', $likeOp, "%{$search}%");
                 });
             }
 

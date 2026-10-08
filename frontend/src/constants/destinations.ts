@@ -55,7 +55,7 @@ export const DESTINATIONS: Destination[] = [
     reviews: 324,
     description: 'Objek wisata air terjun alami skala besar pada kawasan hutan lindung, dilengkapi perkebunan kayu manis dan peternakan madu kelulut.',
     fullDescription: 'Air Terjun Haratai menawarkan pemandangan air terjun bertingkat yang megah di tengah bentang alam Pegunungan Meratus. Tempat ini memiliki fasilitas gazebo, musholla, kantin, tempat selfie, jembatan gantung dekat air terjun, serta jalur akses pedesaan yang nyaman.',
-    photos: ['photo1.jpg', 'photo2.jpg', 'photo3.jpg'],
+    photos: ['Air-Terjun-Haratai.jpg', 'balanting-paring.jpg', 'langara.jpg'],
     facilities: [
       { icon: 'bed', name: 'Gazebo & Rest Area' },
       { icon: 'fork', name: 'Kantin & Warung' },
@@ -83,7 +83,7 @@ export const DESTINATIONS: Destination[] = [
     reviews: 412,
     description: 'Susur sungai Amandit mengarungi jeram dengan rakit bambu tradisional (Festival Loksado).',
     fullDescription: 'Balanting Paring (Bamboo Rafting) menawarkan pengalaman petualangan autentik menyusuri jeram Sungai Amandit berlatar belakang perbukitan hijau Meratus.',
-    photos: ['photo1.jpg', 'photo2.jpg'],
+    photos: ['balanting-paring.jpg', 'Air-Terjun-Haratai.jpg'],
     facilities: [
       { icon: 'bed', name: 'Dermaga Tambat' },
       { icon: 'fork', name: 'Rest Area Tepi Sungai' },
