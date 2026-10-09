@@ -84,83 +84,83 @@ class DatabaseSeeder extends Seeder
             ],
             'Bamboo Rafting Loksado' => [
                 'description' => 'Atraksi wisata petualangan menyusuri riam Sungai Amandit menggunakan rakit bambu tradisional khas Dayak Meratus.',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'image_url' => '/assets/bamboo-rafting.jpg',
             ],
             'Objek Wisata Air Panas Tanuhi' => [
                 'description' => 'Pemandian air panas alami belerang dengan fasilitas kolam renang bertingkat dan penginapan di tengah lembah.',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'image_url' => '/assets/air-panas-tanuhi.jpg',
             ],
             'Air Terjun Kilap Api' => [
                 'description' => 'Air terjun alami dengan kolam penampungan jernih di bawah tebing karst rindang.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => '/assets/air-terjun-kilap-api.jpg',
             ],
             'Riam Barajang dan Riam Hanai' => [
                 'description' => 'Jeram sungai berbatu dan air terjun kembar di aliran hulu sungai Amandit yang asri.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => '/assets/riam-barajang-hanai.jpg',
             ],
             'Balai Adat Malaris' => [
                 'description' => 'Pusat kebudayaan dan ritual adat suku Dayak Meratus (Aruh Bahanan / Aruh Ganal), rumah panggung tradisional ulin.',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'image_url' => '/assets/balai-adat-malaris.jpg',
             ],
             'Bukit Langara' => [
                 'description' => 'Gugusan bukit karst batu kapur dengan panorama spektakuler bentang alam sungai Amandit dan belantara rimba Meratus.',
-                'image_url' => '/assets/langara.jpg',
+                'image_url' => '/assets/bukit-langara.jpg',
             ],
             'Wisata Sungai Pariangan' => [
                 'description' => 'Kawasan pemandian dan arung sungai keluarga dengan bebatuan alami di Padang Batung.',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'image_url' => '/assets/sungai-pariangan.jpg',
             ],
             'Bukit Batu Laki' => [
                 'description' => 'Puncak perbukitan legendaris dengan lanskap batuan karst dan situs sejarah perjuangan rakyat Hulu Sungai.',
-                'image_url' => '/assets/langara.jpg',
+                'image_url' => '/assets/bukit-batu-laki.jpg',
             ],
             'Kalang Hadangan' => [
                 'description' => 'Wisata fenomena kerbau rawa berenang khas lahan basah Daha Utara dan susur rawa Danau Bangkau.',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'image_url' => '/assets/kalang-hadangan.jpg',
             ],
             'Bukit Batu Baduduk' => [
                 'description' => 'Gugusan batu unik berundak di perbukitan Telaga Langsat dengan panorama perladangan hijau.',
-                'image_url' => '/assets/langara.jpg',
+                'image_url' => '/assets/bukit-batu-baduduk.jpg',
             ],
             'Situs Pemandangan' => [
                 'description' => 'Gardu pandang panorama lembah Loksado dan bentang Pegunungan Meratus dari ketinggian.',
-                'image_url' => '/assets/langara.jpg',
+                'image_url' => '/assets/situs-pemandangan.jpg',
             ],
             'River Tubing Loksado' => [
                 'description' => 'Sensasi arung jeram menggunakan ban dalam karet menyusuri arus riam sungai Amandit.',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'image_url' => '/assets/river-tubing-loksado.jpg',
             ],
             'Air Terjun Mandin Mangapan' => [
                 'description' => 'Air terjun bertingkat eksotis dengan aliran air deras di tengah hutan perawan Loksado.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => '/assets/air-terjun-mandin-mangapan.jpg',
             ],
             'Air Terjun Rampah Menjangan' => [
                 'description' => 'Air terjun tersembunyi dengan vegetasi hutan lumut dan udara sejuk pegunungan.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => '/assets/air-terjun-rampah-menjangan.jpg',
             ],
             'Air Terjun Tinggiran Hayam' => [
                 'description' => 'Air terjun bertingkat dengan kolam alami yang dikelilingi tebing bebatuan purba.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => '/assets/air-terjun-tinggiran-hayam.jpg',
             ],
             'Puncak Bukit Batu Butahal' => [
                 'description' => 'Spot pendakian ringan dengan panorama matahari terbit berkabut di atas lembah Meratus.',
-                'image_url' => '/assets/langara.jpg',
+                'image_url' => '/assets/bukit-batu-butahal.jpg',
             ],
             'Air Terjun Tinggiran Mawang' => [
                 'description' => 'Air terjun alami dengan debit air deras di kawasan pedalaman Loksado.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => '/assets/air-terjun-tinggiran-mawang.jpg',
             ],
             'Masjid As-Suada (Wassah Hilir)' => [
                 'description' => 'Cagar budaya masjid bersejarah berarsitektur kayu ulin khas Banjar tertua di Kalimantan Selatan.',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'image_url' => '/assets/masjid-baangkat.jpg',
             ],
             'Makam Datu Kandang Haji' => [
                 'description' => 'Wisata ziarah dan cagar budaya makam ulama pejuang penyebar agama Islam di Bumi Antaludin.',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'image_url' => '/assets/makam-datu-kandang-haji.jpg',
             ],
             'Pemandian Alami Tirta Alam (Batu Bini)' => [
                 'description' => 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'image_url' => '/assets/tirta-alam-batu-bini.jpg',
             ],
         ];
 
