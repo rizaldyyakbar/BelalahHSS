@@ -23,20 +23,24 @@ export const HomePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [startPoint, setStartPoint] = useState<string>('kandangan');
 
-  // Initial selected destinations matching saved itinerary or default
+  // Initial selected destinations matching saved itinerary or empty by default
   const [selectedDestinations, setSelectedDestinations] = useState<Destination[]>(() => {
     try {
+      const initialized = localStorage.getItem('belalah_itinerary_v2');
+      if (!initialized) {
+        localStorage.removeItem('belalah_itinerary');
+        localStorage.setItem('belalah_itinerary_v2', 'true');
+        return [];
+      }
       const saved = localStorage.getItem('belalah_itinerary');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {
       // fallback
     }
-    const default1 = DESTINATIONS.find((d) => d.name.toLowerCase().includes('bamboo')) || DESTINATIONS[1];
-    const default2 = DESTINATIONS.find((d) => d.name.toLowerCase().includes('haratai')) || DESTINATIONS[0];
-    return [default1, default2].filter(Boolean) as Destination[];
+    return [];
   });
 
   // Keep localStorage and other components in sync
@@ -158,6 +162,7 @@ export const HomePage: React.FC = () => {
       <StickyRouteSummaryBar
         selectedDestinations={selectedDestinations}
         onContinue={handleBuildRoute}
+        onClear={() => setSelectedDestinations([])}
       />
 
       {/* 7. Comprehensive 4-Column Footer */}

@@ -22,8 +22,15 @@ export const DirectoryPage: React.FC = () => {
   const [sortOption, setSortOption] = useState<string>('saw');
   const [itinerary, setItinerary] = useState<Destination[]>([]);
 
-  // Load itinerary from localStorage on mount
+  // Load itinerary from localStorage on mount (clears out old hardcoded default on v2)
   useEffect(() => {
+    const initialized = localStorage.getItem('belalah_itinerary_v2');
+    if (!initialized) {
+      localStorage.removeItem('belalah_itinerary');
+      localStorage.setItem('belalah_itinerary_v2', 'true');
+      setItinerary([]);
+      return;
+    }
     const saved = localStorage.getItem('belalah_itinerary');
     if (saved) {
       try {
@@ -605,6 +612,7 @@ export const DirectoryPage: React.FC = () => {
       <StickyRouteSummaryBar
         selectedDestinations={itinerary}
         onContinue={() => navigate('/planner')}
+        onClear={() => saveItinerary([])}
       />
 
       <Footer />

@@ -7,16 +7,25 @@ import { calculateRouteMetrics } from '../../utils/geo';
 interface StickyRouteSummaryBarProps {
   selectedDestinations: Destination[];
   onContinue: () => void;
+  onClear?: () => void;
 }
 
 export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
   selectedDestinations,
   onContinue,
+  onClear,
 }) => {
   const location = useLocation();
   const [dismissed, setDismissed] = useState(false);
   const isHomePage = location.pathname === '/';
   const [isScrolled, setIsScrolled] = useState(!isHomePage);
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    if (onClear) {
+      onClear();
+    }
+  };
 
   // Reset dismissed state whenever destination count changes
   useEffect(() => {
@@ -121,7 +130,7 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
               <Icon.ArrowRight size={15} />
             </button>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={handleDismiss}
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -161,7 +170,7 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
               <Icon.ArrowRight size={13} />
             </button>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={handleDismiss}
               style={{
                 background: 'transparent',
                 border: 'none',

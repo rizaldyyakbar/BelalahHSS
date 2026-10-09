@@ -49,12 +49,20 @@ export const PlannerPage: React.FC = () => {
       if (!isMounted) return;
       setAvailableDestinations(allDests);
 
-      // Check localStorage or fallback to Malutu, Rafting, Haratai (matching authentic corridor)
+      // Check localStorage or default to empty
+      const initialized = localStorage.getItem('belalah_itinerary_v2');
+      if (!initialized) {
+        localStorage.removeItem('belalah_itinerary');
+        localStorage.setItem('belalah_itinerary_v2', 'true');
+        setItinerary([]);
+        return;
+      }
+
       const saved = localStorage.getItem('belalah_itinerary');
       if (saved) {
         try {
           const parsed = JSON.parse(saved) as Destination[];
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             setItinerary(parsed);
             return;
           }
@@ -63,11 +71,7 @@ export const PlannerPage: React.FC = () => {
         }
       }
 
-      // Default matching Loksado Corridor (Malutu, Rafting, Haratai)
-      const malutu = allDests.find((d) => d.name.toLowerCase().includes('malutu')) || allDests[7];
-      const rafting = allDests.find((d) => d.name.toLowerCase().includes('bamboo')) || allDests[1];
-      const haratai = allDests.find((d) => d.name.toLowerCase().includes('haratai')) || allDests[0];
-      setItinerary([malutu, rafting, haratai].filter(Boolean) as Destination[]);
+      setItinerary([]);
     };
 
     initData();
