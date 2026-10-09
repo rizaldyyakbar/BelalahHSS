@@ -159,7 +159,17 @@ export const DirectoryPage: React.FC = () => {
       return (b.popularitas || 0) - (a.popularitas || 0);
     }
     if (sortOption === 'price_asc') {
-      return (a.price || 0) - (b.price || 0);
+      const getVal = (d: Destination) => {
+        if (d.price !== undefined) {
+          return d.price < 1000 ? d.price * 1000 : d.price;
+        }
+        if (d.entrance) {
+          const num = parseInt(d.entrance.replace(/\D/g, ''), 10);
+          if (!isNaN(num)) return num;
+        }
+        return 10000;
+      };
+      return getVal(a) - getVal(b);
     }
     return 0;
   });
@@ -368,11 +378,20 @@ export const DirectoryPage: React.FC = () => {
               // Pricing label
               const isRafting = dest.name.toLowerCase().includes('rafting');
               const priceCategory = isRafting ? 'TARIF RAKIT' : 'TIKET / ORG';
-              const priceText = isRafting
-                ? 'Rp 300.000 / Rakit'
-                : dest.price
-                  ? `Rp ${dest.price.toLocaleString('id-ID')} / Org`
-                  : (dest.entrance || 'Rp 10.000 / Org');
+              let priceText = 'Rp 10.000 / Org';
+              if (isRafting) {
+                priceText = 'Rp 300.000 / Rakit';
+              } else if (dest.entrance) {
+                const lower = dest.entrance.toLowerCase();
+                if (lower.includes('rakit') || lower.includes('/ org') || lower.includes('gratis') || lower.includes('sukarela')) {
+                  priceText = dest.entrance;
+                } else {
+                  priceText = `${dest.entrance} / Org`;
+                }
+              } else if (dest.price !== undefined) {
+                const normalized = dest.price < 1000 ? dest.price * 1000 : dest.price;
+                priceText = `Rp ${normalized.toLocaleString('id-ID')} / Org`;
+              }
 
               return (
                 <div

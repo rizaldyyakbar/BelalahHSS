@@ -153,6 +153,9 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
           longitude: itemLng,
           entrance: ticketPrice,
           popularitas: sawScoreNumber,
+          price: rawTicketPrice !== undefined
+            ? Number(rawTicketPrice)
+            : (localMatch?.price ? (localMatch.price < 1000 ? localMatch.price * 1000 : localMatch.price) : 10000),
         };
       });
 
@@ -262,6 +265,10 @@ export async function fetchDestinationById(
             item.values && item.values['Popularitas']
               ? Number(item.values['Popularitas'])
               : localMatch?.popularitas || 90,
+          price:
+            item.values && item.values['Harga Tiket']
+              ? Number(item.values['Harga Tiket'])
+              : (localMatch?.price ? (localMatch.price < 1000 ? localMatch.price * 1000 : localMatch.price) : 10000),
         };
       }
     }

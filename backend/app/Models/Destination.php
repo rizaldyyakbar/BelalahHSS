@@ -46,10 +46,14 @@ class Destination extends Model
     {
         static::saved(function (self $destination): void {
             if (DB::getDriverName() === 'pgsql' && $destination->latitude !== null && $destination->longitude !== null) {
-                DB::statement(
-                    'UPDATE destinations SET location = ST_SetSRID(ST_MakePoint(?, ?), 4326) WHERE id = ?',
-                    [(float) $destination->longitude, (float) $destination->latitude, $destination->id]
-                );
+                try {
+                    DB::statement(
+                        'UPDATE destinations SET location = ST_SetSRID(ST_MakePoint(?, ?), 4326) WHERE id = ?',
+                        [(float) $destination->longitude, (float) $destination->latitude, $destination->id]
+                    );
+                } catch (\Throwable $e) {
+                    // Safe fallback jika ekstensi PostGIS atau kolom location belum tersedia
+                }
 
                 static::invalidateRecommendationCache();
             }
