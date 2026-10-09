@@ -13,14 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::getDriverName() === 'pgsql') {
-            // Ensure PostGIS extension exists. This requires that the DB user has
-            // permission to create extensions (usually a superuser). If not,
-            // run the CREATE EXTENSION command manually as a DB admin.
-            DB::statement("CREATE EXTENSION IF NOT EXISTS postgis");
-
-            DB::statement("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS location geography(Point,4326)");
-            DB::statement("UPDATE destinations SET location = ST_SetSRID(ST_MakePoint(longitude::double precision, latitude::double precision), 4326) WHERE longitude IS NOT NULL AND latitude IS NOT NULL");
-            DB::statement("CREATE INDEX IF NOT EXISTS destinations_location_gist ON destinations USING GIST (location)");
+            try {
+                DB::statement("CREATE EXTENSION IF NOT EXISTS postgis");
+                DB::statement("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS location geography(Point,4326)");
+                DB::statement("UPDATE destinations SET location = ST_SetSRID(ST_MakePoint(longitude::double precision, latitude::double precision), 4326) WHERE longitude IS NOT NULL AND latitude IS NOT NULL");
+                DB::statement("CREATE INDEX IF NOT EXISTS destinations_location_gist ON destinations USING GIST (location)");
+            } catch (\Throwable $e) {
+                // Jika server Postgres tidak memiliki binary PostGIS terpasang, jangan gagalkan migrasi.
+                // Aplikasi Belalah HSS otomatis fallback menggunakan koordinat latitude/longitude dengan rumus Haversine.
+                \Illuminate\Support\Facades\Log::warning("Ekstensi PostGIS belum tersedia di server PostgreSQL ini. Melewati kolom spasial: " . $e->getMessage());
+            }
         }
     }
 
@@ -30,8 +32,12 @@ return new class extends Migration
     public function down(): void
     {
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement("DROP INDEX IF EXISTS destinations_location_gist");
-            DB::statement("ALTER TABLE destinations DROP COLUMN IF EXISTS location");
+            try {
+                DB::statement("DROP INDEX IF EXISTS destinations_location_gist");
+                DB::statement("ALTER TABLE destinations DROP COLUMN IF EXISTS location");
+            } catch (\Throwable $e) {
+                // Ignore jika belum ada
+            }
         }
     }
 };
