@@ -352,19 +352,8 @@ export const DirectoryPage: React.FC = () => {
 
               // Image resolution
               let imgSrc = getImageUrl(dest.img);
-              if (!dest.img || dest.img === '/assets/balanting-paring.jpg' || dest.img === 'balanting-paring.jpg') {
-                const lower = dest.name.toLowerCase();
-                if (lower.includes('haratai') || lower.includes('air')) {
-                  imgSrc = '/assets/Air-Terjun-Haratai.jpg';
-                } else if (lower.includes('malutu') || lower.includes('bendungan')) {
-                  imgSrc = '/assets/malutu.jpg';
-                } else if (lower.includes('tanuhi') || lower.includes('panas')) {
-                  imgSrc = '/assets/tanuhi.jpg';
-                } else if (lower.includes('langara') || lower.includes('bukit')) {
-                  imgSrc = '/assets/langara.jpg';
-                } else if (lower.includes('malaris') || lower.includes('adat') || lower.includes('museum')) {
-                  imgSrc = '/assets/museum-rakyat.jpg';
-                }
+              if (dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
+                imgSrc = dest.img;
               }
 
               // Dynamic distance tag from Basecamp Kandangan

@@ -17,27 +17,27 @@ const CATEGORY_META: Record<string, { icon: string; description: string; image: 
   'wisata-alam': {
     icon: '🌿',
     description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
-    image: '/assets/langara.jpg',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
   },
   'wisata-budaya': {
     icon: '🏛️',
     description: 'Balai Adat Malaris, Rumah Adat Dayak Bukit, museum, dan warisan kearifan lokal.',
-    image: '/assets/museum-rakyat.jpg',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg',
   },
   'petualangan': {
     icon: '🚣',
     description: 'Bamboo rafting Sungai Amandit, arung riam alami, dan ekspedisi rimba Meratus.',
-    image: '/assets/balanting-paring.jpg',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
   },
   'religi': {
     icon: '🕌',
     description: 'Ziarah makam ulama kharismatik dan situs spiritual bersejarah di bumi Antaludin.',
-    image: '/assets/museum-rakyat.jpg',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
   },
   'kuliner': {
     icon: '🍲',
     description: 'Ketupat Kandangan otentik, dodol HSS, dan ragam kuliner khas Banjar Pahuluan.',
-    image: '/assets/balanting-paring.jpg',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
   },
 };
 
@@ -50,7 +50,7 @@ export const BrowseByCategory: React.FC = () => {
       icon: '🌿',
       count: '16 DESTINASI',
       description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
-      image: '/assets/langara.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
       filterKey: 'Wisata Alam',
     },
     {
@@ -59,7 +59,7 @@ export const BrowseByCategory: React.FC = () => {
       icon: '🏛️',
       count: '1 DESTINASI',
       description: 'Balai Adat Malaris, Rumah Adat Dayak Bukit, museum, dan warisan kearifan lokal.',
-      image: '/assets/museum-rakyat.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg',
       filterKey: 'Wisata Budaya',
     },
     {
@@ -68,7 +68,7 @@ export const BrowseByCategory: React.FC = () => {
       icon: '🚣',
       count: '2 DESTINASI',
       description: 'Bamboo rafting Sungai Amandit, arung jeram alami, dan ekspedisi rimba Meratus.',
-      image: '/assets/balanting-paring.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
       filterKey: 'Petualangan',
     },
     {
@@ -77,7 +77,7 @@ export const BrowseByCategory: React.FC = () => {
       icon: '🕌',
       count: '2 DESTINASI',
       description: 'Ziarah makam ulama kharismatik dan situs spiritual bersejarah di bumi Antaludin.',
-      image: '/assets/museum-rakyat.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
       filterKey: 'Religi',
     },
   ]);

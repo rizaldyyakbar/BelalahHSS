@@ -108,7 +108,7 @@ class DatabaseSeeder extends Seeder
             ],
             'Wisata Sungai Pariangan' => [
                 'description' => 'Kawasan pemandian dan arung sungai keluarga dengan bebatuan alami di Padang Batung.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Sungai_Amandit.jpg/1280px-Sungai_Amandit.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Sungai_Amandit_Loksado_2.jpg/1280px-Sungai_Amandit_Loksado_2.jpg',
             ],
             'Bukit Batu Laki' => [
                 'description' => 'Puncak perbukitan legendaris dengan lanskap batuan karst dan situs sejarah perjuangan rakyat Hulu Sungai.',
@@ -160,7 +160,7 @@ class DatabaseSeeder extends Seeder
             ],
             'Pemandian Alami Tirta Alam (Batu Bini)' => [
                 'description' => 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sungai_Amandit.jpg/1280px-Sungai_Amandit.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Sungai_Amandit_Loksado.jpg/1280px-Sungai_Amandit_Loksado.jpg',
             ],
         ];
 

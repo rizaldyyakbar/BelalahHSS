@@ -27,7 +27,7 @@ export const JournalPage: React.FC = () => {
       readTime: '3 mnt',
       title: 'Panduan Musim Terbaik Menjajal Bamboo Rafting Sungai',
       snippet: 'Tips debit air ramah pemula dan persiapan pakaian ganti selama pengarungan Amandit.',
-      image: '/assets/balanting-paring.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
       actionText: 'Pelajari Rute Air ›',
       fullStory: [
         'Waktu terbaik mengarungi Sungai Amandit adalah saat musim peralihan atau kemarau basah, di mana debit air stabil dan jeram tidak terlalu ganas.',
@@ -40,7 +40,7 @@ export const JournalPage: React.FC = () => {
       readTime: '5 mnt',
       title: 'Mengapa Ketupat Kandangan Dimakan Menggunakan Tangan',
       snippet: 'Tradisi kuliner otentik ikan haruan asap berkuah santan kental yang disantap tanpa sendok.',
-      image: '/assets/museum-rakyat-sungai-hulu-selatan.webp',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
       actionText: 'Kisah Rasa ›',
       fullStory: [
         'Masyarakat Banjar Hulu memiliki tradisi menyantap Ketupat Kandangan langsung dengan tangan. Tekstur ketupat yang mudah hancur berpadu sempurna dengan kuah santan berempah saat diremas lembut dengan jari tangan.',
@@ -53,7 +53,7 @@ export const JournalPage: React.FC = () => {
       readTime: '6 mnt',
       title: "Prinsip 'Bawa Pulang Sampah' di Hutan Lindung Gunung Halau-Halau",
       snippet: 'Menjaga kebersihan hulu mata air dan kelestarian vegetasi rimba karst Meratus.',
-      image: '/assets/Air-Terjun-Haratai.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg/1280px-Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg',
       actionText: 'Etika Rimba ›',
       fullStory: [
         'Kawasan Pegunungan Meratus dan hutan lindung Haratai tidak memiliki fasilitas pembuangan sampah terpusat. Setiap pendaki dan wisatawan wajib membawa kembali seluruh kemasan plastik dan puntung rokok hingga tiba di kota Kandangan.',
@@ -66,7 +66,7 @@ export const JournalPage: React.FC = () => {
       readTime: '4 mnt',
       title: 'Mengenal Tanaman Obat Pasak Bumi & Madu Hutan Asli Meratus',
       snippet: 'Hasil hutan bukan kayu yang dikelola secara arif dan lestari oleh masyarakat Dayak.',
-      image: '/assets/museum-rakyat.jpg',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Kayu_manis_di_Balai_Adat_Haratai.jpg/1280px-Kayu_manis_di_Balai_Adat_Haratai.jpg',
       actionText: 'Etnobotani ›',
       fullStory: [
         'Masyarakat adat Dayak Meratus memiliki pengetahuan etnobotani yang kaya, merawat tanaman obat herbal seperti pasak bumi, akar kuning, dan madu hutan lebah liar yang dipanen secara lestari tanpa membakar sarang.',
@@ -152,14 +152,11 @@ export const JournalPage: React.FC = () => {
           >
             <div style={{ position: 'relative', width: '100%', minHeight: 240, overflow: 'hidden' }}>
               <img
-                src="/assets/museum-rakyat.jpg"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg"
                 alt="Tata Krama & Etika Bertamu di Balai Adat Dayak Meratus"
                 loading="lazy"
                 decoding="async"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
-                }}
               />
               <div
                 style={{

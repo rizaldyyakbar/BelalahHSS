@@ -160,14 +160,11 @@ export const ExperiencesPage: React.FC = () => {
               >
                 <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
                   <img
-                    src="/assets/museum-rakyat-sungai-hulu-selatan.webp"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg"
                     alt="Warung Ketupat Kandangan Hj. Maryam"
                     loading="lazy"
                     decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
-                    }}
                   />
                   <div
                     style={{
@@ -340,7 +337,7 @@ export const ExperiencesPage: React.FC = () => {
               >
                 <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
                   <img
-                    src="/assets/balanting-paring.jpg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Sungai_Amandit_Loksado.jpg/1280px-Sungai_Amandit_Loksado.jpg"
                     alt="Meratus Riverside Homestay Loksado"
                     loading="lazy"
                     decoding="async"
@@ -514,7 +511,7 @@ export const ExperiencesPage: React.FC = () => {
             >
               <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
                 <img
-                  src="/assets/museum-rakyat.jpg"
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg"
                   alt="Balai Singgah Pokdarwis Malaris"
                   loading="lazy"
                   decoding="async"

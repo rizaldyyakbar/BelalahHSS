@@ -58,17 +58,8 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
 
           // Resolve image dynamically from dest.img or contextual asset
           let imgSrc = getImageUrl(dest.img);
-          if (!dest.img || dest.img === '/assets/balanting-paring.jpg' || dest.img === 'balanting-paring.jpg') {
-            const lower = dest.name.toLowerCase();
-            if (lower.includes('haratai') || lower.includes('air')) {
-              imgSrc = '/assets/Air-Terjun-Haratai.jpg';
-            } else if (lower.includes('malutu') || lower.includes('bendungan')) {
-              imgSrc = '/assets/malutu.jpg';
-            } else if (lower.includes('tanuhi') || lower.includes('panas')) {
-              imgSrc = '/assets/tanuhi.jpg';
-            } else if (lower.includes('langara') || lower.includes('bukit')) {
-              imgSrc = '/assets/langara.jpg';
-            }
+          if (dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
+            imgSrc = dest.img;
           }
 
           // Dynamic distance from Kandangan Basecamp (-2.7758, 115.2635)

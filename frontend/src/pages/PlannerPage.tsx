@@ -239,16 +239,10 @@ ${routeTrack}
 
   // Image helper prioritizing dynamic dest.img
   const getDestImg = (dest: Destination) => {
-    if (dest.img && !dest.img.includes('balanting-paring.jpg')) {
-      return getImageUrl(dest.img);
+    if (dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
+      return dest.img;
     }
-    const n = dest.name.toLowerCase();
-    if (n.includes('haratai') || n.includes('air')) return '/assets/Air-Terjun-Haratai.jpg';
-    if (n.includes('malutu') || n.includes('bendungan')) return '/assets/malutu.jpg';
-    if (n.includes('tanuhi') || n.includes('panas')) return '/assets/tanuhi.jpg';
-    if (n.includes('langara') || n.includes('bukit')) return '/assets/langara.jpg';
-    if (n.includes('museum') || n.includes('budaya') || n.includes('malaris')) return '/assets/museum-rakyat.jpg';
-    return dest.img || '/assets/balanting-paring.jpg';
+    return getImageUrl(dest.img);
   };
 
   // Dynamic candidate corridor stops (< 15 km along current itinerary)

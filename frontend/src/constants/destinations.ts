@@ -55,7 +55,10 @@ export const DESTINATIONS: Destination[] = [
     reviews: 324,
     description: 'Objek wisata air terjun alami skala besar pada kawasan hutan lindung, dilengkapi perkebunan kayu manis dan peternakan madu kelulut.',
     fullDescription: 'Air Terjun Haratai menawarkan pemandangan air terjun bertingkat yang megah di tengah bentang alam Pegunungan Meratus. Tempat ini memiliki fasilitas gazebo, musholla, kantin, tempat selfie, jembatan gantung dekat air terjun, serta jalur akses pedesaan yang nyaman.',
-    photos: ['Air-Terjun-Haratai.jpg', 'bamboo-rafting.jpg', 'bukit-langara.jpg'],
+    photos: [
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg/1280px-Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Wisata_Air_Terjun_Haratai%2C_Loksado.jpg/1280px-Wisata_Air_Terjun_Haratai%2C_Loksado.jpg',
+    ],
     facilities: [
       { icon: 'bed', name: 'Gazebo & Rest Area' },
       { icon: 'fork', name: 'Kantin & Warung' },
@@ -83,7 +86,10 @@ export const DESTINATIONS: Destination[] = [
     reviews: 412,
     description: 'Susur sungai Amandit mengarungi jeram dengan rakit bambu tradisional (Festival Loksado).',
     fullDescription: 'Balanting Paring (Bamboo Rafting) menawarkan pengalaman petualangan autentik menyusuri jeram Sungai Amandit berlatar belakang perbukitan hijau Meratus.',
-    photos: ['bamboo-rafting.jpg', 'Air-Terjun-Haratai.jpg'],
+    photos: [
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Balanting_di_tengah_Sungai_Amandit_Loksado.jpg/1280px-Balanting_di_tengah_Sungai_Amandit_Loksado.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Balanting_di_Sungai_Amandit_Loksado.jpg',
+    ],
     facilities: [
       { icon: 'bed', name: 'Dermaga Tambat' },
       { icon: 'fork', name: 'Rest Area Tepi Sungai' },
@@ -111,6 +117,10 @@ export const DESTINATIONS: Destination[] = [
     reviews: 280,
     description: 'Kolam air panas alami untuk dewasa dan anak-anak, kolam air dingin, cottage penginapan berkonsep nature park.',
     fullDescription: 'Tanuhi menawarkan pemandian air panas alami berkhasiat relatif dekat dari pusat Loksado, dilengkapi penginapan cottage, taman bermain anak, dan panggung terbuka.',
+    photos: [
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Obyek_Wisata_Air_Panas_Tanuhi_001.jpg/1280px-Obyek_Wisata_Air_Panas_Tanuhi_001.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Obyek_Wisata_Air_Panas_Tanuhi_004.jpg/1280px-Obyek_Wisata_Air_Panas_Tanuhi_004.jpg',
+    ],
     facilities: [
       { icon: 'bed', name: 'Cottage Penginapan' },
       { icon: 'fork', name: 'Kantin' },
@@ -217,7 +227,7 @@ export const DESTINATIONS: Destination[] = [
     region: 'Padang Batung',
     location: 'Desa Batu Bini, Kecamatan Padang Batung',
     distance: 'Kec. Padang Batung · 18 km dari Kandangan',
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Sungai_Amandit.jpg/1280px-Sungai_Amandit.jpg',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Sungai_Amandit_Loksado_2.jpg/1280px-Sungai_Amandit_Loksado_2.jpg',
     rating: 4.4,
     reviews: 140,
     description: 'Kawasan pemandian dan arung sungai keluarga dengan bebatuan alami di Padang Batung.',
@@ -473,6 +483,10 @@ export const DESTINATIONS: Destination[] = [
     rating: 4.8,
     reviews: 240,
     description: 'Wisata ziarah dan cagar budaya makam ulama pejuang penyebar agama Islam di Bumi Antaludin.',
+    photos: [
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Datu_Kandang_Haji_-_Makam_001.jpg/1280px-Datu_Kandang_Haji_-_Makam_001.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Datu_Kandang_Haji_-_Makam_002.jpg/1280px-Datu_Kandang_Haji_-_Makam_002.jpg',
+    ],
     hours: '06:00 - 20:00',
     entrance: 'Sukarela',
     rank: 20,
@@ -490,7 +504,7 @@ export const DESTINATIONS: Destination[] = [
     region: 'Padang Batung',
     location: 'Desa Batu Bini, Kecamatan Padang Batung',
     distance: 'Kec. Padang Batung · 17 km dari Kandangan',
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sungai_Amandit.jpg/1280px-Sungai_Amandit.jpg',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Sungai_Amandit_Loksado.jpg/1280px-Sungai_Amandit_Loksado.jpg',
     rating: 4.6,
     reviews: 185,
     description: 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',

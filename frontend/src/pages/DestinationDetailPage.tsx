@@ -137,12 +137,12 @@ export const DestinationDetailPage: React.FC = () => {
 
   // Photos resolution dynamically from backend data
   const mainImg = getImageUrl(destination.img);
-  const subImg1 = (destination.photos && destination.photos[0])
-    ? getImageUrl(destination.photos[0])
-    : (mainImg.includes('Haratai') ? '/assets/balanting-paring.jpg' : '/assets/Air-Terjun-Haratai.jpg');
-  const subImg2 = (destination.photos && destination.photos[1])
-    ? getImageUrl(destination.photos[1])
-    : '/assets/langara.jpg';
+  const rawPhotos = (destination.photos || []).filter(
+    (p) => typeof p === 'string' && (p.startsWith('http://') || p.startsWith('https://'))
+  );
+  const hasSubPhotos = rawPhotos.length >= 2;
+  const subImg1 = hasSubPhotos ? getImageUrl(rawPhotos[0]) : null;
+  const subImg2 = hasSubPhotos ? getImageUrl(rawPhotos[1]) : null;
 
   const isAdventure = (destination.category || '').toLowerCase().includes('petualang');
   const isRafting = destination.name.toLowerCase().includes('rafting') || isAdventure;
@@ -308,17 +308,18 @@ export const DestinationDetailPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 3. Media Gallery (2-Column Desktop Grid) */}
-        <section className="detail-gallery-grid">
+        {/* 3. Media Gallery (2-Column Desktop Grid or Full Hero) */}
+        <section
+          className="detail-gallery-grid"
+          style={hasSubPhotos ? undefined : { gridTemplateColumns: '1fr' }}
+        >
           {/* Main Hero Photo */}
           <div className="detail-main-photo-box">
             <img
               src={mainImg}
               alt={destination.name}
               decoding="async"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
-              }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
             <div className="detail-main-photo-caption">
               <div>
@@ -339,34 +340,30 @@ export const DestinationDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Sub Photos (Side Column on Desktop, hidden on small screens) */}
-          <div className="detail-sub-photos-col">
-            <div className="detail-sub-photo-item">
-              <img
-                src={subImg1}
-                alt={destination.name}
-                loading="lazy"
-                decoding="async"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/Air-Terjun-Haratai.jpg';
-                }}
-              />
-              <div className="detail-sub-photo-caption">Area Wisata {destination.name}</div>
-            </div>
+          {/* Sub Photos (Side Column on Desktop, only shown when authentic extra photos exist) */}
+          {hasSubPhotos && subImg1 && subImg2 && (
+            <div className="detail-sub-photos-col">
+              <div className="detail-sub-photo-item">
+                <img
+                  src={subImg1}
+                  alt={`${destination.name} 1`}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="detail-sub-photo-caption">Sudut Wisata {destination.name}</div>
+              </div>
 
-            <div className="detail-sub-photo-item">
-              <img
-                src={subImg2}
-                alt={destination.name}
-                loading="lazy"
-                decoding="async"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/langara.jpg';
-                }}
-              />
-              <div className="detail-sub-photo-caption">Panorama Lanskap {destination.region || 'HSS'}</div>
+              <div className="detail-sub-photo-item">
+                <img
+                  src={subImg2}
+                  alt={`${destination.name} 2`}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="detail-sub-photo-caption">Suasana {destination.name}</div>
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         {/* 4. Main 2-Column Content Grid */}
