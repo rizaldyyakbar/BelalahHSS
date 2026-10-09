@@ -159,11 +159,11 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
         };
       });
 
-      console.info(`[Belalah API] Successfully live-fetched ${formatted.length} destinations with PostGIS & SAW scores.`);
+      console.info(`[Belalah API] Successfully live-fetched ${formatted.length} destinations with PostGIS & SAW scores from ${API_BASE_URL}`);
       return { destinations: formatted, isFromApi: true };
     }
   } catch (error) {
-    console.warn('Backend API unavailable or error occurred, using fallback constants:', error);
+    console.warn(`[Belalah API] Backend API unavailable at ${API_BASE_URL}, using fallback constants:`, error);
   }
 
   return { destinations: DESTINATIONS, isFromApi: false };
