@@ -88,11 +88,11 @@ class DatabaseSeeder extends Seeder
             ],
             'Objek Wisata Air Panas Tanuhi' => [
                 'description' => 'Pemandian air panas alami belerang dengan fasilitas kolam renang bertingkat dan penginapan di tengah lembah.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Tanuhi_Hot_Springs.png/1280px-Tanuhi_Hot_Springs.png',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kolam_Wisata_Air_Panas_Tanuhi.jpg/1280px-Kolam_Wisata_Air_Panas_Tanuhi.jpg',
             ],
             'Air Terjun Kilap Api' => [
-                'description' => 'Air terjun alami dengan kolam penampungan jernih di bawah tebing karst rindang.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Landscap_in_Water_Fall_Borneo.jpg',
+                'description' => 'Situs Geopark Meratus (Geosite #51) di Desa Hulu Banyu dengan aliran air berundak menuruni formasi batuan granit hitam menyerupai kilatan api.',
+                'image_url' => 'https://web.archive.org/web/20260716095648im_/https://meratusgeopark.org/wp-content/uploads/2023/10/IMG_20211123_145125-scaled.jpg',
             ],
             'Riam Barajang dan Riam Hanai' => [
                 'description' => 'Jeram sungai berbatu dan air terjun kembar di aliran hulu sungai Amandit yang asri.',
@@ -160,7 +160,7 @@ class DatabaseSeeder extends Seeder
             ],
             'Pemandian Alami Tirta Alam (Batu Bini)' => [
                 'description' => 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Tanuhi_Hot_Springs_%28Natural%29.png/1280px-Tanuhi_Hot_Springs_%28Natural%29.png',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sungai_Amandit.jpg/1280px-Sungai_Amandit.jpg',
             ],
         ];
 
