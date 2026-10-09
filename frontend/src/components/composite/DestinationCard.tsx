@@ -48,6 +48,8 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
           <img
             src={getImageUrl(destination.img)}
             alt={destination.name}
+            loading="lazy"
+            decoding="async"
             onError={handleImgError}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
@@ -75,32 +77,33 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
         </IconButton>
 
         {/* Glass info panel at bottom */}
-        <div style={{
-          position: 'absolute',
-          bottom: 16, left: 16, right: 16,
-          zIndex: 2,
-          background: 'rgba(255, 255, 255, 0.18)',
-          backdropFilter: 'blur(20px) saturate(1.6)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-          border: '1px solid rgba(255, 255, 255, 0.35)',
-          borderRadius: 'var(--radius-md)',
-          padding: '16px 20px',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-        }}>
+        <div
+          className="bh-card-glass-panel"
+          style={{
+            position: 'absolute',
+            bottom: 16, left: 16, right: 16,
+            zIndex: 2,
+            borderRadius: 'var(--radius-md)',
+            padding: '16px 20px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+          }}
+        >
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
             {[destination.category, destination.region].filter(Boolean).map((label) => (
-              <span key={label} style={{
-                fontSize: 11,
-                fontWeight: 600,
-                padding: '3px 10px',
-                borderRadius: 999,
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: 'rgba(255, 255, 255, 0.9)',
-                letterSpacing: '0.02em',
-              }}>{label}</span>
+              <span
+                key={label}
+                className="bh-card-glass-pill"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: '3px 10px',
+                  borderRadius: 999,
+                  color: 'rgba(255, 255, 255, 0.95)',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {label}
+              </span>
             ))}
           </div>
           <h3 className="bh-serif" style={{ fontSize: 26, fontWeight: 500, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em', color: '#fff' }}>
@@ -146,6 +149,8 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
         <img
           src={getImageUrl(destination.img)}
           alt={destination.name}
+          loading="lazy"
+          decoding="async"
           onError={handleImgError}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
@@ -171,36 +176,36 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
       </IconButton>
 
       {/* Glass info panel at bottom */}
-      <div style={{
-        position: 'absolute',
-        bottom: 10, left: 10, right: 10,
-        zIndex: 2,
-        background: 'rgba(255, 255, 255, 0.16)',
-        backdropFilter: 'blur(18px) saturate(1.5)',
-        WebkitBackdropFilter: 'blur(18px) saturate(1.5)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '10px 12px',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.1)',
-      }}>
-        <span style={{
-          display: 'inline-block',
-          fontSize: 11,
-          fontWeight: 600,
-          padding: '3px 10px',
-          borderRadius: 999,
-          background: 'rgba(255, 255, 255, 0.15)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          color: 'rgba(255, 255, 255, 0.9)',
-          letterSpacing: '0.02em',
-          marginBottom: 4,
-        }}>{destination.category}</span>
+      <div
+        className="bh-card-glass-panel"
+        style={{
+          position: 'absolute',
+          bottom: 10, left: 10, right: 10,
+          zIndex: 2,
+          borderRadius: 'var(--radius-sm)',
+          padding: '10px 12px',
+          boxShadow: '0 2px 16px rgba(0,0,0,0.1)',
+        }}
+      >
+        <span
+          className="bh-card-glass-pill"
+          style={{
+            display: 'inline-block',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '3px 10px',
+            borderRadius: 999,
+            color: 'rgba(255, 255, 255, 0.95)',
+            letterSpacing: '0.02em',
+            marginBottom: 4,
+          }}
+        >
+          {destination.category}
+        </span>
         <div className="bh-serif" style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.2, color: '#fff' }}>
           {destination.name}
         </div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
           <Icon.Pin size={10} /> {destination.distance}
         </div>
         <div style={{ marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -213,19 +218,19 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
             style={{ textDecoration: 'none' }}
             title="Buka Navigasi Rute di Google Maps"
           >
-            <span style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: '#fff',
-              background: 'rgba(255, 255, 255, 0.25)',
-              padding: '3px 10px',
-              borderRadius: 999,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              backdropFilter: 'blur(6px)',
-              border: '1px solid rgba(255,255,255,0.4)',
-            }}>
+            <span
+              className="bh-card-glass-pill"
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: '#fff',
+                padding: '3px 10px',
+                borderRadius: 999,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
               🗺️ Rute
             </span>
           </a>

@@ -248,9 +248,7 @@ body {
     left: 0;
     right: 0;
     height: 62px;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: #ffffff;
     border-top: 1px solid rgba(193, 200, 194, 0.45);
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
     z-index: 950;
@@ -1347,9 +1345,7 @@ body {
     border-radius: 9999px;
     padding: 6px 8px 6px 14px;
     height: 48px;
-    background: rgba(255, 255, 255, 0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #ffffff;
     border: 1px solid rgba(18, 53, 36, 0.16);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
     width: 100%;
@@ -3676,5 +3672,43 @@ body {
 @media (max-width: 860px) {
   .journal-featured-split {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ====================================================
+   MOBILE GPU PERFORMANCE OPTIMIZATIONS
+   ==================================================== */
+.bh-card-glass-panel {
+  background: rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.bh-card-glass-pill {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  /* Fast GPU rendering on mobile devices */
+  .bh-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: #F6FBF5 !important;
+  }
+
+  .bh-card-glass-panel {
+    background: rgba(9, 38, 27, 0.82) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  }
+
+  .bh-card-glass-pill {
+    background: rgba(255, 255, 255, 0.22) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
   }
 }

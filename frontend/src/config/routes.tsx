@@ -1,11 +1,12 @@
-import React from 'react';
-import HomePage from '../pages/HomePage';
-import DestinationDetailPage from '../pages/DestinationDetailPage';
-import DirectoryPage from '../pages/DirectoryPage';
-import PlannerPage from '../pages/PlannerPage';
-import AboutPage from '../pages/AboutPage';
-import ExperiencesPage from '../pages/ExperiencesPage';
-import JournalPage from '../pages/JournalPage';
+import React, { lazy } from 'react';
+
+const HomePage = lazy(() => import('../pages/HomePage'));
+const DestinationDetailPage = lazy(() => import('../pages/DestinationDetailPage'));
+const DirectoryPage = lazy(() => import('../pages/DirectoryPage'));
+const PlannerPage = lazy(() => import('../pages/PlannerPage'));
+const AboutPage = lazy(() => import('../pages/AboutPage'));
+const ExperiencesPage = lazy(() => import('../pages/ExperiencesPage'));
+const JournalPage = lazy(() => import('../pages/JournalPage'));
 
 export interface Route {
   path: string;

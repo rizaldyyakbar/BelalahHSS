@@ -419,6 +419,8 @@ export const DirectoryPage: React.FC = () => {
                     <img
                       src={imgSrc}
                       alt={dest.name}
+                      loading="lazy"
+                      decoding="async"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
@@ -450,8 +452,7 @@ export const DirectoryPage: React.FC = () => {
                         position: 'absolute',
                         bottom: 8,
                         right: 10,
-                        background: 'rgba(0, 0, 0, 0.65)',
-                        backdropFilter: 'blur(4px)',
+                        background: 'rgba(0, 0, 0, 0.72)',
                         color: '#ffffff',
                         fontSize: 10.5,
                         fontWeight: 600,

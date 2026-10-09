@@ -388,6 +388,8 @@ ${routeTrack}
                   <img
                     src={getDestImg(dest)}
                     alt={dest.name}
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
@@ -398,8 +400,7 @@ ${routeTrack}
                       position: 'absolute',
                       top: 10,
                       right: 12,
-                      background: 'rgba(0, 0, 0, 0.65)',
-                      backdropFilter: 'blur(4px)',
+                      background: 'rgba(0, 0, 0, 0.72)',
                       color: '#ffffff',
                       fontSize: 11,
                       fontWeight: 700,
@@ -546,6 +547,8 @@ ${routeTrack}
                   <img
                     src={getDestImg(item)}
                     alt={item.name}
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';

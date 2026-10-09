@@ -157,6 +157,8 @@ export const BrowseByCategory: React.FC = () => {
               <img
                 src={cat.image}
                 alt={cat.name}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
                 }}

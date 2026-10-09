@@ -162,6 +162,8 @@ export const ExperiencesPage: React.FC = () => {
                   <img
                     src="/assets/museum-rakyat-sungai-hulu-selatan.webp"
                     alt="Warung Ketupat Kandangan Hj. Maryam"
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
@@ -187,8 +189,7 @@ export const ExperiencesPage: React.FC = () => {
                       position: 'absolute',
                       bottom: 10,
                       right: 12,
-                      background: 'rgba(0, 0, 0, 0.65)',
-                      backdropFilter: 'blur(4px)',
+                      background: 'rgba(0, 0, 0, 0.72)',
                       color: '#ffffff',
                       fontSize: 10.5,
                       fontWeight: 600,
@@ -261,6 +262,8 @@ export const ExperiencesPage: React.FC = () => {
                   <img
                     src="/assets/museum-rakyat.jpg"
                     alt="Sentra Dodol Asli Kandangan Berkat Bersama"
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
@@ -339,6 +342,8 @@ export const ExperiencesPage: React.FC = () => {
                   <img
                     src="/assets/balanting-paring.jpg"
                     alt="Meratus Riverside Homestay Loksado"
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                   <div
@@ -361,8 +366,7 @@ export const ExperiencesPage: React.FC = () => {
                       position: 'absolute',
                       bottom: 10,
                       right: 12,
-                      background: 'rgba(0, 0, 0, 0.7)',
-                      backdropFilter: 'blur(4px)',
+                      background: 'rgba(0, 0, 0, 0.72)',
                       color: '#ffffff',
                       fontSize: 11,
                       fontWeight: 700,
@@ -512,6 +516,8 @@ export const ExperiencesPage: React.FC = () => {
                 <img
                   src="/assets/museum-rakyat.jpg"
                   alt="Balai Singgah Pokdarwis Malaris"
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <div

@@ -99,6 +99,8 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
                 <img
                   src={imgSrc}
                   alt={dest.name}
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
@@ -111,8 +113,7 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
                     position: 'absolute',
                     bottom: 10,
                     left: 12,
-                    background: 'rgba(0, 0, 0, 0.65)',
-                    backdropFilter: 'blur(4px)',
+                    background: 'rgba(0, 0, 0, 0.72)',
                     color: '#ffffff',
                     fontSize: 11,
                     fontWeight: 600,

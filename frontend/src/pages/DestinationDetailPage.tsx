@@ -315,6 +315,7 @@ export const DestinationDetailPage: React.FC = () => {
             <img
               src={mainImg}
               alt={destination.name}
+              decoding="async"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
               }}
@@ -344,6 +345,8 @@ export const DestinationDetailPage: React.FC = () => {
               <img
                 src={subImg1}
                 alt={destination.name}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/Air-Terjun-Haratai.jpg';
                 }}
@@ -355,6 +358,8 @@ export const DestinationDetailPage: React.FC = () => {
               <img
                 src={subImg2}
                 alt={destination.name}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/langara.jpg';
                 }}
@@ -856,8 +861,7 @@ export const DestinationDetailPage: React.FC = () => {
           left: 0,
           right: 0,
           zIndex: 900,
-          background: 'rgba(255, 255, 255, 0.96)',
-          backdropFilter: 'blur(16px)',
+          background: '#ffffff',
           borderTop: '1px solid rgba(193, 200, 194, 0.45)',
           padding: '12px 16px env(safe-area-inset-bottom, 12px)',
           display: 'flex',

@@ -154,6 +154,8 @@ export const JournalPage: React.FC = () => {
               <img
                 src="/assets/museum-rakyat.jpg"
                 alt="Tata Krama & Etika Bertamu di Balai Adat Dayak Meratus"
+                loading="lazy"
+                decoding="async"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
@@ -333,6 +335,8 @@ export const JournalPage: React.FC = () => {
                 <img
                   src={item.image}
                   alt={item.title}
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: 78,
                     height: 78,
