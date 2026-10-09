@@ -23,6 +23,17 @@ export const PlannerPage: React.FC = () => {
   // Mode on desktop sidebar: 'map' | 'field'
   const [plannerMode, setPlannerMode] = useState<'itinerary' | 'map' | 'field'>('itinerary');
   const [desktopSidebarTab, setDesktopSidebarTab] = useState<'map' | 'field'>('map');
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 960 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 960);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [startPoint] = useState({
     lat: -2.7758,
@@ -211,7 +222,10 @@ ${routeTrack}
     if (matched && !itinerary.some((d) => d.id === matched.id)) {
       const updated = [...itinerary, matched];
       saveItinerary(updated);
-      showToast(`${matched.name} berhasil disisipkan ke koridor rute!`);
+      showToast(`${matched.name} berhasil disisipkan! Urutan rute diperbarui.`);
+      if (plannerMode !== 'itinerary') {
+        setPlannerMode('itinerary');
+      }
     } else {
       showToast(`${destName} sudah ada dalam rute Anda.`);
     }
@@ -561,7 +575,10 @@ ${routeTrack}
                   onClick={() => {
                     if (!itinerary.some((d) => d.id === item.id)) {
                       saveItinerary([...itinerary, item]);
-                      showToast(`${item.name} berhasil disisipkan ke koridor rute!`);
+                      showToast(`${item.name} berhasil disisipkan! Urutan rute diperbarui.`);
+                      if (plannerMode !== 'itinerary') {
+                        setPlannerMode('itinerary');
+                      }
                     }
                   }}
                   style={{
@@ -687,6 +704,11 @@ ${routeTrack}
 
       {notification && (
         <div
+          onClick={() => {
+            if (isMobile) {
+              document.getElementById('mobile-route-preview')?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
           style={{
             position: 'fixed',
             top: 84,
@@ -700,6 +722,7 @@ ${routeTrack}
             fontWeight: 600,
             zIndex: 1100,
             boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            cursor: isMobile ? 'pointer' : 'default',
           }}
         >
           {notification}
@@ -732,7 +755,7 @@ ${routeTrack}
                 cursor: 'pointer',
               }}
             >
-              Rencana
+              Rencana {itinerary.length > 0 ? `(${itinerary.length})` : ''}
             </button>
             <button
               onClick={() => setPlannerMode('map')}
@@ -773,9 +796,9 @@ ${routeTrack}
             DESKTOP 2-COLUMN WORKSPACE GRID (>960px)
             AND MOBILE CONTAINER (<=960px)
             ======================================================== */}
-        <section className="planner-workspace-grid" style={{ marginTop: 96 }}>
+        <section className="planner-workspace-grid" style={{ marginTop: isMobile ? 8 : 96 }}>
           {/* LEFT COLUMN: ITINERARY TIMELINE & METRICS */}
-          <div style={{ display: plannerMode === 'itinerary' ? 'block' : undefined }}>
+          <div style={{ display: !isMobile || plannerMode === 'itinerary' ? 'block' : 'none', width: '100%' }}>
             {/* Status Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div
@@ -929,6 +952,98 @@ ${routeTrack}
               </div>
             </div>
 
+            {/* MOBILE ONLY: Preview Urutan Jalur Map (Langsung muncul otomatis ketika ada wisata yang disisipkan) */}
+            {isMobile && itinerary.length > 0 && (
+              <div
+                id="mobile-route-preview"
+                className="mobile-only"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #D5E2D9',
+                  borderRadius: 18,
+                  overflow: 'hidden',
+                  marginBottom: 20,
+                  boxShadow: '0 4px 18px rgba(1, 45, 29, 0.06)',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    background: 'linear-gradient(135deg, #012D1D 0%, #064E3B 100%)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 16 }}>🗺️</span>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '-0.01em' }}>
+                        Preview Urutan Jalur
+                      </div>
+                      <div style={{ fontSize: 10.5, color: '#A7F3D0' }}>
+                        Basecamp ➔ {itinerary.length} Titik Kunjungan Efisien
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      background: 'rgba(255,255,255,0.18)',
+                      color: '#ffffff',
+                      padding: '4px 10px',
+                      borderRadius: 8,
+                    }}
+                  >
+                    {totalKm} km
+                  </span>
+                </div>
+
+                <div style={{ height: 300 }}>
+                  <PlannerMapSection itinerary={itinerary} startPoint={startPoint} />
+                </div>
+
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    background: '#FAFDFB',
+                    borderTop: '1px solid #EBEFEA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ fontSize: 11, color: '#57534E', lineHeight: 1.3 }}>
+                    <span style={{ color: '#012D1D', fontWeight: 700 }}>● Urutan:</span>{' '}
+                    Kandangan ➔ {itinerary.map((d, i) => `#${i + 1} ${d.name.split(' ')[0]}`).join(' ➔ ')}
+                  </div>
+                  <button
+                    onClick={handleOpenGoogleMaps}
+                    style={{
+                      background: '#012D1D',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '6px 12px',
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Icon.Compass size={13} style={{ color: '#C1ECD4' }} />
+                    <span>Google Maps</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Road Alert Card */}
             <div
               style={{
@@ -957,93 +1072,95 @@ ${routeTrack}
             {renderTimelineStops()}
           </div>
 
-          {/* RIGHT COLUMN: STICKY MAP & OPS COMMAND (On desktop >960px) OR MOBILE TAB VIEWS */}
-          <div className="desktop-only" style={{ position: 'sticky', top: 80 }}>
-            {/* Desktop Tabs: Toggle between Map & Field ops */}
-            <div
-              style={{
-                display: 'flex',
-                background: '#EAEFEA',
-                borderRadius: 12,
-                padding: 4,
-                marginBottom: 16,
-              }}
-            >
-              <button
-                onClick={() => setDesktopSidebarTab('map')}
-                style={{
-                  flex: 1,
-                  padding: '8px 14px',
-                  borderRadius: 9,
-                  border: 'none',
-                  background: desktopSidebarTab === 'map' ? '#012D1D' : 'transparent',
-                  color: desktopSidebarTab === 'map' ? '#ffffff' : '#57534E',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                🗺️ Peta Jalur &amp; Topografi
-              </button>
-              <button
-                onClick={() => setDesktopSidebarTab('field')}
-                style={{
-                  flex: 1,
-                  padding: '8px 14px',
-                  borderRadius: 9,
-                  border: 'none',
-                  background: desktopSidebarTab === 'field' ? '#012D1D' : 'transparent',
-                  color: desktopSidebarTab === 'field' ? '#ffffff' : '#57534E',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                🚨 Panduan Siaga Lapangan
-              </button>
-            </div>
-
-            {desktopSidebarTab === 'map' ? (
+          {/* RIGHT COLUMN: STICKY MAP & OPS COMMAND (On desktop >960px) */}
+          {!isMobile && (
+            <div className="desktop-only" style={{ position: 'sticky', top: 80 }}>
+              {/* Desktop Tabs: Toggle between Map & Field ops */}
               <div
                 style={{
-                  background: '#ffffff',
-                  border: '1px solid #EBEFEA',
-                  borderRadius: 18,
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
+                  display: 'flex',
+                  background: '#EAEFEA',
+                  borderRadius: 12,
+                  padding: 4,
+                  marginBottom: 16,
                 }}
               >
-                <div style={{ height: 320 }}>
-                  <PlannerMapSection itinerary={itinerary} startPoint={startPoint} />
-                </div>
+                <button
+                  onClick={() => setDesktopSidebarTab('map')}
+                  style={{
+                    flex: 1,
+                    padding: '8px 14px',
+                    borderRadius: 9,
+                    border: 'none',
+                    background: desktopSidebarTab === 'map' ? '#012D1D' : 'transparent',
+                    color: desktopSidebarTab === 'map' ? '#ffffff' : '#57534E',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  🗺️ Peta Jalur &amp; Topografi
+                </button>
+                <button
+                  onClick={() => setDesktopSidebarTab('field')}
+                  style={{
+                    flex: 1,
+                    padding: '8px 14px',
+                    borderRadius: 9,
+                    border: 'none',
+                    background: desktopSidebarTab === 'field' ? '#012D1D' : 'transparent',
+                    color: desktopSidebarTab === 'field' ? '#ffffff' : '#57534E',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  🚨 Panduan Siaga Lapangan
+                </button>
+              </div>
 
-                <div style={{ marginTop : '40px', padding: '16px 20px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
-                  <div style={{ fontSize: 12, color: '#57534E', textAlign: 'center' }}>
-                    Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.
+              {desktopSidebarTab === 'map' ? (
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #EBEFEA',
+                    borderRadius: 18,
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
+                  }}
+                >
+                  <div style={{ height: 320 }}>
+                    <PlannerMapSection itinerary={itinerary} startPoint={startPoint} />
+                  </div>
+
+                  <div style={{ marginTop : '40px', padding: '16px 20px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
+                    <div style={{ fontSize: 12, color: '#57534E', textAlign: 'center' }}>
+                      Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid #EBEFEA',
-                  borderRadius: 18,
-                  padding: 24,
-                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
-                  maxHeight: '75vh',
-                  overflowY: 'auto',
-                }}
-              >
-                {renderFieldModeContent()}
-              </div>
-            )}
-          </div>
+              ) : (
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #EBEFEA',
+                    borderRadius: 18,
+                    padding: 24,
+                    boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
+                    maxHeight: '75vh',
+                    overflowY: 'auto',
+                  }}
+                >
+                  {renderFieldModeContent()}
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* MOBILE ONLY: Map Tab View when active */}
-          {plannerMode === 'map' && (
+          {/* MOBILE ONLY: Dedicated Map Tab View when active */}
+          {isMobile && plannerMode === 'map' && (
             <div className="mobile-only" style={{ width: '100%' }}>
               <div
                 style={{
@@ -1085,7 +1202,7 @@ ${routeTrack}
           )}
 
           {/* MOBILE ONLY: Field Tab View when active */}
-          {plannerMode === 'field' && (
+          {isMobile && plannerMode === 'field' && (
             <div className="mobile-only" style={{ width: '100%' }}>
               {renderFieldModeContent()}
             </div>
