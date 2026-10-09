@@ -177,7 +177,8 @@ class DatabaseSeeder extends Seeder
                     'latitude'    => $row[4],
                     'longitude'   => $row[5],
                     'description' => $details['description'] ?? "Destinasi wisata unggulan di Kecamatan {$row[3]}, Kabupaten Hulu Sungai Selatan.",
-                    'image_url'   => $details['image_url'] ?? '/assets/balanting-paring.jpg',
+                    'image_url'   => $details['image_url'] ?? null,
+                    'image_thumb_url' => null,
                 ]
             );
 
@@ -266,5 +267,7 @@ class DatabaseSeeder extends Seeder
         foreach ($facilities as $fac) {
             Facility::updateOrCreate(['name' => $fac['name']], $fac);
         }
+
+        \Illuminate\Support\Facades\Cache::flush();
     }
 }
