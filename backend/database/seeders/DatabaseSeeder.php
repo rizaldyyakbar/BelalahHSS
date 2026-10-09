@@ -80,87 +80,87 @@ class DatabaseSeeder extends Seeder
         $destDetails = [
             'Air Terjun Haratai' => [
                 'description' => 'Objek wisata air terjun alami skala besar pada kawasan hutan lindung, dilengkapi perkebunan kayu manis dan peternakan madu kelulut.',
-                'image_url' => '/assets/Air-Terjun-Haratai.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg/1280px-Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg',
             ],
             'Bamboo Rafting Loksado' => [
                 'description' => 'Atraksi wisata petualangan menyusuri riam Sungai Amandit menggunakan rakit bambu tradisional khas Dayak Meratus.',
-                'image_url' => '/assets/bamboo-rafting.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
             ],
             'Objek Wisata Air Panas Tanuhi' => [
                 'description' => 'Pemandian air panas alami belerang dengan fasilitas kolam renang bertingkat dan penginapan di tengah lembah.',
-                'image_url' => '/assets/air-panas-tanuhi.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Tanuhi_Hot_Springs.png/1280px-Tanuhi_Hot_Springs.png',
             ],
             'Air Terjun Kilap Api' => [
                 'description' => 'Air terjun alami dengan kolam penampungan jernih di bawah tebing karst rindang.',
-                'image_url' => '/assets/air-terjun-kilap-api.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Landscap_in_Water_Fall_Borneo.jpg',
             ],
             'Riam Barajang dan Riam Hanai' => [
                 'description' => 'Jeram sungai berbatu dan air terjun kembar di aliran hulu sungai Amandit yang asri.',
-                'image_url' => '/assets/riam-barajang-hanai.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Sungai_Amandit_di_Loksado.jpg/1280px-Sungai_Amandit_di_Loksado.jpg',
             ],
             'Balai Adat Malaris' => [
                 'description' => 'Pusat kebudayaan dan ritual adat suku Dayak Meratus (Aruh Bahanan / Aruh Ganal), rumah panggung tradisional ulin.',
-                'image_url' => '/assets/balai-adat-malaris.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg/1280px-Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
             ],
             'Bukit Langara' => [
                 'description' => 'Gugusan bukit karst batu kapur dengan panorama spektakuler bentang alam sungai Amandit dan belantara rimba Meratus.',
-                'image_url' => '/assets/bukit-langara.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
             ],
             'Wisata Sungai Pariangan' => [
                 'description' => 'Kawasan pemandian dan arung sungai keluarga dengan bebatuan alami di Padang Batung.',
-                'image_url' => '/assets/sungai-pariangan.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Sungai_Amandit.jpg/1280px-Sungai_Amandit.jpg',
             ],
             'Bukit Batu Laki' => [
                 'description' => 'Puncak perbukitan legendaris dengan lanskap batuan karst dan situs sejarah perjuangan rakyat Hulu Sungai.',
-                'image_url' => '/assets/bukit-batu-laki.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Panorama_di_atas_Bukit_Langara.jpg/1280px-Panorama_di_atas_Bukit_Langara.jpg',
             ],
             'Kalang Hadangan' => [
                 'description' => 'Wisata fenomena kerbau rawa berenang khas lahan basah Daha Utara dan susur rawa Danau Bangkau.',
-                'image_url' => '/assets/kalang-hadangan.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Water_buffalo_bathing_with_water_reflection_at_golden_hour_in_Don_Det_Laos.jpg/1280px-Water_buffalo_bathing_with_water_reflection_at_golden_hour_in_Don_Det_Laos.jpg',
             ],
             'Bukit Batu Baduduk' => [
                 'description' => 'Gugusan batu unik berundak di perbukitan Telaga Langsat dengan panorama perladangan hijau.',
-                'image_url' => '/assets/bukit-batu-baduduk.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Pegunungan_Meratus_001.jpg/1280px-Pegunungan_Meratus_001.jpg',
             ],
             'Situs Pemandangan' => [
                 'description' => 'Gardu pandang panorama lembah Loksado dan bentang Pegunungan Meratus dari ketinggian.',
-                'image_url' => '/assets/situs-pemandangan.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/a/af/Pemandangan_Sungai_Loksado.jpg',
             ],
             'River Tubing Loksado' => [
                 'description' => 'Sensasi arung jeram menggunakan ban dalam karet menyusuri arus riam sungai Amandit.',
-                'image_url' => '/assets/river-tubing-loksado.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Balanting_di_tengah_Sungai_Amandit_Loksado.jpg/1280px-Balanting_di_tengah_Sungai_Amandit_Loksado.jpg',
             ],
             'Air Terjun Mandin Mangapan' => [
                 'description' => 'Air terjun bertingkat eksotis dengan aliran air deras di tengah hutan perawan Loksado.',
-                'image_url' => '/assets/air-terjun-mandin-mangapan.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Mandin_Putri_Kembar_001.jpg/1280px-Mandin_Putri_Kembar_001.jpg',
             ],
             'Air Terjun Rampah Menjangan' => [
                 'description' => 'Air terjun tersembunyi dengan vegetasi hutan lumut dan udara sejuk pegunungan.',
-                'image_url' => '/assets/air-terjun-rampah-menjangan.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Mandin_Putri_Kembar_002.jpg/1280px-Mandin_Putri_Kembar_002.jpg',
             ],
             'Air Terjun Tinggiran Hayam' => [
                 'description' => 'Air terjun bertingkat dengan kolam alami yang dikelilingi tebing bebatuan purba.',
-                'image_url' => '/assets/air-terjun-tinggiran-hayam.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Air_Terjun_Tumpang_Dua_001.jpg/1280px-Air_Terjun_Tumpang_Dua_001.jpg',
             ],
             'Puncak Bukit Batu Butahal' => [
                 'description' => 'Spot pendakian ringan dengan panorama matahari terbit berkabut di atas lembah Meratus.',
-                'image_url' => '/assets/bukit-batu-butahal.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Tagur_Hantu_Area.jpg/1280px-Tagur_Hantu_Area.jpg',
             ],
             'Air Terjun Tinggiran Mawang' => [
                 'description' => 'Air terjun alami dengan debit air deras di kawasan pedalaman Loksado.',
-                'image_url' => '/assets/air-terjun-tinggiran-mawang.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Air_Terjun_Bajuin.jpg/1280px-Air_Terjun_Bajuin.jpg',
             ],
             'Masjid As-Suada (Wassah Hilir)' => [
                 'description' => 'Cagar budaya masjid bersejarah berarsitektur kayu ulin khas Banjar tertua di Kalimantan Selatan.',
-                'image_url' => '/assets/masjid-baangkat.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
             ],
             'Makam Datu Kandang Haji' => [
                 'description' => 'Wisata ziarah dan cagar budaya makam ulama pejuang penyebar agama Islam di Bumi Antaludin.',
-                'image_url' => '/assets/makam-datu-kandang-haji.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Datu_Kandang_Haji_-_Makam.jpg/1280px-Datu_Kandang_Haji_-_Makam.jpg',
             ],
             'Pemandian Alami Tirta Alam (Batu Bini)' => [
                 'description' => 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',
-                'image_url' => '/assets/tirta-alam-batu-bini.jpg',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Tanuhi_Hot_Springs_%28Natural%29.png/1280px-Tanuhi_Hot_Springs_%28Natural%29.png',
             ],
         ];
 
