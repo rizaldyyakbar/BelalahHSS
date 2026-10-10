@@ -29,12 +29,12 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt($adminPassword),
         ]);
 
-        // 2. Seed Criteria (Wajib lebih dulu agar criteria_id tersedia)
+        // 2. Seed Criteria (Wajib lebih dulu agar criteria_id tersedia, disusun berdasarkan peringkat prioritas wawancara)
         $criteriaData = [
-            ['name' => 'Fasilitas', 'weight' => 0.30, 'type' => 'benefit'],
-            ['name' => 'Kebersihan dan Keamanan', 'weight' => 0.40, 'type' => 'benefit'],
-            ['name' => 'Harga Tiket', 'weight' => 0.10, 'type' => 'cost'],
-            ['name' => 'Popularitas', 'weight' => 0.20, 'type' => 'benefit'],
+            ['name' => 'Kebersihan dan Keamanan', 'weight' => 0.40, 'type' => 'benefit'], // Peringkat 1 (Utama)
+            ['name' => 'Fasilitas',               'weight' => 0.30, 'type' => 'benefit'], // Peringkat 2
+            ['name' => 'Popularitas',             'weight' => 0.20, 'type' => 'benefit'], // Peringkat 3
+            ['name' => 'Harga Tiket',             'weight' => 0.10, 'type' => 'cost'],    // Peringkat 4
         ];
 
         foreach ($criteriaData as $c) {

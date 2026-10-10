@@ -84,8 +84,8 @@ export const AboutPage: React.FC = () => {
                 Metode Rekomendasi SAW
               </h3>
               <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
-                Sistem merekomendasikan destinasi terbaik dengan metode <strong>Simple Additive Weighting</strong> berdasarkan
-                4 kriteria ilmiah: Fasilitas (40%), Kebersihan &amp; Keamanan (25%), Biaya Kunjungan (20%), dan Popularitas (15%).
+                Sistem merekomendasikan destinasi terbaik dengan metode <strong>Simple Additive Weighting (SAW)</strong> berdasarkan
+                prioritas preferensi wisatawan: Kebersihan &amp; Keamanan (40%), Fasilitas (30%), Popularitas (20%), dan Biaya Kunjungan (10%).
               </p>
             </div>
 

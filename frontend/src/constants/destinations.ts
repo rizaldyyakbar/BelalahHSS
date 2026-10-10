@@ -1,9 +1,9 @@
 // Authentic Hulu Sungai Selatan (HSS) Tourism Destinations Data
-// Kriteria SAW (sesuai admin panel):
-//   1. Popularitas  — benefit, bobot 0.15
-//   2. Price        — cost,    bobot 0.20
-//   3. Fasilitas    — benefit, bobot 0.40
-//   4. Kebersihan dan Keamanan — benefit, bobot 0.25
+// Kriteria SAW (sesuai hasil wawancara fase Empathize & admin panel):
+//   1. Kebersihan dan Keamanan — benefit, bobot 0.40 (Peringkat 1)
+//   2. Fasilitas               — benefit, bobot 0.30 (Peringkat 2)
+//   3. Popularitas             — benefit, bobot 0.20 (Peringkat 3)
+//   4. Harga Tiket / Price     — cost,    bobot 0.10 (Peringkat 4)
 
 export interface Destination {
   id: number;
@@ -26,14 +26,14 @@ export interface Destination {
   longitude?: number;
 
   // ── Nilai kriteria SAW ────────────────────────────────────────────────────
-  /** Skor popularitas destinasi (0–100), kriteria benefit bobot 0.15 */
-  popularitas?: number;
-  /** Estimasi biaya kunjungan dalam ribuan rupiah, kriteria cost bobot 0.20 */
-  price?: number;
-  /** Skor kelengkapan fasilitas (0–100), kriteria benefit bobot 0.40 */
-  fasilitasScore?: number;
-  /** Skor kebersihan & keamanan (0–100), kriteria benefit bobot 0.25 */
+  /** Skor kebersihan & keamanan (0–100 / skala 1–5), kriteria benefit bobot 0.40 (Peringkat 1) */
   kebersihanKeamanan?: number;
+  /** Skor kelengkapan fasilitas (0–100 / skala 1–5), kriteria benefit bobot 0.30 (Peringkat 2) */
+  fasilitasScore?: number;
+  /** Skor popularitas destinasi (0–100 / volume kunjungan), kriteria benefit bobot 0.20 (Peringkat 3) */
+  popularitas?: number;
+  /** Estimasi biaya kunjungan dalam ribuan rupiah, kriteria cost bobot 0.10 (Peringkat 4) */
+  price?: number;
   // ─────────────────────────────────────────────────────────────────────────
 }
 
