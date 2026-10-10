@@ -19,10 +19,8 @@ import { getImageUrl } from '../utils/imageUrl';
 export const PlannerPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Mode on mobile: 'itinerary' | 'map' | 'field'
-  // Mode on desktop sidebar: 'map' | 'field'
-  const [plannerMode, setPlannerMode] = useState<'itinerary' | 'map' | 'field'>('itinerary');
-  const [desktopSidebarTab, setDesktopSidebarTab] = useState<'map' | 'field'>('map');
+  // Mode on mobile: 'itinerary' | 'map'
+  const [plannerMode, setPlannerMode] = useState<'itinerary' | 'map'>('itinerary');
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth <= 960 : false
   );
@@ -603,100 +601,6 @@ ${routeTrack}
     </div>
   );
 
-  // Field Mode Content renderer
-  const renderFieldModeContent = () => (
-    <div>
-      {/* Field Status & Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <div
-          style={{
-            background: '#FFF3EB',
-            color: '#994700',
-            fontSize: 10.5,
-            fontWeight: 800,
-            padding: '4px 12px',
-            borderRadius: 9999,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD934C' }} />
-          <span>MODE LAPANGAN SIAGA</span>
-        </div>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: '#6E7972' }}>
-          Ref #HSS-2025-08A
-        </span>
-      </div>
-
-      <h3 style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 800, color: 'var(--meratus-deep)', margin: '0 0 6px' }}>
-        Panduan Navigasi Lapangan &amp; Kontak Darurat
-      </h3>
-      <p style={{ fontSize: 12.5, color: '#57534E', margin: '0 0 16px', lineHeight: 1.45 }}>
-        Instruksi manuver jalur, kondisi sinyal seluler, batas aman kunjungan, dan kontak tapak resmi di pedalaman Meratus.
-      </p>
-
-      {/* Maneuver Steps */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-        <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: '#994700' }}>TITIK AWAL EKSPEDISI</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#012D1D' }}>07:30 WITA</span>
-          </div>
-          <h4 style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 700, color: '#012D1D', margin: '0 0 4px' }}>
-            Alun-Alun Kota Kandangan
-          </h4>
-          <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 8px', lineHeight: 1.45 }}>
-            Titik kumpul resmi di sekeliling Lapangan Lambung Mangkurat. Pastikan tangki bensin terisi penuh di SPBU Gambah Luar sebelum memasuki jalan pedalaman Loksado.
-          </p>
-          <div style={{ background: '#F6FBF5', border: '1px dashed #C1DBC9', borderRadius: 8, padding: '6px 10px', fontSize: 11, color: '#012D1D', fontWeight: 600 }}>
-            🧭 Arahkan kendaraan ke Jl. Jenderal Sudirman ➔ Jl. Loksado
-          </div>
-        </div>
-
-        <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: '#994700' }}>PUSAT INFORMASI LOKSADO</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#012D1D' }}>Km 34.2</span>
-          </div>
-          <h4 style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 700, color: '#012D1D', margin: '0 0 4px' }}>
-            Posko Pelaksawis &amp; Balai Adat Malaris
-          </h4>
-          <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 8px', lineHeight: 1.45 }}>
-            Parkirkan kendaraan di kantong parkir resmi persis di seberang Balai Adat Malaris. Lapor ke loket posko resmi untuk registrasi rompi pelampung rakit.
-          </p>
-          <div style={{ background: '#FFF3EB', borderRadius: 8, padding: '6px 10px', fontSize: 11, color: '#994700' }}>
-            📞 Posko Pelaksawis Loksado: (0517) 211xx / 0812-34xx-xxxx
-          </div>
-        </div>
-
-        <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: '#C23C3C' }}>BATAS AMAN KUNJUNGAN</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#C23C3C' }}>Maks 15:30 WITA</span>
-          </div>
-          <h4 style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 700, color: '#012D1D', margin: '0 0 4px' }}>
-            Air Terjun Haratai (Batas Akhir Turun)
-          </h4>
-          <div style={{ background: '#FFF0F0', border: '1px solid #FFE0E0', borderRadius: 8, padding: '8px 10px', fontSize: 11.5, color: '#C23C3C' }}>
-            ⚠️ <strong>Perhatian:</strong> Pukul 15:30 WITA wajib bertolak turun menuju Loksado untuk menghindari kabut tebal dan minimnya penerangan jalan perbukitan.
-          </div>
-        </div>
-      </div>
-
-      {/* Emergency Contacts Card */}
-      <div style={{ background: '#F8FAF8', border: '1px solid #E2EAE4', borderRadius: 14, padding: '14px', marginBottom: 20 }}>
-        <h4 style={{ fontSize: 13, fontWeight: 800, color: '#012D1D', margin: '0 0 8px' }}>
-          📞 Kontak Layanan Siaga HSS
-        </h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11.5, color: '#57534E' }}>
-          <div>🏥 RSUD Brigjend H. Hasan Basry Kandangan: <strong>(0517) 21118</strong></div>
-          <div>🚒 Posko BPBD &amp; SAR HSS: <strong>(0517) 21299</strong></div>
-          <div>👮 Polsek Loksado: <strong>(0517) 21110</strong></div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -772,22 +676,6 @@ ${routeTrack}
               }}
             >
               Peta Jalur
-            </button>
-            <button
-              onClick={() => setPlannerMode('field')}
-              style={{
-                flex: 1,
-                padding: '8px 10px',
-                borderRadius: 9,
-                border: 'none',
-                background: plannerMode === 'field' ? '#012D1D' : 'transparent',
-                color: plannerMode === 'field' ? '#ffffff' : '#57534E',
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Siaga Lapangan
             </button>
           </div>
         </section>
@@ -1072,90 +960,58 @@ ${routeTrack}
             {renderTimelineStops()}
           </div>
 
-          {/* RIGHT COLUMN: STICKY MAP & OPS COMMAND (On desktop >960px) */}
+          {/* RIGHT COLUMN: STICKY MAP (On desktop >960px) */}
           {!isMobile && (
             <div className="desktop-only" style={{ position: 'sticky', top: 80 }}>
-              {/* Desktop Tabs: Toggle between Map & Field ops */}
               <div
                 style={{
-                  display: 'flex',
-                  background: '#EAEFEA',
-                  borderRadius: 12,
-                  padding: 4,
-                  marginBottom: 16,
+                  background: '#ffffff',
+                  border: '1px solid #EBEFEA',
+                  borderRadius: 18,
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
                 }}
               >
-                <button
-                  onClick={() => setDesktopSidebarTab('map')}
+                <div
                   style={{
-                    flex: 1,
-                    padding: '8px 14px',
-                    borderRadius: 9,
-                    border: 'none',
-                    background: desktopSidebarTab === 'map' ? '#012D1D' : 'transparent',
-                    color: desktopSidebarTab === 'map' ? '#ffffff' : '#57534E',
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
+                    padding: '12px 18px',
+                    background: '#FAFDFB',
+                    borderBottom: '1px solid #EBEFEA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                   }}
                 >
-                  🗺️ Peta Jalur &amp; Topografi
-                </button>
-                <button
-                  onClick={() => setDesktopSidebarTab('field')}
-                  style={{
-                    flex: 1,
-                    padding: '8px 14px',
-                    borderRadius: 9,
-                    border: 'none',
-                    background: desktopSidebarTab === 'field' ? '#012D1D' : 'transparent',
-                    color: desktopSidebarTab === 'field' ? '#ffffff' : '#57534E',
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  🚨 Panduan Siaga Lapangan
-                </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 15 }}>🗺️</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#012D1D' }}>
+                      Peta Jalur &amp; Topografi
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: '#994700',
+                      background: '#FFF3EB',
+                      padding: '3px 8px',
+                      borderRadius: 6,
+                    }}
+                  >
+                    Meratus GIS
+                  </span>
+                </div>
+
+                <div>
+                  <PlannerMapSection itinerary={itinerary} startPoint={startPoint} />
+                </div>
+
+                <div style={{ padding: '14px 18px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
+                  <div style={{ fontSize: 12, color: '#57534E', textAlign: 'center' }}>
+                    Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.
+                  </div>
+                </div>
               </div>
-
-              {desktopSidebarTab === 'map' ? (
-                <div
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #EBEFEA',
-                    borderRadius: 18,
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
-                  }}
-                >
-                  <div style={{ height: 320 }}>
-                    <PlannerMapSection itinerary={itinerary} startPoint={startPoint} />
-                  </div>
-
-                  <div style={{ marginTop : '40px', padding: '16px 20px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
-                    <div style={{ fontSize: 12, color: '#57534E', textAlign: 'center' }}>
-                      Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #EBEFEA',
-                    borderRadius: 18,
-                    padding: 24,
-                    boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
-                    maxHeight: '75vh',
-                    overflowY: 'auto',
-                  }}
-                >
-                  {renderFieldModeContent()}
-                </div>
-              )}
             </div>
           )}
 
@@ -1201,12 +1057,6 @@ ${routeTrack}
             </div>
           )}
 
-          {/* MOBILE ONLY: Field Tab View when active */}
-          {isMobile && plannerMode === 'field' && (
-            <div className="mobile-only" style={{ width: '100%' }}>
-              {renderFieldModeContent()}
-            </div>
-          )}
         </section>
       </main>
 
