@@ -28,7 +28,7 @@ export function getBackendOrigin(): string {
 }
 
 export function getAdminQuickUrl(): string {
-  return `${getBackendOrigin()}/quick-admin`;
+  return `${getBackendOrigin()}/admin/login`;
 }
 
 /**
@@ -59,7 +59,7 @@ export function triggerAdminAccess(): void {
     toast.style.alignItems = 'center';
     toast.style.gap = '8px';
     toast.style.animation = 'fadeIn 0.2s ease';
-    toast.innerHTML = '<span>🔓</span> Membuka Dashboard Admin Belalah HSS...';
+    toast.innerHTML = '<span>🔒</span> Membuka Portal Admin Belalah HSS...';
 
     document.body.appendChild(toast);
 
