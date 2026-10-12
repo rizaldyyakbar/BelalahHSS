@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         ], [
             'name' => $adminName,
             'password' => bcrypt($adminPassword),
+            'role' => 'admin',
         ]);
 
         // 2. Seed Criteria (Wajib lebih dulu agar criteria_id tersedia, disusun berdasarkan peringkat prioritas wawancara)

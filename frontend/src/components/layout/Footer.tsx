@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../atomic/Icons';
+import { createSecretClickTracker } from '../../utils/adminAccess';
 
 interface FooterProps {
   company?: string;
@@ -11,6 +12,7 @@ export const Footer: React.FC<FooterProps> = ({
   company = 'Belalah HSS',
   year = 2025,
 }) => {
+  const handleFooterSecretClick = useMemo(() => createSecretClickTracker(5, 3000), []);
   return (
     <footer className="figma-footer">
       <div className="figma-footer-grid">
@@ -198,8 +200,13 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="figma-footer-bottom">
+      {/* Bottom bar with 5x click secret trigger */}
+      <div
+        className="figma-footer-bottom"
+        onClick={(e) => handleFooterSecretClick(e)}
+        style={{ cursor: 'default', userSelect: 'none' }}
+        title="Belalah HSS Engine"
+      >
         <div>
           © 2025 Belalah HSS • Dinas Pemuda, Olahraga, dan Pariwisata Hulu Sungai Selatan.
         </div>

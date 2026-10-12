@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import './styles/tokens.css';
@@ -6,6 +6,7 @@ import routes from './config/routes';
 import { DrawerProvider } from './context/DrawerContext';
 import MobileDrawer from './components/layout/MobileDrawer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
+import { triggerAdminAccess } from './utils/adminAccess';
 
 interface RouteConfig {
   path: string;
@@ -42,6 +43,18 @@ const PageFallback: React.FC = () => (
 );
 
 const App: React.FC = () => {
+  useEffect(() => {
+    // Secret Admin Shortcut: Ctrl+Shift+A (or Cmd+Shift+A on Mac)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        triggerAdminAccess();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   return (
     <Router>
       <DrawerProvider>

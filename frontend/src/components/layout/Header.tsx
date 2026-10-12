@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDrawer } from '../../context/DrawerContext';
 import { Icon } from '../atomic/Icons';
+import { createSecretClickTracker } from '../../utils/adminAccess';
 
 /**
  * Header — Figma Belalah HSS Navigation Bar
@@ -13,6 +14,8 @@ export const Header: React.FC = () => {
   const { isOpen: isDrawerOpen, toggleDrawer } = useDrawer();
   const [scrolled, setScrolled] = useState(false);
   const [lang, setLang] = useState<'ID' | 'EN'>('ID');
+
+  const handleLogoSecretClick = useMemo(() => createSecretClickTracker(5, 3000), []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,8 +59,12 @@ export const Header: React.FC = () => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Brand Logo */}
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Brand Logo with 5x click secret trigger */}
+        <Link
+          to="/"
+          onClick={(e) => handleLogoSecretClick(e)}
+          style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           <span
             style={{
               fontFamily: 'var(--serif)',
