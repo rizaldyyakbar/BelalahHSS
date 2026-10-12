@@ -85,7 +85,7 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
             <div className="sticky-route-info">
               <div className="sticky-route-header-line">
                 <span>{count} Destinasi Terpilih</span>
-                {isOptimal && <span className="sticky-optimal-badge">✓ Optimal (2–3 destinasi)</span>}
+                {count >= 2 && <span className="sticky-optimal-badge">⚡ Rute Teroptimasi (Dijkstra + Permutasi)</span>}
                 {count === 1 && (
                   <span
                     style={{
@@ -100,18 +100,18 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
                     Pilih minimal 2 destinasi
                   </span>
                 )}
-                {count > 3 && (
+                {count > 4 && (
                   <span
                     style={{
-                      background: '#FFF0F0',
-                      color: '#C23C3C',
+                      background: '#FFF5EE',
+                      color: '#994700',
                       padding: '2px 8px',
                       borderRadius: 9999,
                       fontSize: 11,
                       fontWeight: 600,
                     }}
                   >
-                    Padat untuk 1 hari
+                    Rencana seharian
                   </span>
                 )}
                 <span style={{ color: 'var(--meratus-subtle)', fontWeight: 500 }}>
@@ -119,7 +119,7 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
                 </span>
               </div>
               <div className="sticky-route-subtext">
-                <span>🔀 Urutan rute dioptimalkan otomatis (Dijkstra)</span>
+                <span>🔀 Matriks jarak Dijkstra dihitung otomatis dengan permutasi jarak terpendek</span>
               </div>
             </div>
           </div>

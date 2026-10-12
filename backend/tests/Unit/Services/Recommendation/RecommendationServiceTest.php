@@ -64,6 +64,9 @@ class RecommendationServiceTest extends TestCase
 
         $this->assertSame([1, 3, 2], array_column($result['route'], 'id'));
         $this->assertGreaterThan(0.0, $result['total_distance_km']);
+        $this->assertSame(6, $result['permutations_checked']); // 3! = 6
+        $this->assertSame('brute_force_dijkstra', $result['method']);
+        $this->assertGreaterThanOrEqual(0.0, $result['distance_saved_km']);
     }
 
     public function test_rank_with_saw_returns_sorted_scores(): void

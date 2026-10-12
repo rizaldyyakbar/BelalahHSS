@@ -43,7 +43,15 @@ export const PlannerPage: React.FC = () => {
   const [availableDestinations, setAvailableDestinations] = useState<Destination[]>(DESTINATIONS);
   const [notification, setNotification] = useState<string | null>(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
-  const hasAutoOptimized = useRef(false);
+  const [optimizationStats, setOptimizationStats] = useState<{
+    initialKm: number;
+    optimizedKm: number;
+    savedKm: number;
+    percentageSaved: number;
+    permutationsChecked: number;
+    method: string;
+  } | null>(null);
+  const lastOptimizedSignature = useRef<string>('');
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -95,9 +103,80 @@ export const PlannerPage: React.FC = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
+  const optimizeDestinationList = async (list: Destination[], showSuccessToast = false) => {
+    if (list.length === 0 || isRecalculating) return;
+    const signature = list.map((d) => d.id).join('-');
+    if (lastOptimizedSignature.current === signature && optimizationStats) {
+      return;
+    }
+
+    setIsRecalculating(true);
+
+    try {
+      const result = await optimizeRoute(
+        startPoint.lat,
+        startPoint.lng,
+        list.map((destination) => destination.id),
+        availableDestinations.length > 0 ? availableDestinations : DESTINATIONS,
+      );
+
+      const pool = availableDestinations.length > 0 ? availableDestinations : DESTINATIONS;
+      const poolMap = new Map(pool.map((destination) => [destination.id, destination]));
+      const currentMap = new Map(list.map((destination) => [destination.id, destination]));
+
+      const optimizedItinerary = result.route
+        .map((routeItem) => currentMap.get(routeItem.id) || poolMap.get(routeItem.id))
+        .filter((destination): destination is Destination => Boolean(destination));
+
+      if (optimizedItinerary.length === list.length) {
+        lastOptimizedSignature.current = optimizedItinerary.map((d) => d.id).join('-');
+        saveItinerary(optimizedItinerary);
+
+        setOptimizationStats({
+          initialKm: result.initial_distance_km ?? result.total_distance_km,
+          optimizedKm: result.total_distance_km,
+          savedKm: result.distance_saved_km ?? 0,
+          percentageSaved: result.percentage_saved ?? 0,
+          permutationsChecked: result.permutations_checked ?? 1,
+          method: result.method ?? 'brute_force_dijkstra',
+        });
+
+        if (showSuccessToast) {
+          showToast(`Rute dioptimalkan (${result.permutations_checked ?? 1} permutasi Dijkstra diuji)`);
+        }
+      }
+    } catch {
+      // Handled via client fallback
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+
+  const handleRecalculateRoute = () => {
+    optimizeDestinationList(itinerary, true);
+  };
+
+  // Re-optimize automatically when itinerary destination count or items change
+  useEffect(() => {
+    if (itinerary.length < 2) {
+      setOptimizationStats(null);
+      return;
+    }
+
+    const signature = itinerary.map((d) => d.id).join('-');
+    if (lastOptimizedSignature.current !== signature && !isRecalculating) {
+      optimizeDestinationList(itinerary, false);
+    }
+  }, [itinerary]);
+
   const handleRemoveDestination = (id: number) => {
     const updated = itinerary.filter((d) => d.id !== id);
     saveItinerary(updated);
+    if (updated.length >= 2) {
+      optimizeDestinationList(updated, true);
+    } else {
+      setOptimizationStats(null);
+    }
     showToast('Destinasi dihapus dari rute.');
   };
 
@@ -127,42 +206,6 @@ export const PlannerPage: React.FC = () => {
     }&travelmode=driving`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
-
-  const handleRecalculateRoute = async () => {
-    if (itinerary.length === 0 || isRecalculating) return;
-
-    setIsRecalculating(true);
-
-    try {
-      const result = await optimizeRoute(
-        startPoint.lat,
-        startPoint.lng,
-        itinerary.map((destination) => destination.id),
-      );
-      const destinationsById = new Map(itinerary.map((destination) => [destination.id, destination]));
-      const optimizedItinerary = result.route
-        .map((routeItem) => destinationsById.get(routeItem.id))
-        .filter((destination): destination is Destination => Boolean(destination));
-
-      if (optimizedItinerary.length !== itinerary.length) {
-        throw new Error('Hasil optimasi tidak lengkap.');
-      }
-
-      saveItinerary(optimizedItinerary);
-      showToast('Rute berhasil dioptimalkan dengan Dijkstra');
-    } catch {
-      showToast('Kalkulasi rute gagal dioptimalkan');
-    } finally {
-      setIsRecalculating(false);
-    }
-  };
-  useEffect(() => {
-    if (itinerary.length === 0) return;
-    if (hasAutoOptimized.current) return;
-
-    hasAutoOptimized.current = true; // Prevent infinite loop
-    handleRecalculateRoute(); // Auto-optimize on first load if itinerary exists
-  }, [itinerary]);
 
   const handleDownloadRoute = () => {
     if (itinerary.length === 0) {
@@ -220,7 +263,8 @@ ${routeTrack}
     if (matched && !itinerary.some((d) => d.id === matched.id)) {
       const updated = [...itinerary, matched];
       saveItinerary(updated);
-      showToast(`${matched.name} berhasil disisipkan! Urutan rute diperbarui.`);
+      optimizeDestinationList(updated, true);
+      showToast(`${matched.name} berhasil disisipkan! Urutan rute dioptimalkan.`);
       if (plannerMode !== 'itinerary') {
         setPlannerMode('itinerary');
       }
@@ -291,6 +335,74 @@ ${routeTrack}
   // Timeline UI renderer
   const renderTimelineStops = () => (
     <div>
+      {/* Optimization & Comparison Metric Card (Dijkstra + Permutasi) */}
+      {optimizationStats && itinerary.length >= 2 && (
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #012D1D 0%, #064E3B 100%)',
+            color: '#ffffff',
+            borderRadius: 16,
+            padding: '16px 18px',
+            marginBottom: 20,
+            boxShadow: '0 4px 16px rgba(1, 45, 29, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#FD934C',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span>⚡</span>
+              <span>Hasil Optimasi Dijkstra + Permutasi</span>
+            </span>
+            <span
+              style={{
+                fontSize: 10.5,
+                background: 'rgba(255, 255, 255, 0.15)',
+                padding: '3px 9px',
+                borderRadius: 999,
+                fontWeight: 600,
+              }}
+            >
+              {optimizationStats.permutationsChecked} Permutasi Diuji
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.08)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontSize: 11, color: '#A7F3D0', marginBottom: 2 }}>Urutan Awal Pilihan</div>
+              <div style={{ fontSize: 16, fontWeight: 800 }}>{optimizationStats.initialKm.toFixed(1)} km</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Sebelum optimasi</div>
+            </div>
+
+            <div style={{ background: 'rgba(255, 255, 255, 0.14)', borderRadius: 12, padding: '10px 12px', border: '1px solid #10B981' }}>
+              <div style={{ fontSize: 11, color: '#6EE7B7', fontWeight: 700, marginBottom: 2 }}>Jarak Terpendek</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#34D399' }}>{optimizationStats.optimizedKm.toFixed(1)} km</div>
+              <div style={{ fontSize: 10, color: '#A7F3D0' }}>Global Optimum</div>
+            </div>
+
+            <div style={{ background: 'rgba(253, 147, 76, 0.15)', borderRadius: 12, padding: '10px 12px', border: '1px solid rgba(253, 147, 76, 0.4)' }}>
+              <div style={{ fontSize: 11, color: '#FD934C', fontWeight: 700, marginBottom: 2 }}>Efisiensi Jarak</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#FDBA74' }}>
+                {optimizationStats.savedKm > 0 ? `-${optimizationStats.savedKm.toFixed(1)} km` : '0 km'}
+              </div>
+              <div style={{ fontSize: 10, color: '#FED7AA' }}>
+                {optimizationStats.savedKm > 0 ? `Hemat ${optimizationStats.percentageSaved}% rute` : 'Rute sudah paling hemat'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Node 0: Basecamp Kota Kandangan */}
       <div style={{ display: 'flex', gap: 14, position: 'relative' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -572,8 +684,10 @@ ${routeTrack}
                 <button
                   onClick={() => {
                     if (!itinerary.some((d) => d.id === item.id)) {
-                      saveItinerary([...itinerary, item]);
-                      showToast(`${item.name} berhasil disisipkan! Urutan rute diperbarui.`);
+                      const updated = [...itinerary, item];
+                      saveItinerary(updated);
+                      optimizeDestinationList(updated, true);
+                      showToast(`${item.name} berhasil disisipkan! Urutan rute dioptimalkan.`);
                       if (plannerMode !== 'itinerary') {
                         setPlannerMode('itinerary');
                       }

@@ -48,15 +48,48 @@ class DatabaseSeeder extends Seeder
 
         // 3. Seed Categories
         $categories = [
-            'wisata-alam' => 'Wisata Alam',
-            'wisata-budaya' => 'Wisata Budaya',
-            'petualangan' => 'Petualangan',
-            'religi' => 'Religi',
-            'kuliner' => 'Kuliner',
+            'wisata-alam' => [
+                'name' => 'Wisata Alam',
+                'icon' => '🌿',
+                'description' => 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
+            ],
+            'wisata-budaya' => [
+                'name' => 'Wisata Budaya',
+                'icon' => '🏛️',
+                'description' => 'Balai Adat Malaris, Rumah Adat Dayak Bukit, museum, dan warisan kearifan lokal Meratus.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg',
+            ],
+            'petualangan' => [
+                'name' => 'Petualangan',
+                'icon' => '🚣',
+                'description' => 'Bamboo rafting Sungai Amandit, river tubing alami, dan ekspedisi rimba Meratus.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+            ],
+            'religi' => [
+                'name' => 'Wisata Religi',
+                'icon' => '🕌',
+                'description' => 'Ziarah makam ulama kharismatik dan situs cagar budaya spiritual bersejarah di bumi Antaludin.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
+            ],
+            'kuliner' => [
+                'name' => 'Kuliner',
+                'icon' => '🍲',
+                'description' => 'Ketupat Kandangan otentik, dodol HSS legit, dan ragam kuliner khas Banjar Pahuluan.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+            ],
         ];
 
-        foreach ($categories as $slug => $name) {
-            Category::updateOrCreate(['slug' => $slug], ['name' => $name]);
+        foreach ($categories as $slug => $cData) {
+            Category::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $cData['name'],
+                    'icon' => $cData['icon'],
+                    'description' => $cData['description'],
+                    'image_url' => $cData['image_url'],
+                ]
+            );
         }
 
         // 4. Baca CSV dan Seed Destinations beserta DestinationValues
@@ -206,34 +239,165 @@ class DatabaseSeeder extends Seeder
 
         fclose($handle);
 
-        // 5. Seed Facilities (Akomodasi, Kuliner, Masjid, SPBU di Hulu Sungai Selatan)
+        // 5. Seed Facilities (Akomodasi, Kuliner, Masjid, SPBU di seluruh koridor Hulu Sungai Selatan)
         $facilities = [
+            // Koridor Loksado & Geopark Meratus
             [
                 'name' => 'Wisma Pemandian Air Panas Tanuhi',
                 'type' => 'penginapan',
-                'latitude' => -2.8122,
-                'longitude' => 115.3789,
-                'rating' => 4.5,
-                'address' => 'Desa Hulu Banyu, Kecamatan Loksado',
-                'image_url' => '/assets/tanuhi.jpg',
+                'latitude' => -2.7789,
+                'longitude' => 115.4265,
+                'rating' => 4.6,
+                'address' => 'Kompleks Wisata Air Panas, Desa Hulu Banyu, Kec. Loksado',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kolam_Wisata_Air_Panas_Tanuhi.jpg/1280px-Kolam_Wisata_Air_Panas_Tanuhi.jpg',
             ],
             [
                 'name' => 'Lodge Alam Meratus Loksado',
                 'type' => 'penginapan',
-                'latitude' => -2.7981,
-                'longitude' => 115.3524,
+                'latitude' => -2.7935,
+                'longitude' => 115.4420,
+                'rating' => 4.7,
+                'address' => 'Tepi Sungai Amandit, Desa Loksado, Kec. Loksado',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+            ],
+            [
+                'name' => 'Meratus Resort & Mountain Homestay',
+                'type' => 'penginapan',
+                'latitude' => -2.7915,
+                'longitude' => 115.4450,
+                'rating' => 4.5,
+                'address' => 'Jl. Poros Loksado - Loklahung, Kec. Loksado',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Haratai Eco Homestay',
+                'type' => 'penginapan',
+                'latitude' => -2.7910,
+                'longitude' => 115.4845,
+                'rating' => 4.8,
+                'address' => 'Kawasan Hutan Lindung Desa Haratai, Kec. Loksado',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Warung Selera Meratus Loksado',
+                'type' => 'kuliner',
+                'latitude' => -2.7928,
+                'longitude' => 115.4415,
+                'rating' => 4.5,
+                'address' => 'Dekat Jembatan Gantung Loksado, Kec. Loksado',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Kantin Rest Area Riam Barajang',
+                'type' => 'kuliner',
+                'latitude' => -2.7848,
+                'longitude' => 115.4492,
+                'rating' => 4.4,
+                'address' => 'Bantaran Riam Barajang, Desa Loklahung, Kec. Loksado',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Musholla Al-Ikhlas Loksado',
+                'type' => 'masjid',
+                'latitude' => -2.7930,
+                'longitude' => 115.4408,
+                'rating' => 4.8,
+                'address' => 'Pusat Desa Loksado, Kec. Loksado',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Pertashop & Mini Fuel Loksado',
+                'type' => 'spbu',
+                'latitude' => -2.7905,
+                'longitude' => 115.4380,
+                'rating' => 4.3,
+                'address' => 'Jl. Laksamana Udara Suryadarma, Loksado',
+                'image_url' => null,
+            ],
+
+            // Koridor Padang Batung & Batu Bini
+            [
+                'name' => 'Rest Area & Warung Sungai Pariangan',
+                'type' => 'kuliner',
+                'latitude' => -2.7410,
+                'longitude' => 115.3692,
                 'rating' => 4.6,
-                'address' => 'Desa Loksado, Kecamatan Loksado',
-                'image_url' => '/assets/balanting-paring.jpg',
+                'address' => 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Warung Ikan Bakar Tradisional Padang Batung',
+                'type' => 'kuliner',
+                'latitude' => -2.7460,
+                'longitude' => 115.3610,
+                'rating' => 4.5,
+                'address' => 'Jl. Raya Padang Batung, HSS',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Homestay Alam Lembah Batu Laki',
+                'type' => 'penginapan',
+                'latitude' => -2.7485,
+                'longitude' => 115.3560,
+                'rating' => 4.4,
+                'address' => 'Kaki Bukit Batu Laki, Kec. Padang Batung',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Masjid Jami Al-Hidayah Padang Batung',
+                'type' => 'masjid',
+                'latitude' => -2.7440,
+                'longitude' => 115.3630,
+                'rating' => 4.9,
+                'address' => 'Pusat Kecamatan Padang Batung, HSS',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'SPBU Padang Batung',
+                'type' => 'spbu',
+                'latitude' => -2.7520,
+                'longitude' => 115.3510,
+                'rating' => 4.5,
+                'address' => 'Jl. Brigjen H. Hasan Basry, Padang Batung',
+                'image_url' => null,
+            ],
+
+            // Koridor Pusat Kota Kandangan
+            [
+                'name' => 'Hotel Rakat Mupakat Kandangan',
+                'type' => 'penginapan',
+                'latitude' => -2.7760,
+                'longitude' => 115.2645,
+                'rating' => 4.5,
+                'address' => 'Jl. Pangeran Antasari No. 12, Kandangan Kota',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Wisma Duta Syariah Kandangan',
+                'type' => 'penginapan',
+                'latitude' => -2.7725,
+                'longitude' => 115.2610,
+                'rating' => 4.4,
+                'address' => 'Jl. Jenderal Sudirman, Kandangan Barat',
+                'image_url' => null,
             ],
             [
                 'name' => 'Warung Ketupat Kandangan Pak Haji',
                 'type' => 'kuliner',
                 'latitude' => -2.7750,
                 'longitude' => 115.2642,
+                'rating' => 4.9,
+                'address' => 'Jl. Jenderal Sudirman, Kandangan Kota (Spesialis Iwak Haruan Asap)',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Warung Ketupat Kandangan Nanang',
+                'type' => 'kuliner',
+                'latitude' => -2.7738,
+                'longitude' => 115.2635,
                 'rating' => 4.8,
-                'address' => 'Jl. Jenderal Sudirman, Kandangan Kota',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'address' => 'Kawasan Pasar Los Batu Kandangan',
+                'image_url' => null,
             ],
             [
                 'name' => 'Sentra Kuliner Dodol Asli Kandangan',
@@ -241,26 +405,55 @@ class DatabaseSeeder extends Seeder
                 'latitude' => -2.7712,
                 'longitude' => 115.2618,
                 'rating' => 4.7,
-                'address' => 'Kawasan Pasar Los Batu Kandangan',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'address' => 'Pusat Oleh-Oleh Khas Dodol Kandangan, Jl. A. Yani',
+                'image_url' => null,
             ],
             [
-                'name' => 'Masjid Besar Syuhada Kandangan',
+                'name' => 'Masjid Agung As-Syuhada Kandangan',
                 'type' => 'masjid',
                 'latitude' => -2.7745,
                 'longitude' => 115.2630,
                 'rating' => 4.9,
-                'address' => 'Pusat Kota Kandangan, HSS',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'address' => 'Alun-Alun Antaludin, Pusat Kota Kandangan',
+                'image_url' => null,
             ],
             [
-                'name' => 'SPBU Kandangan Kota',
+                'name' => 'SPBU Hamalau Kandangan',
                 'type' => 'spbu',
                 'latitude' => -2.7788,
                 'longitude' => 115.2665,
+                'rating' => 4.5,
+                'address' => 'Jl. A. Yani KM 2.5 Hamalau, Kandangan',
+                'image_url' => null,
+            ],
+
+            // Koridor Daha (Rawa Bangkau / Nagara) & Simpur
+            [
+                'name' => 'Dermaga & Sentra Iwak Baung Bangkau',
+                'type' => 'kuliner',
+                'latitude' => -2.6860,
+                'longitude' => 115.1965,
+                'rating' => 4.6,
+                'address' => 'Tepi Danau Bangkau, Kec. Kandangan Barat / Pahaungan',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Masjid Kuno As-Suada (Masjid Baangkat)',
+                'type' => 'masjid',
+                'latitude' => -2.7151,
+                'longitude' => 115.2289,
+                'rating' => 4.9,
+                'address' => 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Ulin Tertua)',
+                'image_url' => null,
+            ],
+            [
+                'name' => 'Pertashop Nagara Daha',
+                'type' => 'spbu',
+                'latitude' => -2.6840,
+                'longitude' => 115.1940,
                 'rating' => 4.4,
-                'address' => 'Jl. A. Yani, Kandangan',
-                'image_url' => '/assets/museum-rakyat.jpg',
+                'address' => 'Jl. Poros Negara - Kandangan, Daha Selatan',
+                'image_url' => null,
             ],
         ];
 

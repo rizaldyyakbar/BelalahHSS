@@ -47,14 +47,35 @@ class RecommendationService
     }
 
     /**
-     * Order selected destinations by repeatedly finding the nearest unvisited
-     * node from the current node using Dijkstra's shortest-path algorithm.
+     * Order selected destinations using Brute Force Permutation on a Dijkstra-computed
+     * distance matrix (for N <= 7) to guarantee the global optimal shortest route,
+     * or Greedy Nearest Neighbor via Dijkstra (for N > 7).
      *
      * @param  array<int, array{id: int, name: string, latitude: float|int, longitude: float|int}>  $destinations
-     * @return array{route: array<int, array{id: int, name: string, latitude: float, longitude: float, distance_from_previous_km: float}>, total_distance_km: float}
+     * @return array{
+     *   route: array<int, array{id: int, name: string, latitude: float, longitude: float, distance_from_previous_km: float}>,
+     *   total_distance_km: float,
+     *   initial_distance_km: float,
+     *   distance_saved_km: float,
+     *   percentage_saved: float,
+     *   permutations_checked: int,
+     *   method: string
+     * }
      */
     public function optimizeRoute(float $userLatitude, float $userLongitude, array $destinations): array
     {
+        if (empty($destinations)) {
+            return [
+                'route' => [],
+                'total_distance_km' => 0.0,
+                'initial_distance_km' => 0.0,
+                'distance_saved_km' => 0.0,
+                'percentage_saved' => 0.0,
+                'permutations_checked' => 0,
+                'method' => 'none',
+            ];
+        }
+
         $nodes = [
             'user' => [
                 'latitude' => $userLatitude,
@@ -72,6 +93,7 @@ class RecommendationService
             $destinationsByNode[$node] = $destination;
         }
 
+        // 1. Build coordinate graph with Haversine edge weights
         $graph = [];
         foreach ($nodes as $sourceNode => $source) {
             $graph[$sourceNode] = [];
@@ -90,49 +112,132 @@ class RecommendationService
             }
         }
 
-        $route = [];
-        $totalDistance = 0.0;
-        $currentNode = 'user';
-        $unvisited = array_keys($destinationsByNode);
+        // 2. Precompute Distance Matrix using Dijkstra shortest path between all pairs
+        $distanceMatrix = [];
+        foreach (array_keys($nodes) as $fromNode) {
+            $distanceMatrix[$fromNode] = [];
+            foreach (array_keys($nodes) as $toNode) {
+                if ($fromNode === $toNode) {
+                    $distanceMatrix[$fromNode][$toNode] = 0.0;
+                    continue;
+                }
+                $dijkstraRes = $this->dijkstraService->shortestPath($graph, $fromNode, $toNode);
+                $distanceMatrix[$fromNode][$toNode] = (float) ($dijkstraRes['distance'] ?? INF);
+            }
+        }
 
-        while ($unvisited !== []) {
-            $nearestNode = null;
-            $nearestDistance = INF;
+        // 3. Compute initial unoptimized distance (in the order user added them)
+        $nodeKeys = array_map(fn ($d) => (string) $d['id'], $destinations);
+        $initialDistance = 0.0;
+        $prev = 'user';
+        foreach ($nodeKeys as $k) {
+            $initialDistance += $distanceMatrix[$prev][$k] ?? 0.0;
+            $prev = $k;
+        }
 
-            foreach ($unvisited as $candidateNode) {
-                $result = $this->dijkstraService->shortestPath($graph, $currentNode, $candidateNode);
+        $bestOrder = [];
+        $bestDistance = INF;
+        $permutationsChecked = 1;
+        $method = 'brute_force_dijkstra';
 
-                if ($result['distance'] < $nearestDistance) {
-                    $nearestNode = $candidateNode;
-                    $nearestDistance = (float) $result['distance'];
+        if (count($nodeKeys) <= 7) {
+            $permutations = $this->generatePermutations($nodeKeys);
+            $permutationsChecked = count($permutations);
+
+            foreach ($permutations as $perm) {
+                $currentDist = 0.0;
+                $curr = 'user';
+                foreach ($perm as $stepNode) {
+                    $currentDist += $distanceMatrix[$curr][$stepNode] ?? INF;
+                    $curr = $stepNode;
+                }
+
+                if ($currentDist < $bestDistance) {
+                    $bestDistance = $currentDist;
+                    $bestOrder = $perm;
                 }
             }
+        } else {
+            // Greedy Nearest-Neighbor fallback for N > 7
+            $method = 'greedy_dijkstra';
+            $unvisited = $nodeKeys;
+            $curr = 'user';
+            $bestDistance = 0.0;
 
-            if ($nearestNode === null || $nearestDistance === INF) {
-                break;
+            while (! empty($unvisited)) {
+                $nearest = null;
+                $minD = INF;
+                foreach ($unvisited as $cand) {
+                    $d = $distanceMatrix[$curr][$cand] ?? INF;
+                    if ($d < $minD) {
+                        $minD = $d;
+                        $nearest = $cand;
+                    }
+                }
+
+                if ($nearest === null) {
+                    break;
+                }
+
+                $bestOrder[] = $nearest;
+                $bestDistance += $minD;
+                $curr = $nearest;
+                $unvisited = array_values(array_filter($unvisited, fn ($n) => (string) $n !== (string) $nearest));
             }
+        }
 
-            $destination = $destinationsByNode[$nearestNode];
-            $distance = round($nearestDistance, 2);
+        // 4. Format resulting ordered route
+        $route = [];
+        $prev = 'user';
+        foreach ($bestOrder as $nodeId) {
+            $destination = $destinationsByNode[$nodeId];
+            $stepDist = $distanceMatrix[$prev][$nodeId] ?? 0.0;
             $route[] = [
                 'id' => (int) $destination['id'],
                 'name' => $destination['name'],
                 'latitude' => (float) $destination['latitude'],
                 'longitude' => (float) $destination['longitude'],
-                'distance_from_previous_km' => $distance,
+                'distance_from_previous_km' => round($stepDist, 2),
             ];
-            $totalDistance += $nearestDistance;
-            $currentNode = $nearestNode;
-            $unvisited = array_values(array_filter(
-                $unvisited,
-                static fn (string|int $node): bool => (string) $node !== (string) $nearestNode,
-            ));
+            $prev = $nodeId;
         }
+
+        $distanceSaved = max(0.0, $initialDistance - $bestDistance);
+        $percentSaved = $initialDistance > 0 ? ($distanceSaved / $initialDistance) * 100 : 0.0;
 
         return [
             'route' => $route,
-            'total_distance_km' => round($totalDistance, 2),
+            'total_distance_km' => round($bestDistance, 2),
+            'initial_distance_km' => round($initialDistance, 2),
+            'distance_saved_km' => round($distanceSaved, 2),
+            'percentage_saved' => round($percentSaved, 1),
+            'permutations_checked' => $permutationsChecked,
+            'method' => $method,
         ];
+    }
+
+    /**
+     * Generate all permutations of an array.
+     *
+     * @param  array<int, string>  $items
+     * @return array<int, array<int, string>>
+     */
+    protected function generatePermutations(array $items): array
+    {
+        if (count($items) <= 1) {
+            return [$items];
+        }
+
+        $permutations = [];
+        foreach ($items as $key => $item) {
+            $remaining = $items;
+            unset($remaining[$key]);
+            foreach ($this->generatePermutations(array_values($remaining)) as $subPerm) {
+                $permutations[] = array_merge([$item], $subPerm);
+            }
+        }
+
+        return $permutations;
     }
 
     /**

@@ -10,6 +10,9 @@ class Category extends Model
     protected $fillable = [
         'name',
         'slug',
+        'icon',
+        'description',
+        'image_url',
     ];
 
     public function destinations(): HasMany

@@ -16,7 +16,7 @@ class CategoryController extends Controller
         $categories = Category::query()
             ->withCount('destinations')
             ->orderBy('id', 'asc')
-            ->get(['id', 'name', 'slug']);
+            ->get(['id', 'name', 'slug', 'icon', 'description', 'image_url']);
 
         return response()->json([
             'success' => true,

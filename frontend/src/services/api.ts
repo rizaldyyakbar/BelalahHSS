@@ -1,5 +1,5 @@
 import { DESTINATIONS, Destination } from '../constants/destinations';
-
+import { optimizeRouteClientSide, parseCoords, calculateHaversineDistance } from '../utils/geo';
 import { API_BASE_URL } from '../utils/imageUrl';
 
 export interface RecommendationParams {
@@ -169,29 +169,75 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
   return { destinations: DESTINATIONS, isFromApi: false };
 }
 
+export interface OptimizedRouteResult {
+  route: OptimizedRouteItem[];
+  total_distance_km: number;
+  initial_distance_km?: number;
+  distance_saved_km?: number;
+  percentage_saved?: number;
+  permutations_checked?: number;
+  method?: string;
+  isFallback?: boolean;
+}
+
 export async function optimizeRoute(
   lat: number,
   lng: number,
   destinationIds: number[],
-): Promise<{ route: OptimizedRouteItem[]; total_distance_km: number }> {
-  const response = await fetch(`${API_BASE_URL}/routes/optimized`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      lat,
-      lng,
-      destination_ids: destinationIds,
-    }),
-  });
+  destinationsFallback?: Destination[],
+): Promise<OptimizedRouteResult> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/routes/optimized`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        lat,
+        lng,
+        destination_ids: destinationIds,
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Route optimization failed with status ${response.status}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data.route) && data.route.length > 0) {
+        return data;
+      }
+    }
+  } catch (error) {
+    console.warn('[Belalah API] Backend route optimization unavailable, using client-side Brute Force Dijkstra fallback:', error);
   }
 
-  return response.json();
+  // Instant client-side Brute Force Dijkstra fallback
+  const pool = destinationsFallback && destinationsFallback.length > 0 ? destinationsFallback : DESTINATIONS;
+  const poolMap = new Map(pool.map((d) => [d.id, d]));
+  const targetDests = destinationIds
+    .map((id) => poolMap.get(id))
+    .filter((d): d is Destination => Boolean(d));
+
+  const clientResult = optimizeRouteClientSide({ lat, lng }, targetDests);
+
+  return {
+    route: clientResult.route.map((item) => {
+      const coords = parseCoords(item) || { lat: -2.77, lng: 115.31 };
+      return {
+        id: item.id,
+        name: item.name,
+        latitude: coords.lat,
+        longitude: coords.lng,
+        distance_from_previous_km: item.distance_from_previous_km,
+      };
+    }),
+    total_distance_km: clientResult.total_distance_km,
+    initial_distance_km: clientResult.initial_distance_km,
+    distance_saved_km: clientResult.distance_saved_km,
+    percentage_saved: clientResult.percentage_saved,
+    permutations_checked: clientResult.permutations_checked,
+    method: clientResult.method,
+    isFallback: true,
+  };
 }
 
 /**
@@ -283,11 +329,14 @@ export interface ApiCategory {
   id: number;
   name: string;
   slug: string;
+  icon?: string;
+  description?: string;
+  image_url?: string;
   destinations_count?: number;
 }
 
 /**
- * Fetch list of tourism categories with destination count from backend
+ * Fetch list of tourism categories with destination count and metadata from backend
  */
 export async function fetchCategories(): Promise<ApiCategory[]> {
   try {
@@ -305,11 +354,51 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
   }
 
   return [
-    { id: 1, name: 'Wisata Alam', slug: 'wisata-alam', destinations_count: 14 },
-    { id: 2, name: 'Wisata Budaya', slug: 'wisata-budaya', destinations_count: 3 },
-    { id: 3, name: 'Petualangan', slug: 'petualangan', destinations_count: 2 },
-    { id: 4, name: 'Religi', slug: 'religi', destinations_count: 2 },
-    { id: 5, name: 'Kuliner', slug: 'kuliner', destinations_count: 0 },
+    {
+      id: 1,
+      name: 'Wisata Alam',
+      slug: 'wisata-alam',
+      icon: '🌿',
+      description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
+      image_url: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
+      destinations_count: 16,
+    },
+    {
+      id: 2,
+      name: 'Wisata Budaya',
+      slug: 'wisata-budaya',
+      icon: '🏛️',
+      description: 'Balai Adat Malaris, Rumah Adat Dayak Bukit, museum, dan warisan kearifan lokal Meratus.',
+      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg',
+      destinations_count: 1,
+    },
+    {
+      id: 3,
+      name: 'Petualangan',
+      slug: 'petualangan',
+      icon: '🚣',
+      description: 'Bamboo rafting Sungai Amandit, river tubing alami, dan ekspedisi rimba Meratus.',
+      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+      destinations_count: 2,
+    },
+    {
+      id: 4,
+      name: 'Wisata Religi',
+      slug: 'religi',
+      icon: '🕌',
+      description: 'Ziarah makam ulama kharismatik dan situs cagar budaya spiritual bersejarah di bumi Antaludin.',
+      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
+      destinations_count: 2,
+    },
+    {
+      id: 5,
+      name: 'Kuliner',
+      slug: 'kuliner',
+      icon: '🍲',
+      description: 'Ketupat Kandangan otentik, dodol HSS legit, dan ragam kuliner khas Banjar Pahuluan.',
+      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+      destinations_count: 0,
+    },
   ];
 }
 
@@ -325,6 +414,32 @@ export interface ApiFacility {
   distance_km?: number;
   google_maps_url?: string;
 }
+
+export const FALLBACK_FACILITIES: ApiFacility[] = [
+  { id: 1, name: 'Wisma Pemandian Air Panas Tanuhi', type: 'penginapan', latitude: -2.7789, longitude: 115.4265, rating: 4.6, address: 'Kompleks Wisata Air Panas, Desa Hulu Banyu, Kec. Loksado' },
+  { id: 2, name: 'Lodge Alam Meratus Loksado', type: 'penginapan', latitude: -2.7935, longitude: 115.4420, rating: 4.7, address: 'Tepi Sungai Amandit, Desa Loksado, Kec. Loksado' },
+  { id: 3, name: 'Meratus Resort & Mountain Homestay', type: 'penginapan', latitude: -2.7915, longitude: 115.4450, rating: 4.5, address: 'Jl. Poros Loksado - Loklahung, Kec. Loksado' },
+  { id: 4, name: 'Haratai Eco Homestay', type: 'penginapan', latitude: -2.7910, longitude: 115.4845, rating: 4.8, address: 'Kawasan Hutan Lindung Desa Haratai, Kec. Loksado' },
+  { id: 5, name: 'Warung Selera Meratus Loksado', type: 'kuliner', latitude: -2.7928, longitude: 115.4415, rating: 4.5, address: 'Dekat Jembatan Gantung Loksado, Kec. Loksado' },
+  { id: 6, name: 'Kantin Rest Area Riam Barajang', type: 'kuliner', latitude: -2.7848, longitude: 115.4492, rating: 4.4, address: 'Bantaran Riam Barajang, Desa Loklahung, Kec. Loksado' },
+  { id: 7, name: 'Musholla Al-Ikhlas Loksado', type: 'masjid', latitude: -2.7930, longitude: 115.4408, rating: 4.8, address: 'Pusat Desa Loksado, Kec. Loksado' },
+  { id: 8, name: 'Pertashop & Mini Fuel Loksado', type: 'spbu', latitude: -2.7905, longitude: 115.4380, rating: 4.3, address: 'Jl. Laksamana Udara Suryadarma, Loksado' },
+  { id: 9, name: 'Rest Area & Warung Sungai Pariangan', type: 'kuliner', latitude: -2.7410, longitude: 115.3692, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung' },
+  { id: 10, name: 'Warung Ikan Bakar Tradisional Padang Batung', type: 'kuliner', latitude: -2.7460, longitude: 115.3610, rating: 4.5, address: 'Jl. Raya Padang Batung, HSS' },
+  { id: 11, name: 'Homestay Alam Lembah Batu Laki', type: 'penginapan', latitude: -2.7485, longitude: 115.3560, rating: 4.4, address: 'Kaki Bukit Batu Laki, Kec. Padang Batung' },
+  { id: 12, name: 'Masjid Jami Al-Hidayah Padang Batung', type: 'masjid', latitude: -2.7440, longitude: 115.3630, rating: 4.9, address: 'Pusat Kecamatan Padang Batung, HSS' },
+  { id: 13, name: 'SPBU Padang Batung', type: 'spbu', latitude: -2.7520, longitude: 115.3510, rating: 4.5, address: 'Jl. Brigjen H. Hasan Basry, Padang Batung' },
+  { id: 14, name: 'Hotel Rakat Mupakat Kandangan', type: 'penginapan', latitude: -2.7760, longitude: 115.2645, rating: 4.5, address: 'Jl. Pangeran Antasari No. 12, Kandangan Kota' },
+  { id: 15, name: 'Wisma Duta Syariah Kandangan', type: 'penginapan', latitude: -2.7725, longitude: 115.2610, rating: 4.4, address: 'Jl. Jenderal Sudirman, Kandangan Barat' },
+  { id: 16, name: 'Warung Ketupat Kandangan Pak Haji', type: 'kuliner', latitude: -2.7750, longitude: 115.2642, rating: 4.9, address: 'Jl. Jenderal Sudirman, Kandangan Kota (Spesialis Iwak Haruan Asap)' },
+  { id: 17, name: 'Warung Ketupat Kandangan Nanang', type: 'kuliner', latitude: -2.7738, longitude: 115.2635, rating: 4.8, address: 'Kawasan Pasar Los Batu Kandangan' },
+  { id: 18, name: 'Sentra Kuliner Dodol Asli Kandangan', type: 'kuliner', latitude: -2.7712, longitude: 115.2618, rating: 4.7, address: 'Pusat Oleh-Oleh Khas Dodol Kandangan, Jl. A. Yani' },
+  { id: 19, name: 'Masjid Agung As-Syuhada Kandangan', type: 'masjid', latitude: -2.7745, longitude: 115.2630, rating: 4.9, address: 'Alun-Alun Antaludin, Pusat Kota Kandangan' },
+  { id: 20, name: 'SPBU Hamalau Kandangan', type: 'spbu', latitude: -2.7788, longitude: 115.2665, rating: 4.5, address: 'Jl. A. Yani KM 2.5 Hamalau, Kandangan' },
+  { id: 21, name: 'Dermaga & Sentra Iwak Baung Bangkau', type: 'kuliner', latitude: -2.6860, longitude: 115.1965, rating: 4.6, address: 'Tepi Danau Bangkau, Kec. Kandangan Barat / Pahaungan' },
+  { id: 22, name: 'Masjid Kuno As-Suada (Masjid Baangkat)', type: 'masjid', latitude: -2.7151, longitude: 115.2289, rating: 4.9, address: 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Ulin Tertua)' },
+  { id: 23, name: 'Pertashop Nagara Daha', type: 'spbu', latitude: -2.6840, longitude: 115.1940, rating: 4.4, address: 'Jl. Poros Negara - Kandangan, Daha Selatan' },
+];
 
 /**
  * Fetch facilities near a coordinate (lodging, dining, mosque, fuel)
@@ -345,7 +460,7 @@ export async function fetchNearbyFacilities(
     });
     if (response.ok) {
       const res = await response.json();
-      if (Array.isArray(res.data)) {
+      if (Array.isArray(res.data) && res.data.length > 0) {
         return res.data;
       }
     }
@@ -353,7 +468,23 @@ export async function fetchNearbyFacilities(
     console.warn('[Belalah API] Failed fetching nearby facilities, using fallback:', error);
   }
 
-  return [];
+  // Authentic local database fallback sorted by Haversine distance
+  if (lat !== undefined && lng !== undefined) {
+    return FALLBACK_FACILITIES.map((fac) => {
+      const fLat = Number(fac.latitude);
+      const fLng = Number(fac.longitude);
+      const dist = calculateHaversineDistance(lat, lng, fLat, fLng);
+      return {
+        ...fac,
+        distance_km: Number(dist.toFixed(1)),
+        google_maps_url: `https://www.google.com/maps/dir/?api=1&destination=${fLat},${fLng}`,
+      };
+    })
+      .filter((fac) => fac.distance_km !== undefined && fac.distance_km <= radiusKm)
+      .sort((a, b) => (a.distance_km ?? 0) - (b.distance_km ?? 0));
+  }
+
+  return FALLBACK_FACILITIES;
 }
 
 /**

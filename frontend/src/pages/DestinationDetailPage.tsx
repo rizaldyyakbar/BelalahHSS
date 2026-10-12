@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -25,6 +25,12 @@ export const DestinationDetailPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(!destination);
   const [allDestinations, setAllDestinations] = useState<Destination[]>(DESTINATIONS);
   const [nearbyFacilities, setNearbyFacilities] = useState<ApiFacility[]>([]);
+  const [selectedFacilityType, setSelectedFacilityType] = useState<string>('all');
+
+  const filteredFacilities = useMemo(() => {
+    if (selectedFacilityType === 'all') return nearbyFacilities;
+    return nearbyFacilities.filter((f) => f.type === selectedFacilityType);
+  }, [nearbyFacilities, selectedFacilityType]);
 
   const [itinerary, setItinerary] = useState<Destination[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
@@ -438,17 +444,48 @@ export const DestinationDetailPage: React.FC = () => {
                   <span>📍 Fasilitas &amp; Layanan Sekitar</span>
                 </h3>
                 <span style={{ fontSize: 11.5, background: '#EAF4EE', color: '#012D1D', padding: '3px 10px', borderRadius: 999, fontWeight: 700 }}>
-                  Terhubung ke Google Maps
+                  Basis Data Terpadu HSS
                 </span>
               </div>
               <p style={{ fontSize: 13, color: 'var(--meratus-muted)', marginBottom: 18, lineHeight: 1.5 }}>
-                Penginapan, sentra kuliner, SPBU, dan sarana ibadah terdekat di sekitar {destination.name}. Klik untuk langsung membuka rute &amp; ulasan di Google Maps:
+                Penginapan, sentra kuliner khas, SPBU/pertashop, dan sarana ibadah terdekat di sekitar {destination.name} yang terdata dalam sistem:
               </p>
+
+              {/* Category Filter Pills */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
+                {[
+                  { key: 'all', label: `Semua (${nearbyFacilities.length})` },
+                  { key: 'penginapan', label: '🛏️ Penginapan' },
+                  { key: 'kuliner', label: '🍽️ Kuliner' },
+                  { key: 'spbu', label: '⛽ SPBU' },
+                  { key: 'masjid', label: '🕌 Masjid' },
+                ].map((cat) => (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    onClick={() => setSelectedFacilityType(cat.key)}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: 9999,
+                      border: selectedFacilityType === cat.key ? '1px solid #012D1D' : '1px solid #D7E5DC',
+                      background: selectedFacilityType === cat.key ? '#012D1D' : '#F4F8F5',
+                      color: selectedFacilityType === cat.key ? '#ffffff' : '#012D1D',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
 
               {/* List of nearby facilities */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-                {nearbyFacilities.length > 0 ? (
-                  nearbyFacilities.slice(0, 5).map((fac) => {
+                {filteredFacilities.length > 0 ? (
+                  filteredFacilities.slice(0, 8).map((fac: ApiFacility) => {
                     const typeLabel =
                       fac.type === 'penginapan' ? '🛏️ Penginapan' :
                       fac.type === 'kuliner' ? '🍽️ Kuliner' :
@@ -544,8 +581,10 @@ export const DestinationDetailPage: React.FC = () => {
                     );
                   })
                 ) : (
-                  <div style={{ fontSize: 12.5, color: '#6E7972', fontStyle: 'italic', padding: '12px 0' }}>
-                    Memuat daftar fasilitas pendukung...
+                  <div style={{ fontSize: 12.5, color: '#6E7972', fontStyle: 'italic', padding: '16px 0', textAlign: 'center', background: '#F8FAF8', borderRadius: 12 }}>
+                    {nearbyFacilities.length === 0
+                      ? 'Memuat daftar fasilitas pendukung dari basis data...'
+                      : `Tidak ada fasilitas kategori "${selectedFacilityType}" dalam radius 30 km.`}
                   </div>
                 )}
               </div>

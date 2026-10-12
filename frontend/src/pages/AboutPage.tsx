@@ -93,11 +93,10 @@ export const AboutPage: React.FC = () => {
             <div className="about-pillar-card">
               <div style={{ fontSize: 28, marginBottom: 12 }}>🔀</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
-                Optimasi Rute Dijkstra &amp; Haversine
+                Optimasi Rute Dijkstra &amp; Permutasi Matriks
               </h3>
               <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
-                Algoritma shortest-path menyusun urutan kunjungan multi-destinasi yang paling hemat jarak dan durasi tempuh,
-                serta siap diekspor langsung ke Google Maps rute multi-stop.
+                Algoritma shortest-path Dijkstra dipadukan dengan evaluasi permutasi matriks jarak untuk menyusun urutan kunjungan multi-destinasi global optimum yang paling hemat jarak dan waktu, serta siap diekspor langsung ke Google Maps rute multi-stop.
               </p>
             </div>
           </div>
