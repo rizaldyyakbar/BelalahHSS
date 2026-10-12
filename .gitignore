@@ -2,22 +2,21 @@
 backend/vendor/
 backend/node_modules/
 backend/.env
-backend/.env.local
-backend/.env.*.local
+backend/.env.*
 backend/storage/logs/*
 backend/bootstrap/cache/
 backend/public/storage
+backend/database/*.sqlite*
+backend/.phpunit.result.cache
 
 # Frontend
 frontend/node_modules/
 frontend/build/
 frontend/dist/
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+frontend/.env
+frontend/.env.*
 
-# IDE & Agent
+# IDE & Editor
 .vscode/
 .idea/
 .agent/
@@ -25,11 +24,10 @@ frontend/.env.production.local
 *.swp
 *.swo
 *~
-.DS_Store
+*.log
 
 # OS
+.DS_Store
+*/.DS_Store
 Thumbs.db
 
-# IDE & Agent
-.agent/
-.agents/
