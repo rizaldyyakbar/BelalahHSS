@@ -40,6 +40,8 @@ export interface Destination {
 export interface Facility {
   icon: string;
   name: string;
+  desc?: string;
+  tag?: string;
 }
 
 export const DESTINATIONS: Destination[] = [
@@ -60,9 +62,14 @@ export const DESTINATIONS: Destination[] = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Wisata_Air_Terjun_Haratai%2C_Loksado.jpg/1280px-Wisata_Air_Terjun_Haratai%2C_Loksado.jpg',
     ],
     facilities: [
-      { icon: 'bed', name: 'Gazebo & Rest Area' },
-      { icon: 'fork', name: 'Kantin & Warung' },
-      { icon: 'parking', name: 'Area Parkir' },
+      { icon: 'gazebo', name: 'Gazebo & Rest Area', desc: 'Pondok berteduh menghadap keindahan lembah dan aliran air terjun', tag: 'Nyaman' },
+      { icon: 'jembatan', name: 'Jembatan Gantung Wisata', desc: 'Jembatan gantung kokoh sebagai akses lintasan dan spot foto ikonis', tag: 'Spot Foto' },
+      { icon: 'fork', name: 'Kantin & Warung Wisata', desc: 'Warung minuman hangat, makanan ringan, dan madu kelulut asli Meratus', tag: 'Tersedia' },
+      { icon: 'bilas', name: 'Toilet & Kamar Mandi', desc: 'Fasilitas sanitasi dengan pasokan air pegunungan alami yang melimpah', tag: 'Bersih' },
+      { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Titik parkir motor dan mobil sebelum jalur setapak air terjun', tag: 'Aman' },
+      { icon: 'shield', name: 'Pos Informasi & Tiket', desc: 'Pos pengelola Pokdarwis resmi untuk informasi dan bantuan pengunjung', tag: 'Resmi' },
+      { icon: 'musholla', name: 'Musholla Al-Ikhlas', desc: 'Tempat ibadah sholat dan sarana wudhu bersih di area wisata', tag: 'Tersedia' },
+      { icon: 'camera', name: 'Spot Foto Pelataran Air', desc: 'Batu pandang aman untuk dokumentasi latar pemandangan air terjun', tag: 'Favorit' },
     ],
     hours: '08:00 - 17:00',
     entrance: 'Rp 10.000',
@@ -91,9 +98,12 @@ export const DESTINATIONS: Destination[] = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Balanting_di_Sungai_Amandit_Loksado.jpg',
     ],
     facilities: [
-      { icon: 'bed', name: 'Dermaga Tambat' },
-      { icon: 'fork', name: 'Rest Area Tepi Sungai' },
-      { icon: 'parking', name: 'Parkir Kendaraan' },
+      { icon: 'dermaga', name: 'Dermaga Tambat Hulu', desc: 'Titik awal pemberangkatan dan perakitan bambu paring tradisional', tag: 'Resmi' },
+      { icon: 'shield', name: 'Rompi Pelampung SNI', desc: 'Perlengkapan keselamatan standar wajib untuk seluruh penumpang', tag: 'Wajib' },
+      { icon: 'bed', name: 'Rest Area Tepi Sungai', desc: 'Pondok istirahat teduh untuk santai sejenak di tepi Sungai Amandit', tag: 'Nyaman' },
+      { icon: 'bilas', name: 'Kamar Bilas & Ganti', desc: 'Fasilitas bilas dan ganti pakaian setelah selesai arung jeram', tag: 'Bersih' },
+      { icon: 'fork', name: 'Warung Makan', desc: 'Menyajikan makan dan minum untuk mengganjal perut', tag: 'Tersedia' },
+      { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Tempat parkir roda 2 dan roda 4 aman di sekitar dermaga awal', tag: 'Aman' },
     ],
     hours: '07:30 - 17:00',
     entrance: 'Rp 300.000 / Rakit',
@@ -122,9 +132,14 @@ export const DESTINATIONS: Destination[] = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Obyek_Wisata_Air_Panas_Tanuhi_004.jpg/1280px-Obyek_Wisata_Air_Panas_Tanuhi_004.jpg',
     ],
     facilities: [
-      { icon: 'bed', name: 'Cottage Penginapan' },
-      { icon: 'fork', name: 'Kantin' },
-      { icon: 'parking', name: 'Area Parkir Luas' },
+      { icon: 'kolam', name: 'Kolam Air Panas Belerang', desc: 'Kolam rendam bertingkat alami berkhasiat terapi relaksasi tubuh & kesehatan kulit', tag: 'Aktif' },
+      { icon: 'renang', name: 'Kolam Renang Air Dingin', desc: 'Kolam air pegunungan jernih dan segar untuk rekreasi anak & keluarga', tag: 'Bersih' },
+      { icon: 'bed', name: 'Cottage & Penginapan', desc: 'Villa bernuansa alam di tengah lembah untuk istirahat dan bermalam', tag: 'Tersedia' },
+      { icon: 'bilas', name: 'Kamar Bilas & Toilet', desc: 'Bilik bilas air bersih dan toilet terpisah yang bersih dan memadai', tag: 'Terawat' },
+      { icon: 'fork', name: 'Kantin & Warung Makan', desc: 'Sentra makanan lokal, camilan hangat, kopi, dan aneka minuman segar', tag: 'Buka' },
+      { icon: 'parking', name: 'Area Parkir Luas', desc: 'Kapasitas parkir roda 2 dan roda 4 luas tertata aman dengan pengawasan', tag: 'Lapang' },
+      { icon: 'gazebo', name: 'Gazebo & Area Santai', desc: 'Pondok istirahat keluarga di tepi taman untuk melepas lelah', tag: 'Nyaman' },
+      { icon: 'musholla', name: 'Musholla & Tempat Wudhu', desc: 'Sarana ibadah yang bersih dan nyaman bagi pengunjung muslim', tag: 'Tersedia' },
     ],
     hours: '07:00 - 18:00',
     entrance: 'Rp 5.000',

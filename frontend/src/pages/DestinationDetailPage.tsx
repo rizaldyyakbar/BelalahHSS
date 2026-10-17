@@ -180,13 +180,243 @@ export const DestinationDetailPage: React.FC = () => {
     const text = `${icon || ''} ${name || ''}`.toLowerCase();
     if (text.includes('parkir') || text.includes('parking')) return '🅿️';
     if (text.includes('makan') || text.includes('kuliner') || text.includes('kantin') || text.includes('fork') || text.includes('warung')) return '🍽️';
-    if (text.includes('inap') || text.includes('bed') || text.includes('lodge') || text.includes('gazebo')) return '🛏️';
-    if (text.includes('foto') || text.includes('camera') || text.includes('selfie')) return '📷';
+    if (text.includes('inap') || text.includes('bed') || text.includes('lodge') || text.includes('cottage') || text.includes('villa')) return '🏡';
+    if (text.includes('kolam') || text.includes('panas') || text.includes('belerang')) return '♨️';
+    if (text.includes('renang')) return '🏊‍♂️';
+    if (text.includes('foto') || text.includes('camera') || text.includes('selfie') || text.includes('pandang')) return '📷';
     if (text.includes('sholat') || text.includes('musholla') || text.includes('masjid')) return '🕌';
-    if (text.includes('toilet') || text.includes('wc') || text.includes('bilas')) return '🚿';
-    if (text.includes('pelampung') || text.includes('life') || text.includes('shield') || text.includes('retribusi')) return '🛡️';
-    if (text.includes('rakit') || text.includes('boat') || text.includes('tubing')) return '🚣';
+    if (text.includes('toilet') || text.includes('wc') || text.includes('bilas') || text.includes('mandi')) return '🚿';
+    if (text.includes('pelampung') || text.includes('life') || text.includes('shield') || text.includes('retribusi') || text.includes('tiket') || text.includes('keamanan') || text.includes('pos')) return '🛡️';
+    if (text.includes('rakit') || text.includes('boat') || text.includes('tubing') || text.includes('dermaga') || text.includes('balanting')) return '🚣‍♂️';
+    if (text.includes('gazebo') || text.includes('rest') || text.includes('santai') || text.includes('istirahat') || text.includes('pondok')) return '🛖';
+    if (text.includes('jembatan')) return '🌉';
     return '📍';
+  };
+
+  const getFacilityDesc = (name: string, _destName?: string): string => {
+    const n = name.toLowerCase();
+    if (n.includes('kolam') && n.includes('panas')) return 'Kolam rendam bertingkat alami berkhasiat terapi relaksasi tubuh & kesehatan kulit.';
+    if (n.includes('kolam') || n.includes('renang')) return 'Kolam air bersih pegunungan jernih dan segar untuk rekreasi anak & keluarga.';
+    if (n.includes('inap') || n.includes('cottage') || n.includes('homestay') || n.includes('villa')) return 'Villa atau penginapan bernuansa alam di area wisata untuk istirahat dan bermalam.';
+    if (n.includes('makan') || n.includes('kantin') || n.includes('kuliner') || n.includes('warung')) return 'Sentra kuliner lokal menyajikan camilan hangat, masakan khas, kopi, dan aneka minuman.';
+    if (n.includes('parkir')) return 'Kapasitas parkir kendaraan roda 2 dan roda 4 yang tertata aman dengan pengawasan.';
+    if (n.includes('toilet') || n.includes('bilas') || n.includes('wc') || n.includes('mandi')) return 'Fasilitas sanitasi dan bilas air bersih terpisah yang terjaga higienis.';
+    if (n.includes('sholat') || n.includes('musholla') || n.includes('masjid')) return 'Tempat ibadah sholat yang bersih dan tenang dilengkapi sarana wudhu memadai.';
+    if (n.includes('gazebo') || n.includes('istirahat') || n.includes('rest') || n.includes('pondok')) return 'Pondok berteduh keluarga di sekitar area taman untuk melepas lelah.';
+    if (n.includes('jembatan')) return 'Akses lintasan kokoh sekaligus titik foto ikonis berlatar panorama alam.';
+    if (n.includes('pelampung') || n.includes('life')) return 'Rompi pelampung berstandar SNI untuk perlindungan dan keselamatan wisata air.';
+    if (n.includes('dermaga') || n.includes('rakit') || n.includes('boat')) return 'Dermaga tambat dan titik awal keberangkatan dengan pijakan aman.';
+    if (n.includes('foto') || n.includes('camera')) return 'Sudut pandang estetis dengan pencahayaan alami untuk dokumentasi perjalanan.';
+    if (n.includes('retribusi') || n.includes('pos') || n.includes('informasi') || n.includes('tiket')) return 'Loket resmi pengelola Pokdarwis Disporapar HSS untuk registrasi dan panduan wisata.';
+    return 'Sarana pendukung resmi yang tersedia langsung di sekitar kawasan destinasi.';
+  };
+
+  const getFacilityTag = (name: string): string => {
+    const n = name.toLowerCase();
+    if (n.includes('pelampung') || n.includes('wajib')) return 'Wajib';
+    if (n.includes('retribusi') || n.includes('pos') || n.includes('tiket')) return 'Resmi';
+    if (n.includes('foto') || n.includes('jembatan')) return 'Favorit';
+    if (n.includes('panas') || n.includes('kolam')) return 'Aktif';
+    if (n.includes('toilet') || n.includes('bilas') || n.includes('renang')) return 'Bersih';
+    if (n.includes('gazebo') || n.includes('istirahat') || n.includes('rest')) return 'Nyaman';
+    if (n.includes('parkir')) return 'Aman';
+    if (n.includes('inap') || n.includes('cottage')) return 'Tersedia';
+    return 'Tersedia';
+  };
+
+  const getDestinationHighlights = (dest: Destination) => {
+    const name = (dest.name || '').toLowerCase();
+    const cat = (dest.category || '').toLowerCase();
+
+    if (name.includes('tanuhi')) {
+      return [
+        {
+          icon: '♨️',
+          title: 'Kolam Belerang Alami',
+          desc: 'Sumber air panas alami kaya belerang berkhasiat terapi relaksasi tubuh dan kebugaran kulit.',
+        },
+        {
+          icon: '🏊‍♂️',
+          title: 'Kolam Renang Bertingkat',
+          desc: 'Kolam air dingin pegunungan yang jernih dan menyegarkan untuk rekreasi seluruh anggota keluarga.',
+        },
+        {
+          icon: '🏡',
+          title: 'Nuansa Lembah Meratus',
+          desc: 'Terletak di lembah asri berudara sejuk dengan fasilitas cottage penginapan dan taman terbuka hijau.',
+        },
+      ];
+    }
+
+    if (name.includes('bamboo') || name.includes('balanting') || name.includes('rafting')) {
+      return [
+        {
+          icon: '🎋',
+          title: 'Joki Dayak Berlisensi',
+          desc: 'Navigasi autentik oleh juru mudi Dayak yang menguasai karakter jeram dan arus secara turun-temurun.',
+        },
+        {
+          icon: '🛡️',
+          title: 'Standar Keselamatan SNI',
+          desc: 'Dilengkapi rompi pelampung berstandar dan drybag kedap air demi perlindungan maksimal wisatawan.',
+        },
+        {
+          icon: '🌊',
+          title: '14 Riam Alami Amandit',
+          desc: 'Pengarungan jeram seru selama 2–2.5 jam dengan bentang tebing karst dan kanopi hijau rimba Kalimantan.',
+        },
+      ];
+    }
+
+    if (name.includes('haratai')) {
+      return [
+        {
+          icon: '💧',
+          title: 'Air Terjun 3 Tingkat',
+          desc: 'Debit air jernih dan deras setinggi 13 meter yang bersumber langsung dari rimba hutan lindung Meratus.',
+        },
+        {
+          icon: '🌉',
+          title: 'Jembatan Gantung Ikonis',
+          desc: 'Spot pandang dan fotografi terbaik melintas di atas aliran sungai tepat di depan hempasan air terjun.',
+        },
+        {
+          icon: '🌿',
+          title: 'Hutan Lindung & Madu Kelulut',
+          desc: 'Kawasan konservasi alami yang asri dengan perkebunan kayu manis dan budidaya madu kelulut asli.',
+        },
+      ];
+    }
+
+    if (name.includes('langara')) {
+      return [
+        {
+          icon: '⛰️',
+          title: 'Puncak Karst Spektakuler',
+          desc: 'Pemandangan 360 derajat tebing batu kapur purba yang menghadap langsung lekukan Sungai Amandit.',
+        },
+        {
+          icon: '🌅',
+          title: 'Lautan Kabut & Mentari',
+          desc: 'Spot favorit menikmati matahari terbit dan terbenam berselimut kabut putih khas Pegunungan Meratus.',
+        },
+        {
+          icon: '🥾',
+          title: 'Jalur Trekking Karst',
+          desc: 'Lintasan alam bebatuan karst yang memacu adrenalin dan menyajikan petualangan berkesan bagi pendaki.',
+        },
+      ];
+    }
+
+    if (name.includes('malaris') || name.includes('adat')) {
+      return [
+        {
+          icon: '🏛️',
+          title: 'Arsitektur Kayu Ulin',
+          desc: 'Balai adat panggung suku Dayak Bukit yang megah dan otentik berbahan kayu ulin hutan Kalimantan.',
+        },
+        {
+          icon: '🎭',
+          title: 'Pusat Ritual Aruh Ganal',
+          desc: 'Tempat sakral pelaksanaan ritual tahunan pascapanen sebagai wujud rasa syukur kepada Sang Pencipta.',
+        },
+        {
+          icon: '🤝',
+          title: 'Kearifan Lokal Dayak',
+          desc: 'Menyelami tradisi musyawarah, seni tari kanjar, musik kurung-kurung, dan keharmonisan bersama alam.',
+        },
+      ];
+    }
+
+    if (cat.includes('petualangan') || name.includes('riam') || name.includes('tubing')) {
+      return [
+        {
+          icon: '🚣‍♂️',
+          title: 'Arung Sungai Alami',
+          desc: 'Sensasi menyusuri aliran air pegunungan yang jernih, berbatu, dan menyegarkan pikiran.',
+        },
+        {
+          icon: '🛡️',
+          title: 'Panduan Lapangan Berpengalaman',
+          desc: 'Didampingi pengemudi atau instruktur lokal berlisensi demi keselamatan dan kenyamanan aktivitas.',
+        },
+        {
+          icon: '🌲',
+          title: 'Lansekap Hutan Tropis',
+          desc: 'Suasana rimba Meratus dengan hembusan angin sejuk dan rimbunnya pepohonan alami.',
+        },
+      ];
+    }
+
+    if (cat.includes('budaya') || cat.includes('sejarah') || cat.includes('religi')) {
+      return [
+        {
+          icon: '🏛️',
+          title: 'Warisan Nilai Luhur',
+          desc: 'Menyimpan riwayat sejarah dan kekayaan tradisi yang terus lestari di bumi Hulu Sungai Selatan.',
+        },
+        {
+          icon: '📜',
+          title: 'Edukasi & Nilai Tradisi',
+          desc: 'Pengalaman edukatif mengenal arsitektur tradisional, filosofi, dan kebiasaan masyarakat lokal.',
+        },
+        {
+          icon: '✨',
+          title: 'Suasana Khas & Khidmat',
+          desc: 'Lingkungan yang teduh dan sarat kedamaian bagi setiap pengunjung yang bertandang.',
+        },
+      ];
+    }
+
+    return [
+      {
+        icon: '🌿',
+        title: 'Bentang Alam Alami',
+        desc: 'Keindahan panorama Geopark Meratus dengan vegetasi hijau dan hawa sejuk pegunungan.',
+      },
+      {
+        icon: '📸',
+        title: 'Spot Dokumentasi Estetis',
+        desc: 'Banyak sudut menarik dengan pencahayaan alami yang memukau untuk mengabadikan momen perjalanan.',
+      },
+      {
+        icon: '👨‍👩‍👧',
+        title: 'Ramah Seluruh Wisatawan',
+        desc: 'Kawasan yang nyaman untuk berlibur bersama keluarga, sahabat, maupun penjelajah solo.',
+      },
+    ];
+  };
+
+  const getDefaultFacilities = (dest: Destination) => {
+    const cat = (dest.category || '').toLowerCase();
+    if (cat.includes('petualangan')) {
+      return [
+        { icon: 'shield', name: 'Perlengkapan Keselamatan', desc: 'Peralatan standar dan briefing keamanan sebelum aktivitas', tag: 'Wajib' },
+        { icon: 'bed', name: 'Pos Titik Kumpul / Transit', desc: 'Area istirahat dan koordinasi peserta dengan pemandu', tag: 'Tersedia' },
+        { icon: 'bilas', name: 'Kamar Bilas & Ganti', desc: 'Fasilitas bilas air bersih setelah beraktivitas di alam terbuka', tag: 'Bersih' },
+        { icon: 'fork', name: 'Warung Makanan & Minuman', desc: 'Sentra makanan hangat dan minuman segar khas lokal', tag: 'Tersedia' },
+        { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Parkir kendaraan roda 2 dan roda 4 aman terkelola', tag: 'Aman' },
+        { icon: 'shield', name: 'Pos Retribusi Resmi', desc: 'Loket resmi pengelola Pokdarwis Disporapar HSS', tag: 'Resmi' },
+      ];
+    }
+    if (cat.includes('budaya') || cat.includes('sejarah') || cat.includes('religi')) {
+      return [
+        { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Lahan parkir pengunjung roda 2 dan roda 4 memadai', tag: 'Aman' },
+        { icon: 'shield', name: 'Pusat Informasi & Pemandu', desc: 'Petugas informasi dan pemandu narasi sejarah lokal', tag: 'Resmi' },
+        { icon: 'toilet', name: 'Toilet & Sarana Kebersihan', desc: 'Fasilitas toilet terawat demi kenyamanan pengunjung', tag: 'Bersih' },
+        { icon: 'musholla', name: 'Sarana Ibadah Sholat', desc: 'Tempat ibadah dan fasilitas wudhu bersih di kawasan wisata', tag: 'Tersedia' },
+        { icon: 'gazebo', name: 'Bale / Gazebo Istirahat', desc: 'Pondok berteduh untuk santai sejenak bersama rombongan', tag: 'Nyaman' },
+        { icon: 'fork', name: 'Warung Kuliner Sekitar', desc: 'Kios makanan ringan dan minuman khas Hulu Sungai Selatan', tag: 'Tersedia' },
+      ];
+    }
+    return [
+      { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Kapasitas parkir roda 2 dan roda 4 aman tertata rapi', tag: 'Aman' },
+      { icon: 'bilas', name: 'Kamar Mandi & Toilet', desc: 'Fasilitas sanitasi bersih dengan pasokan air pegunungan', tag: 'Bersih' },
+      { icon: 'gazebo', name: 'Gazebo & Rest Area', desc: 'Pondok santai beratap teduh untuk melepas lelah pengunjung', tag: 'Nyaman' },
+      { icon: 'fork', name: 'Kantin / Warung Wisata', desc: 'Menyajikan aneka kuliner lokal, kopi, dan camilan hangat', tag: 'Tersedia' },
+      { icon: 'camera', name: 'Spot Foto Panorama', desc: 'Sudut pandang estetis berlatar bentang alam Meratus', tag: 'Favorit' },
+      { icon: 'shield', name: 'Pos Pengelola & Tiket', desc: 'Loket retribusi resmi Pokdarwis terdaftar Disporapar HSS', tag: 'Resmi' },
+    ];
   };
 
   return (
@@ -404,36 +634,132 @@ export const DestinationDetailPage: React.FC = () => {
 
               {/* Highlight Feature Cards */}
               <div className="detail-features-grid">
-                <div className="detail-feature-card">
-                  {(destination.facilities || []).slice(0,3).map((f) => (
-                    <div className="detail-feature-item" key={f.name}>
-                      <div style={{ fontSize: 20, marginBottom: 6 }}>
-                        {getFacilityIcon(f.icon, f.name)}
-                      </div>
-                      <h4 className="detail-feature-title">{f.name}</h4>
-                      <p className="detail-feature-desc">
-                        Fasilitas pendukung yang tersedia di area {destination.name}.
-                      </p>
+                {getDestinationHighlights(destination).map((item, idx) => (
+                  <div className="detail-feature-card" key={idx}>
+                    <div style={{ fontSize: 24, marginBottom: 8, lineHeight: 1 }}>
+                      {item.icon}
                     </div>
-                  ))}
-                </div>
+                    <h4 className="detail-feature-title">{item.title}</h4>
+                    <p className="detail-feature-desc">{item.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
             {/* Facilities & Field Services */}
             <div className="detail-article-card">
-              <h3 className="detail-section-title">Fasilitas &amp; Layanan Lapangan</h3>
-              <p style={{ fontSize: 13, color: 'var(--meratus-muted)', marginBottom: 16 }}>
-                Kenyamanan sarana dan sarana pendukung yang tersedia di sekitar lokasi destinasi:
-              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+                <div>
+                  <h3 className="detail-section-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>🏕️ Fasilitas &amp; Layanan di Lokasi</span>
+                  </h3>
+                  <p style={{ fontSize: 13, color: 'var(--meratus-muted)', margin: '4px 0 0' }}>
+                    Kelengkapan sarana pendukung dan kenyamanan fasilitas langsung di area {destination.name}:
+                  </p>
+                </div>
+                <span
+                  style={{
+                    fontSize: 11.5,
+                    background: '#EAF4EE',
+                    color: '#012D1D',
+                    padding: '4px 12px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    border: '1px solid #D1E5D8',
+                  }}
+                >
+                  <span>✓</span> Terverifikasi Lapangan
+                </span>
+              </div>
 
-              <div className="detail-facilities-grid">
-                {(destination.facilities || []).map((f) => (
-                  <div className="detail-facility-pill" key={f.name}>
-                    <span>{getFacilityIcon(f.icon, f.name)}</span>
-                    <span>{f.name}</span>
+              {/* SAW Criteria Score Summary Banner */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: 'linear-gradient(135deg, #F4F8F5 0%, #EBF4EE 100%)',
+                  border: '1px solid #D7E5DC',
+                  borderRadius: 12,
+                  padding: '12px 16px',
+                  marginBottom: 16,
+                  flexWrap: 'wrap',
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      background: '#012D1D',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  >
+                    📋
                   </div>
-                ))}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--meratus-deep)' }}>
+                      Evaluasi Kelayakan Sarana Wisata (Kriteria SAW)
+                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--meratus-muted)' }}>
+                      Terverifikasi Disporapar Hulu Sungai Selatan &amp; survei lapangan
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: '#012D1D', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Skor Fasilitas
+                    </div>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: '#012D1D' }}>
+                      {destination.fasilitasScore || 80}<span style={{ fontSize: 11.5, fontWeight: 500, color: '#6E7972' }}>/100</span>
+                    </div>
+                  </div>
+                  <div style={{ width: 1, height: 26, background: '#C8DACF' }} />
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: '#012D1D', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Kebersihan &amp; Keamanan
+                    </div>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: '#012D1D' }}>
+                      {destination.kebersihanKeamanan || 85}<span style={{ fontSize: 11.5, fontWeight: 500, color: '#6E7972' }}>/100</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Facilities Grid */}
+              <div className="detail-facilities-grid">
+                {(destination.facilities && destination.facilities.length > 0
+                  ? destination.facilities
+                  : getDefaultFacilities(destination)
+                ).map((f) => {
+                  const tag = f.tag || getFacilityTag(f.name);
+                  const desc = f.desc || getFacilityDesc(f.name, destination.name);
+                  return (
+                    <div className="detail-facility-card" key={f.name}>
+                      <div className="detail-facility-icon-wrap">
+                        {getFacilityIcon(f.icon, f.name)}
+                      </div>
+                      <div className="detail-facility-info">
+                        <div className="detail-facility-header">
+                          <span className="detail-facility-name">{f.name}</span>
+                          <span className="detail-facility-tag">{tag}</span>
+                        </div>
+                        <p className="detail-facility-text">{desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
