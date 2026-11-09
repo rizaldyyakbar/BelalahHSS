@@ -5,6 +5,13 @@ import { Icon } from '../components/atomic/Icons';
 import { fetchNearbyFacilities, ApiFacility, FALLBACK_FACILITIES } from '../services/api';
 
 const TYPE_CONFIG: Record<string, { label: string; icon: string; badgeBg: string; badgeColor: string; defaultImg: string }> = {
+  wisata: {
+    label: 'Spot Wisata Singgah',
+    icon: '🌿',
+    badgeBg: '#EAF4EE',
+    badgeColor: '#012D1D',
+    defaultImg: '/assets/wisata-pariangan.jpg',
+  },
   kuliner: {
     label: 'Kuliner Khas',
     icon: '🍲',
@@ -17,7 +24,7 @@ const TYPE_CONFIG: Record<string, { label: string; icon: string; badgeBg: string
     icon: '🛖',
     badgeBg: '#EAF4EE',
     badgeColor: '#012D1D',
-    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+    defaultImg: '/assets/riverside-meratus.jpg',
   },
   spbu: {
     label: 'SPBU & Rest Area',
@@ -98,6 +105,7 @@ export const ExperiencesPage: React.FC = () => {
 
   const categories = [
     { key: 'Semua', label: 'Semua Singgah' },
+    { key: 'wisata', label: 'Spot Wisata Singgah' },
     { key: 'kuliner', label: 'Kuliner Khas' },
     { key: 'penginapan', label: 'Homestay & Penginapan' },
     { key: 'spbu', label: 'SPBU & Rest Area' },

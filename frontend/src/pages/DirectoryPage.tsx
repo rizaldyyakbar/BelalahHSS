@@ -382,9 +382,14 @@ export const DirectoryPage: React.FC = () => {
               sorted.map((dest, index) => {
               const isInRoute = itinerary.some((d) => d.id === dest.id);
 
-              // Image resolution
-              let imgSrc = getImageUrl(dest.img);
-              if (dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
+              // Image resolution: prioritize local HD assets
+              const localMatch = DESTINATIONS.find((d) => d.id === dest.id || d.name.toLowerCase().trim() === dest.name.toLowerCase().trim());
+              let imgSrc = (dest.img && dest.img.startsWith('/assets/'))
+                ? dest.img
+                : (localMatch?.img && localMatch.img.startsWith('/assets/'))
+                  ? localMatch.img
+                  : getImageUrl(dest.img);
+              if (!imgSrc.startsWith('/assets/') && dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
                 imgSrc = dest.img;
               }
 

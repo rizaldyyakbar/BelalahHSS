@@ -336,8 +336,11 @@ ${routeTrack}
   const totalTourHours = routeMetrics.totalTourHours;
   const totalTourMins = routeMetrics.totalTourMins;
 
-  // Image helper prioritizing dynamic dest.img
+  // Image helper prioritizing local HD asset
   const getDestImg = (dest: Destination) => {
+    if (dest.img && dest.img.startsWith('/assets/')) {
+      return dest.img;
+    }
     if (dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
       return dest.img;
     }

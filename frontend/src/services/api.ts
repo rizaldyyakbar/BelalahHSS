@@ -130,6 +130,10 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
           ? `Rp ${Number(rawTicketPrice).toLocaleString('id-ID')}`
           : localMatch?.entrance || 'Rp 10.000';
 
+        const resolvedImg = (localMatch?.img && localMatch.img.startsWith('/assets/'))
+          ? localMatch.img
+          : (item.image || item.image_url || localMatch?.img || '/assets/balanting-paring.jpg');
+
         return {
           id: item.id,
           name: item.name,
@@ -137,7 +141,7 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
           region: regionStr,
           location: item.address || localMatch?.location || `Kecamatan ${regionStr}, Hulu Sungai Selatan`,
           distance: distanceStr,
-          img: item.image || item.image_url || localMatch?.img || '/assets/balanting-paring.jpg',
+          img: resolvedImg,
           rating: localMatch?.rating || 4.8,
           reviews: localMatch?.reviews || (120 + item.id * 15),
           description: item.description || localMatch?.description || 'Destinasi wisata unggulan di Kabupaten Hulu Sungai Selatan.',
@@ -287,6 +291,10 @@ export async function fetchDestinationById(
         const itemLat = typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude;
         const itemLng = typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude;
 
+        const resolvedImg = (localMatch?.img && localMatch.img.startsWith('/assets/'))
+          ? localMatch.img
+          : (item.image || localMatch?.img || '/assets/balanting-paring.jpg');
+
         return {
           id: item.id,
           name: item.name,
@@ -294,7 +302,7 @@ export async function fetchDestinationById(
           region: regionStr,
           location: item.address || localMatch?.location || `Kecamatan ${regionStr}, Hulu Sungai Selatan`,
           distance: distanceStr,
-          img: item.image || localMatch?.img || '/assets/balanting-paring.jpg',
+          img: resolvedImg,
           rating: localMatch?.rating || 4.8,
           reviews: localMatch?.reviews || 240,
           description: item.description || localMatch?.description || 'Destinasi wisata unggulan di Kabupaten Hulu Sungai Selatan.',
@@ -443,6 +451,9 @@ export const FALLBACK_FACILITIES: ApiFacility[] = [
   { id: 10, name: 'Pertashop & Mini Fuel Loksado', type: 'spbu', latitude: -2.7905, longitude: 115.4380, rating: 4.3, address: 'Jl. Laksamana Udara Suryadarma, Loksado', image_url: '/assets/spbu-pertamina.jpg' },
   { id: 11, name: 'Cafe Mangala (Mangala Coffee Loksado)', type: 'kuliner', latitude: -2.7728, longitude: 115.4245, rating: 4.7, address: 'RT. 02, Desa Hulu Banyu, Kec. Loksado (Panorama Gunung Kantawan)', image_url: '/assets/cafe-mangala.jpg' },
   { id: 12, name: 'Masjid Kuno As-Suada (Masjid Baangkat)', type: 'masjid', latitude: -2.7151, longitude: 115.2289, rating: 4.9, address: 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Tertua)', image_url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Masjid_Ba%27angkat_2.jpg' },
+  { id: 13, name: 'Wisata Sungai Pariangan (Spot Pemandian & Gazebo)', type: 'wisata', latitude: -2.741201, longitude: 115.368912, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung', image_url: '/assets/wisata-pariangan.jpg' },
+  { id: 14, name: 'Bukit Batu Laki (Spot Panorama Karst)', type: 'wisata', latitude: -2.748912, longitude: 115.356211, rating: 4.5, address: 'Kawasan Karst, Desa Batu Laki, Kec. Padang Batung', image_url: '/assets/bukit-batu-laki.jpg' },
+  { id: 15, name: 'Bukit Batu Baduduk (Spot Panorama Perbukitan)', type: 'wisata', latitude: -2.712311, longitude: 115.312411, rating: 4.4, address: 'Perbukitan Hamak Timur, Kec. Telaga Langsat', image_url: '/assets/bukit-batu-baduduk.jpg' },
 ];
 
 export const FALLBACK_ARTICLES: ApiArticle[] = [

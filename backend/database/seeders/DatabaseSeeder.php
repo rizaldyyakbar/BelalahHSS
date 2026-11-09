@@ -477,6 +477,33 @@ class DatabaseSeeder extends Seeder
                 'address' => 'RT. 02, Desa Hulu Banyu, Kec. Loksado (Jalur Tanuhi berlatar Gunung Kantawan)',
                 'image_url' => '/assets/cafe-mangala.jpg',
             ],
+            [
+                'name' => 'Wisata Sungai Pariangan (Spot Pemandian & Gazebo)',
+                'type' => 'wisata',
+                'latitude' => -2.741201,
+                'longitude' => 115.368912,
+                'rating' => 4.6,
+                'address' => 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung',
+                'image_url' => '/assets/wisata-pariangan.jpg',
+            ],
+            [
+                'name' => 'Bukit Batu Laki (Spot Panorama Karst)',
+                'type' => 'wisata',
+                'latitude' => -2.748912,
+                'longitude' => 115.356211,
+                'rating' => 4.5,
+                'address' => 'Kawasan Karst, Desa Batu Laki, Kec. Padang Batung',
+                'image_url' => '/assets/bukit-batu-laki.jpg',
+            ],
+            [
+                'name' => 'Bukit Batu Baduduk (Spot Panorama Perbukitan)',
+                'type' => 'wisata',
+                'latitude' => -2.712311,
+                'longitude' => 115.312411,
+                'rating' => 4.4,
+                'address' => 'Perbukitan Hamak Timur, Kec. Telaga Langsat',
+                'image_url' => '/assets/bukit-batu-baduduk.jpg',
+            ],
         ];
 
         foreach ($facilities as $fac) {

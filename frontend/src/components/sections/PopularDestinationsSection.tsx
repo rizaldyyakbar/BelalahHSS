@@ -56,9 +56,11 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
         {top4.map((dest) => {
           const selected = isSelected(dest.id);
 
-          // Resolve image dynamically from dest.img or contextual asset
-          let imgSrc = getImageUrl(dest.img);
-          if (dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
+          // Resolve image dynamically prioritizing local HD asset
+          let imgSrc = (dest.img && dest.img.startsWith('/assets/'))
+            ? dest.img
+            : getImageUrl(dest.img);
+          if (!imgSrc.startsWith('/assets/') && dest.img && (dest.img.startsWith('http://') || dest.img.startsWith('https://'))) {
             imgSrc = dest.img;
           }
 
