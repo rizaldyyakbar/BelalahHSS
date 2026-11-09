@@ -24,14 +24,14 @@ const TYPE_CONFIG: Record<string, { label: string; icon: string; badgeBg: string
     icon: '⛽',
     badgeBg: '#FEF3C7',
     badgeColor: '#92400E',
-    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kolam_Wisata_Air_Panas_Tanuhi.jpg/1280px-Kolam_Wisata_Air_Panas_Tanuhi.jpg',
+    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/SPBU_Pertamina_34.125.04.jpg',
   },
   masjid: {
     label: 'Tempat Ibadah',
     icon: '🕌',
     badgeBg: '#E0E7FF',
     badgeColor: '#3730A3',
-    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
+    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Masjid_Agung_At-Taqwa%2C_Kandangan.jpg/1280px-Masjid_Agung_At-Taqwa%2C_Kandangan.jpg',
   },
 };
 

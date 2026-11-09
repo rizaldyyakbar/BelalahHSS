@@ -24,3 +24,4 @@ class Article extends Model
         'content' => 'array',
     ];
 }
+
