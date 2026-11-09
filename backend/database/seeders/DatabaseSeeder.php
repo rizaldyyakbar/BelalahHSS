@@ -160,42 +160,6 @@ class DatabaseSeeder extends Seeder
                 'description' => 'Gardu pandang panorama lembah Loksado dan bentang Pegunungan Meratus dari ketinggian.',
                 'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/a/af/Pemandangan_Sungai_Loksado.jpg',
             ],
-            'River Tubing Loksado' => [
-                'description' => 'Sensasi arung jeram menggunakan ban dalam karet menyusuri arus riam sungai Amandit.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Balanting_di_tengah_Sungai_Amandit_Loksado.jpg/1280px-Balanting_di_tengah_Sungai_Amandit_Loksado.jpg',
-            ],
-            'Air Terjun Mandin Mangapan' => [
-                'description' => 'Air terjun bertingkat eksotis dengan aliran air deras di tengah hutan perawan Loksado.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Mandin_Putri_Kembar_001.jpg/1280px-Mandin_Putri_Kembar_001.jpg',
-            ],
-            'Air Terjun Rampah Menjangan' => [
-                'description' => 'Air terjun tersembunyi dengan vegetasi hutan lumut dan udara sejuk pegunungan.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Mandin_Putri_Kembar_002.jpg/1280px-Mandin_Putri_Kembar_002.jpg',
-            ],
-            'Air Terjun Tinggiran Hayam' => [
-                'description' => 'Air terjun bertingkat dengan kolam alami yang dikelilingi tebing bebatuan purba.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Air_Terjun_Tumpang_Dua_001.jpg/1280px-Air_Terjun_Tumpang_Dua_001.jpg',
-            ],
-            'Puncak Bukit Batu Butahal' => [
-                'description' => 'Spot pendakian ringan dengan panorama matahari terbit berkabut di atas lembah Meratus.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Tagur_Hantu_Area.jpg/1280px-Tagur_Hantu_Area.jpg',
-            ],
-            'Air Terjun Tinggiran Mawang' => [
-                'description' => 'Air terjun alami dengan debit air deras di kawasan pedalaman Loksado.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Air_Terjun_Bajuin.jpg/1280px-Air_Terjun_Bajuin.jpg',
-            ],
-            'Masjid As-Suada (Wassah Hilir)' => [
-                'description' => 'Cagar budaya masjid bersejarah berarsitektur kayu ulin khas Banjar tertua di Kalimantan Selatan.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
-            ],
-            'Makam Datu Kandang Haji' => [
-                'description' => 'Wisata ziarah dan cagar budaya makam ulama pejuang penyebar agama Islam di Bumi Antaludin.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Datu_Kandang_Haji_-_Makam.jpg/1280px-Datu_Kandang_Haji_-_Makam.jpg',
-            ],
-            'Pemandian Alami Tirta Alam (Batu Bini)' => [
-                'description' => 'Pemandian mata air alami di kaki bukit batu kapur dengan aliran air pegunungan yang sangat jernih.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Sungai_Amandit_Loksado.jpg/1280px-Sungai_Amandit_Loksado.jpg',
-            ],
         ];
 
         while (($row = fgetcsv($handle, 1000, ',')) !== false) {
