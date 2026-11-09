@@ -751,6 +751,11 @@ export const DestinationDetailPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Simulation Note for Prototype Evaluator */}
+              <div style={{ fontSize: 11, color: '#6E7972', fontStyle: 'italic', marginTop: -8, marginBottom: 16, lineHeight: 1.4 }}>
+                * Skor rekomendasi, skor fasilitas, dan skor kebersihan/keamanan merupakan data simulasi peraga untuk kebutuhan pengujian prototype (bukan sertifikasi resmi dinas).
+              </div>
+
               {/* Facilities Grid */}
               <div className="detail-facilities-grid">
                 {(destination.facilities && destination.facilities.length > 0
@@ -784,7 +789,7 @@ export const DestinationDetailPage: React.FC = () => {
                   <span>📍 Fasilitas &amp; Layanan Sekitar</span>
                 </h3>
                 <span style={{ fontSize: 11.5, background: '#EAF4EE', color: '#012D1D', padding: '3px 10px', borderRadius: 999, fontWeight: 700 }}>
-                  Basis Data Terpadu HSS
+                  Fasilitas Sekitar (Data Contoh Prototype)
                 </span>
               </div>
               <p style={{ fontSize: 13, color: 'var(--meratus-muted)', marginBottom: 18, lineHeight: 1.5 }}>

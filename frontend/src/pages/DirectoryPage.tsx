@@ -99,39 +99,43 @@ export const DirectoryPage: React.FC = () => {
     }
   };
 
+  // Helper to match category consistently between category count pills and active filter
+  const matchesCategory = (dest: Destination, selCategory: string) => {
+    if (selCategory === 'Semua') return true;
+    const destCat = (dest.category || '').toLowerCase();
+    const selCat = selCategory.toLowerCase();
+
+    return (
+      destCat.includes(selCat) ||
+      selCat.includes(destCat) ||
+      (selCat.includes('alam') && destCat.includes('alam')) ||
+      (selCat.includes('budaya') && (destCat.includes('budaya') || dest.name.toLowerCase().includes('adat') || dest.name.toLowerCase().includes('balai'))) ||
+      (selCat.includes('petualangan') && (destCat.includes('petualangan') || dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai'))) ||
+      (selCat.includes('religi') && (destCat.includes('religi') || dest.name.toLowerCase().includes('masjid') || dest.name.toLowerCase().includes('makam')))
+    );
+  };
+
   // Dynamic category pills list with real counts
   const categoriesList = useMemo(() => {
     const list = [{ label: 'Semua', count: destinations.length }];
 
     if (categories.length > 0) {
       categories.forEach((cat) => {
-        const count = destinations.filter((d) => {
-          if (!d.category) return false;
-          return d.category.toLowerCase().includes(cat.name.toLowerCase()) ||
-                 cat.name.toLowerCase().includes(d.category.toLowerCase());
-        }).length;
-
+        const count = destinations.filter((d) => matchesCategory(d, cat.name)).length;
         list.push({
           label: cat.name,
-          count: count > 0 ? count : (cat.destinations_count || 0),
+          count,
         });
       });
     } else {
       // Fallback categories if API is offline
-      list.push(
-        {
-          label: 'Wisata Alam',
-          count: destinations.filter((d) => d.category?.toLowerCase().includes('alam')).length,
-        },
-        {
-          label: 'Wisata Budaya',
-          count: destinations.filter((d) => d.category?.toLowerCase().includes('budaya') || d.name.toLowerCase().includes('adat') || d.name.toLowerCase().includes('museum')).length,
-        },
-        {
-          label: 'Petualangan',
-          count: destinations.filter((d) => d.category?.toLowerCase().includes('petualangan') || d.name.toLowerCase().includes('rafting') || d.name.toLowerCase().includes('sungai')).length,
+      const defaultCategories = ['Wisata Alam', 'Wisata Budaya', 'Petualangan', 'Wisata Religi'];
+      defaultCategories.forEach((catLabel) => {
+        const count = destinations.filter((d) => matchesCategory(d, catLabel)).length;
+        if (count > 0) {
+          list.push({ label: catLabel, count });
         }
-      );
+      });
     }
 
     return list;
@@ -146,19 +150,7 @@ export const DirectoryPage: React.FC = () => {
       (dest.region && dest.region.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
-    if (selectedCategory === 'Semua') return true;
-
-    const destCat = (dest.category || '').toLowerCase();
-    const selCat = selectedCategory.toLowerCase();
-
-    return (
-      destCat.includes(selCat) ||
-      selCat.includes(destCat) ||
-      (selCat.includes('alam') && destCat.includes('alam')) ||
-      (selCat.includes('budaya') && (destCat.includes('budaya') || dest.name.toLowerCase().includes('adat'))) ||
-      (selCat.includes('terjun') && (dest.name.toLowerCase().includes('air') || dest.name.toLowerCase().includes('riam'))) ||
-      (selCat.includes('sungai') && (dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai')))
-    );
+    return matchesCategory(dest, selectedCategory);
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -232,8 +224,8 @@ export const DirectoryPage: React.FC = () => {
               >
                 Katalog Destinasi Wisata
               </h1>
-              <p style={{ margin: 0, fontSize: 14, color: 'var(--meratus-muted)' }}>
-                Jelajahi {destinations.length} destinasi wisata di Hulu Sungai Selatan. Skor rekomendasi dihitung menggunakan simulasi model prototype.
+              <p style={{ margin: 0, fontSize: 13.5, color: 'var(--meratus-muted)', lineHeight: 1.45 }}>
+                Jelajahi {destinations.length} destinasi wisata di Hulu Sungai Selatan. Skor rekomendasi, indikator biaya, dan rating merupakan konfigurasi simulasi prototype untuk peraga pengujian, bukan penilaian mutu resmi.
               </p>
             </div>
 
@@ -347,7 +339,47 @@ export const DirectoryPage: React.FC = () => {
         {/* Destination Cards Grid (3 Columns on Desktop, Responsive) */}
         <section className="bh-container">
           <div className="directory-cards-grid">
-            {sorted.map((dest, index) => {
+            {sorted.length === 0 ? (
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  background: '#ffffff',
+                  border: '1.5px dashed #D2E3D8',
+                  borderRadius: 16,
+                  padding: '48px 24px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
+                <h3 style={{ fontFamily: 'var(--serif)', fontSize: 18, color: '#012D1D', margin: '0 0 6px' }}>
+                  Destinasi tidak ditemukan
+                </h3>
+                <p style={{ fontSize: 13, color: '#6E7972', maxWidth: 440, margin: '0 auto 16px', lineHeight: 1.5 }}>
+                  {searchQuery
+                    ? `Tidak ditemukan destinasi dengan kata kunci "${searchQuery}" pada kategori "${selectedCategory}".`
+                    : `Belum ada destinasi pada kategori "${selectedCategory}".`}
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('Semua');
+                  }}
+                  style={{
+                    background: '#012D1D',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 10,
+                    padding: '10px 20px',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Reset Pencarian &amp; Kategori
+                </button>
+              </div>
+            ) : (
+              sorted.map((dest, index) => {
               const isInRoute = itinerary.some((d) => d.id === dest.id);
 
               // Image resolution
@@ -572,7 +604,7 @@ export const DirectoryPage: React.FC = () => {
                   </div>
                 </div>
               );
-            })}
+            }))}
 
             {/* Tips Rute Berkelanjutan Card (Figma Image 5) */}
             <div

@@ -68,6 +68,7 @@ export const PlannerPage: React.FC = () => {
     percentageSaved: number;
     permutationsChecked: number;
     method: string;
+    isFallback?: boolean;
   } | null>(null);
   const lastOptimizedSignature = useRef<string>('');
 
@@ -179,10 +180,12 @@ export const PlannerPage: React.FC = () => {
           percentageSaved: result.percentage_saved ?? 0,
           permutationsChecked: result.permutations_checked ?? 1,
           method: result.method ?? 'brute_force_dijkstra',
+          isFallback: result.isFallback ?? false,
         });
 
         if (showSuccessToast) {
-          showToast(`Rute dioptimalkan (${result.permutations_checked ?? 1} permutasi Dijkstra diuji)`);
+          const modeLabel = result.isFallback ? 'Mode Cadangan' : 'API Backend';
+          showToast(`Rute dioptimalkan via ${modeLabel} (${result.permutations_checked ?? 1} permutasi diuji)`);
         }
       }
     } catch {
@@ -254,7 +257,7 @@ export const PlannerPage: React.FC = () => {
     }
 
     const gpxPoints = [
-      `    <wpt lat="${startPoint.lat}" lon="${startPoint.lng}">\n      <name>${startPoint.name}</name>\n      <desc>Titik Awal (Basecamp Kandangan)</desc>\n    </wpt>`,
+      `    <wpt lat="${startPoint.lat}" lon="${startPoint.lng}">\n      <name>${startPoint.name}</name>\n      <desc>Titik Awal Keberangkatan (${startPoint.name})</desc>\n    </wpt>`,
       ...itinerary.map((dest, idx) => {
         const lat = typeof dest.latitude === 'string' ? parseFloat(dest.latitude) : (dest.latitude || -2.77);
         const lng = typeof dest.longitude === 'string' ? parseFloat(dest.longitude) : (dest.longitude || 115.31);
@@ -404,19 +407,34 @@ ${routeTrack}
               <span>🧭</span>
               <span>Saran Urutan Kunjungan (Model Jarak Prototype)</span>
             </span>
-            <span
-              style={{
-                fontSize: 10.5,
-                background: 'rgba(255, 255, 255, 0.15)',
-                padding: '3px 9px',
-                borderRadius: 999,
-                fontWeight: 600,
-              }}
-            >
-              {optimizationStats.method === 'greedy_dijkstra'
-                ? 'Pendekatan Greedy (>7 Destinasi)'
-                : `${optimizationStats.permutationsChecked} Permutasi Diuji`}
-            </span>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  background: optimizationStats.isFallback ? 'rgba(253, 147, 76, 0.25)' : 'rgba(16, 185, 129, 0.25)',
+                  border: optimizationStats.isFallback ? '1px solid rgba(253, 147, 76, 0.5)' : '1px solid rgba(16, 185, 129, 0.5)',
+                  color: optimizationStats.isFallback ? '#FED7AA' : '#A7F3D0',
+                  padding: '3px 8px',
+                  borderRadius: 999,
+                  fontWeight: 700,
+                }}
+              >
+                {optimizationStats.isFallback ? 'Mode Cadangan' : 'API Backend'}
+              </span>
+              <span
+                style={{
+                  fontSize: 10.5,
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  padding: '3px 9px',
+                  borderRadius: 999,
+                  fontWeight: 600,
+                }}
+              >
+                {optimizationStats.method === 'greedy_dijkstra'
+                  ? 'Pendekatan Greedy (>7 Destinasi)'
+                  : `${optimizationStats.permutationsChecked} Permutasi Diuji`}
+              </span>
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
@@ -579,7 +597,7 @@ ${routeTrack}
                 <div style={{ padding: '14px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6E7972', marginBottom: 4 }}>
                     <span>{dest.location || 'Loksado, Meratus'}</span>
-                    <span>Durasi: {dest.hours || '1.5–2 Jam'}</span>
+                    <span>Jam operasional: {dest.hours || '08:00 - 17:00'}</span>
                   </div>
 
                   <h4 style={{ fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 700, color: '#012D1D', margin: '0 0 6px' }}>
@@ -793,7 +811,7 @@ ${routeTrack}
         </div>
       )}
 
-      <main style={{ flex: 1, paddingBottom: 80 }}>
+      <main style={{ flex: 1, paddingBottom: isMobile ? 128 : 80 }}>
         {/* Mobile Tabs Switcher (Visible ONLY on screens <=960px) */}
         <section className="bh-container mobile-only" style={{ paddingTop: 96, paddingBottom: 8 }}>
           <div
@@ -1127,7 +1145,7 @@ ${routeTrack}
                 >
                   <div style={{ fontSize: 11, color: '#57534E', lineHeight: 1.3 }}>
                     <span style={{ color: '#012D1D', fontWeight: 700 }}>● Urutan:</span>{' '}
-                    Kandangan ➔ {itinerary.map((d, i) => `#${i + 1} ${d.name.split(' ')[0]}`).join(' ➔ ')}
+                    {(startPoint?.name || 'Titik Awal').split(' ')[0]} ➔ {itinerary.map((d, i) => `#${i + 1} ${d.name.split(' ')[0]}`).join(' ➔ ')}
                   </div>
                   <button
                     onClick={handleOpenGoogleMaps}

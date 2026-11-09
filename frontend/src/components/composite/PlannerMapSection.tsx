@@ -102,9 +102,9 @@ export const PlannerMapSection: React.FC<PlannerMapSectionProps> = ({
       }),
     }).bindPopup(`
       <div style="font-family: inherit; font-size: 13px; min-width: 170px;">
-        <div style="font-size: 10.5px; font-weight: 700; color: #C26B3C; text-transform: uppercase; margin-bottom: 2px;">Titik Awal (Basecamp)</div>
-        <div style="font-weight: 800; color: #012D1D; font-size: 14px; margin-bottom: 4px;">${startPoint.name || 'Alun-Alun Antaludin Kandangan'}</div>
-        <div style="color: #666; font-size: 11.5px;">KM 0.0 • Pusat Keberangkatan Rute</div>
+        <div style="font-size: 10.5px; font-weight: 700; color: #C26B3C; text-transform: uppercase; margin-bottom: 2px;">Titik Keberangkatan</div>
+        <div style="font-weight: 800; color: #012D1D; font-size: 14px; margin-bottom: 4px;">${startPoint.name || 'Titik Awal Keberangkatan'}</div>
+        <div style="color: #666; font-size: 11.5px;">KM 0.0 • Titik Awal Rute</div>
       </div>
     `);
     layerGroup.addLayer(startMarker);
@@ -213,12 +213,18 @@ export const PlannerMapSection: React.FC<PlannerMapSectionProps> = ({
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           pointerEvents: 'none',
           display: 'flex',
-          alignItems: 'center',
-          gap: 6,
+          flexDirection: 'column',
+          gap: 3,
         }}
       >
-        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FD934C' }} />
-        <span>Pratinjau urutan kunjungan (garis lurus antartitik, bukan navigasi jalan riil)</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 11 }}>🚩</span>
+          <span style={{ fontWeight: 700 }}>Awal: {startPoint.name || 'Titik Keberangkatan'}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10.5, color: '#57534E' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#FD934C' }} />
+          <span>Pratinjau urutan (garis lurus antartitik, bukan rute jalan)</span>
+        </div>
       </div>
 
       {/* Leaflet Map Canvas */}
