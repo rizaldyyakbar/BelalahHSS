@@ -372,7 +372,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.2618,
                 'rating' => 4.7,
                 'address' => 'Pusat Oleh-Oleh Khas Dodol Kandangan, Jl. A. Yani',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Dodol_Kandangan.jpg/1280px-Dodol_Kandangan.jpg',
+                'image_url' => '/assets/dodol-kandangan.jpg',
             ],
             [
                 'name' => 'Masjid Agung As-Syuhada Kandangan',
@@ -381,7 +381,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.2630,
                 'rating' => 4.9,
                 'address' => 'Alun-Alun Antaludin, Pusat Kota Kandangan',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Masjid_Agung_At-Taqwa%2C_Kandangan.jpg/1280px-Masjid_Agung_At-Taqwa%2C_Kandangan.jpg',
+                'image_url' => '/assets/masjid-agung.jpg',
             ],
             [
                 'name' => 'SPBU Hamalau Kandangan',
@@ -390,7 +390,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.2665,
                 'rating' => 4.5,
                 'address' => 'Jl. A. Yani KM 2.5 Hamalau, Kandangan',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/e/ec/SPBU_Pertamina_34.125.04.jpg',
+                'image_url' => '/assets/spbu-pertamina.jpg',
             ],
 
             // Koridor Daha (Rawa Bangkau / Nagara) & Simpur
@@ -439,7 +439,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.2618,
                 'rating' => 4.7,
                 'address' => 'Jl. Ahmad Yani KM 1.5, Kandangan Barat',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Dodol_Kandangan.jpg/1280px-Dodol_Kandangan.jpg',
+                'image_url' => '/assets/dodol-kandangan.jpg',
             ],
             [
                 'name' => 'Meratus Riverside Homestay Loksado',
@@ -457,7 +457,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.2670,
                 'rating' => 4.5,
                 'address' => 'Jl. A. Yani, Gambah Luar, Kandangan',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/e/ec/SPBU_Pertamina_34.125.04.jpg',
+                'image_url' => '/assets/spbu-pertamina.jpg',
             ],
             [
                 'name' => 'Balai Singgah Pokdarwis Malaris',
@@ -475,7 +475,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.4245,
                 'rating' => 4.7,
                 'address' => 'RT. 02, Desa Hulu Banyu, Kec. Loksado (Jalur Tanuhi berlatar Gunung Kantawan)',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/a/af/Pemandangan_Sungai_Loksado.jpg',
+                'image_url' => '/assets/cafe-mangala.jpg',
             ],
         ];
 
