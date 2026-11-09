@@ -143,11 +143,11 @@ class DatabaseSeeder extends Seeder
             ],
             'Wisata Sungai Pariangan' => [
                 'description' => 'Kawasan pemandian dan arung sungai keluarga dengan bebatuan alami di Padang Batung.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Sungai_Amandit_Loksado_2.jpg/1280px-Sungai_Amandit_Loksado_2.jpg',
+                'image_url' => '/assets/wisata-pariangan.jpg',
             ],
             'Bukit Batu Laki' => [
                 'description' => 'Puncak perbukitan legendaris dengan lanskap batuan karst dan situs sejarah perjuangan rakyat Hulu Sungai.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Panorama_di_atas_Bukit_Langara.jpg/1280px-Panorama_di_atas_Bukit_Langara.jpg',
+                'image_url' => '/assets/bukit-batu-laki.jpg',
             ],
             'Kalang Hadangan' => [
                 'description' => 'Wisata fenomena kerbau rawa berenang khas lahan basah Daha Utara dan susur rawa Danau Bangkau.',
@@ -155,7 +155,7 @@ class DatabaseSeeder extends Seeder
             ],
             'Bukit Batu Baduduk' => [
                 'description' => 'Gugusan batu unik berundak di perbukitan Telaga Langsat dengan panorama perladangan hijau.',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Pegunungan_Meratus_001.jpg/1280px-Pegunungan_Meratus_001.jpg',
+                'image_url' => '/assets/bukit-batu-baduduk.jpg',
             ],
             'Situs Pemandangan' => [
                 'description' => 'Gardu pandang panorama lembah Loksado dan bentang Pegunungan Meratus dari ketinggian.',
@@ -289,7 +289,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.3692,
                 'rating' => 4.6,
                 'address' => 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung',
-                'image_url' => null,
+                'image_url' => '/assets/wisata-pariangan.jpg',
             ],
             [
                 'name' => 'Warung Ikan Bakar Tradisional Padang Batung',
@@ -448,7 +448,7 @@ class DatabaseSeeder extends Seeder
                 'longitude' => 115.4418,
                 'rating' => 4.7,
                 'address' => 'Bantaran Sungai Amandit, Desa Loksado, Kec. Loksado',
-                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+                'image_url' => '/assets/riverside-meratus.jpg',
             ],
             [
                 'name' => 'SPBU Gambah Luar (Pos BBM Jalur Meratus)',
