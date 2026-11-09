@@ -196,6 +196,31 @@ export const PlannerMapSection: React.FC<PlannerMapSectionProps> = ({
         </button>
       </div>
 
+      {/* Pratinjau Urutan Kunjungan Note Overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 14,
+          left: 14,
+          zIndex: 400,
+          background: 'rgba(255, 255, 255, 0.94)',
+          border: '1px solid #D1DDD4',
+          borderRadius: 8,
+          padding: '6px 12px',
+          fontSize: 11,
+          fontWeight: 600,
+          color: '#012D1D',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          pointerEvents: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FD934C' }} />
+        <span>Pratinjau urutan kunjungan (garis lurus antartitik, bukan navigasi jalan riil)</span>
+      </div>
+
       {/* Leaflet Map Canvas */}
       <div ref={mapContainerRef} className="planner-leaflet-wrapper" />
     </div>

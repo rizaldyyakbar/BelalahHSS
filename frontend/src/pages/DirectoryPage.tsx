@@ -4,7 +4,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import StickyRouteSummaryBar from '../components/composite/StickyRouteSummaryBar';
 import { Icon } from '../components/atomic/Icons';
-import { DESTINATIONS, Destination } from '../constants/destinations';
+import { DESTINATIONS, Destination, getDestinationSourceStatus } from '../constants/destinations';
 import { fetchRecommendations, fetchCategories, ApiCategory } from '../services/api';
 import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../utils/geo';
 import { getImageUrl } from '../utils/imageUrl';
@@ -233,7 +233,7 @@ export const DirectoryPage: React.FC = () => {
                 Katalog Destinasi Wisata
               </h1>
               <p style={{ margin: 0, fontSize: 14, color: 'var(--meratus-muted)' }}>
-                Jelajahi {destinations.length} destinasi alam, budaya, riam, dan air terjun dengan rekomendasi cerdas.
+                Jelajahi {destinations.length} destinasi wisata di Hulu Sungai Selatan. Skor rekomendasi dihitung menggunakan simulasi model prototype.
               </p>
             </div>
 
@@ -258,7 +258,7 @@ export const DirectoryPage: React.FC = () => {
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                 }}
               >
-                <option value="saw">Skor Rekomendasi (SAW) ▾</option>
+                <option value="saw">Skor Rekomendasi (Simulasi SAW) ▾</option>
                 <option value="price_asc">Biaya Terjangkau ▾</option>
               </select>
             </div>
@@ -459,6 +459,23 @@ export const DirectoryPage: React.FC = () => {
 
                   {/* Body */}
                   <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ marginBottom: 4 }}>
+                      <span
+                        style={{
+                          fontSize: 9.5,
+                          fontWeight: 700,
+                          color: dest.id <= 12 ? '#065F46' : '#92400E',
+                          background: dest.id <= 12 ? '#D1FAE5' : '#FEF3C7',
+                          padding: '2px 6px',
+                          borderRadius: 4,
+                          letterSpacing: '0.02em',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {getDestinationSourceStatus(dest.id)}
+                      </span>
+                    </div>
+
                     <h3
                       style={{
                         fontFamily: 'var(--serif)',

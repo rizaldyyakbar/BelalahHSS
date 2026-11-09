@@ -27,7 +27,7 @@ export const RankBadge = React.forwardRef<HTMLSpanElement, RankBadgeProps>(({
     ...style,
   };
 
-  const displayRank = typeof rank === 'number' ? `★ Peringkat ${rank}` : `#${rank}`;
+  const displayRank = typeof rank === 'number' ? `#${rank} Rekomendasi` : `#${rank}`;
 
   return (
     <span

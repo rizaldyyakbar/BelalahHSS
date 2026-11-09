@@ -28,12 +28,12 @@ export const PlannerStickyExportBar: React.FC<PlannerStickyExportBarProps> = ({
       <div className="sticky-planner-bar-content">
         {/* Left: Summary Stats */}
         <div className="planner-summary-stats">
-          <span className="planner-summary-label">TOTAL PERJALANAN</span>
+          <span className="planner-summary-label">JARAK MODEL PROTOTYPE</span>
           <span className="planner-summary-main">
             {destinationsCount} Destinasi • {totalDistanceKm.toFixed(1)} km
           </span>
           <span className="planner-summary-sub">
-            Estimasi trip: {tripHours} jam {tripMinutes} menit (termasuk istirahat)
+            Estimasi waktu: {tripHours} jam {tripMinutes} menit (asumsi rata-rata perjalanan)
           </span>
         </div>
 
@@ -43,25 +43,25 @@ export const PlannerStickyExportBar: React.FC<PlannerStickyExportBarProps> = ({
             className="btn-planner-ghost"
             onClick={onRecalculate}
             disabled={isRecalculating}
-            title="Kalkulasi ulang rute terpendek dengan Dijkstra"
+            title="Hitung ulang saran urutan kunjungan berdasarkan model jarak"
           >
             <Icon.Compass size={14} />
-            <span>{isRecalculating ? 'Menghitung...' : 'Kalkulasi Ulang'}</span>
+            <span>{isRecalculating ? 'Menghitung...' : 'Perbarui Urutan'}</span>
           </button>
 
           <button
             className="btn-planner-ghost"
             onClick={onDownload}
-            title="Unduh file rute GPX / Ringkasan PDF"
+            title="Unduh rute dalam format GPS (.GPX) untuk aplikasi navigasi"
           >
             <Icon.Save size={14} />
-            <span>Unduh GPX / PDF</span>
+            <span>Unduh GPX</span>
           </button>
 
           <button
             className="btn-planner-primary"
             onClick={onOpenGoogleMaps}
-            title="Buka seluruh rute di Google Maps"
+            title="Buka seluruh rute di Google Maps untuk navigasi jalan riil"
           >
             <Icon.Pin size={16} />
             <span>Buka di Google Maps</span>

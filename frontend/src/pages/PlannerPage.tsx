@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
@@ -18,6 +18,7 @@ import { getImageUrl } from '../utils/imageUrl';
 
 export const PlannerPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Mode on mobile: 'itinerary' | 'map'
   const [plannerMode, setPlannerMode] = useState<'itinerary' | 'map'>('itinerary');
@@ -33,10 +34,27 @@ export const PlannerPage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [startPoint] = useState({
-    lat: -2.7758,
-    lng: 115.2635,
-    name: 'Basecamp Kota Kandangan',
+  const [startPoint] = useState(() => {
+    const startParam = searchParams.get('start');
+    if (startParam === 'loksado') {
+      return { lat: -2.7932, lng: 115.4412, name: 'Pintu Masuk Wisata Loksado' };
+    }
+    if (startParam === 'nagari') {
+      return { lat: -2.6840, lng: 115.1940, name: 'Daha Utara / Nagara' };
+    }
+    if (startParam && startParam.startsWith('custom:')) {
+      const parts = startParam.replace('custom:', '').split(',');
+      const lat = parseFloat(parts[0] || '');
+      const lng = parseFloat(parts[1] || '');
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return { lat, lng, name: 'Titik Lokasi Pengguna (GPS)' };
+      }
+    }
+    return {
+      lat: -2.7758,
+      lng: 115.2635,
+      name: 'Kota Kandangan (Pusat Kota)',
+    };
   });
 
   const [itinerary, setItinerary] = useState<Destination[]>([]);
@@ -61,10 +79,32 @@ export const PlannerPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     const initData = async () => {
-      const res = await fetchRecommendations({ lat: -2.7758, lng: 115.2635, limit: 50 });
+      const res = await fetchRecommendations({ lat: startPoint.lat, lng: startPoint.lng, limit: 50 });
       const allDests = res.destinations.length > 0 ? res.destinations : DESTINATIONS;
       if (!isMounted) return;
       setAvailableDestinations(allDests);
+
+      // Check query params for destinations first
+      const destParam = searchParams.get('destinations');
+      if (destParam && destParam.trim() !== '') {
+        const ids = destParam
+          .split(',')
+          .map((idStr) => parseInt(idStr.trim(), 10))
+          .filter((n) => !isNaN(n));
+
+        if (ids.length > 0) {
+          const poolMap = new Map(allDests.map((d) => [d.id, d]));
+          const matched = ids
+            .map((id) => poolMap.get(id))
+            .filter((d): d is Destination => Boolean(d));
+
+          if (matched.length > 0) {
+            setItinerary(matched);
+            saveItinerary(matched);
+            return;
+          }
+        }
+      }
 
       // Check localStorage or default to empty
       const initialized = localStorage.getItem('belalah_itinerary_v2');
@@ -95,7 +135,7 @@ export const PlannerPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [searchParams, startPoint]);
 
   const saveItinerary = (updated: Destination[]) => {
     setItinerary(updated);
@@ -335,7 +375,7 @@ ${routeTrack}
   // Timeline UI renderer
   const renderTimelineStops = () => (
     <div>
-      {/* Optimization & Comparison Metric Card (Dijkstra + Permutasi) */}
+      {/* Optimization & Comparison Metric Card (Model Jarak Prototype) */}
       {optimizationStats && itinerary.length >= 2 && (
         <div
           style={{
@@ -361,8 +401,8 @@ ${routeTrack}
                 gap: 6,
               }}
             >
-              <span>⚡</span>
-              <span>Hasil Optimasi Dijkstra + Permutasi</span>
+              <span>🧭</span>
+              <span>Saran Urutan Kunjungan (Model Jarak Prototype)</span>
             </span>
             <span
               style={{
@@ -373,7 +413,9 @@ ${routeTrack}
                 fontWeight: 600,
               }}
             >
-              {optimizationStats.permutationsChecked} Permutasi Diuji
+              {optimizationStats.method === 'greedy_dijkstra'
+                ? 'Pendekatan Greedy (>7 Destinasi)'
+                : `${optimizationStats.permutationsChecked} Permutasi Diuji`}
             </span>
           </div>
 
@@ -381,29 +423,33 @@ ${routeTrack}
             <div style={{ background: 'rgba(255, 255, 255, 0.08)', borderRadius: 12, padding: '10px 12px' }}>
               <div style={{ fontSize: 11, color: '#A7F3D0', marginBottom: 2 }}>Urutan Awal Pilihan</div>
               <div style={{ fontSize: 16, fontWeight: 800 }}>{optimizationStats.initialKm.toFixed(1)} km</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Sebelum optimasi</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Sebelum evaluasi urutan</div>
             </div>
 
             <div style={{ background: 'rgba(255, 255, 255, 0.14)', borderRadius: 12, padding: '10px 12px', border: '1px solid #10B981' }}>
-              <div style={{ fontSize: 11, color: '#6EE7B7', fontWeight: 700, marginBottom: 2 }}>Jarak Terpendek</div>
+              <div style={{ fontSize: 11, color: '#6EE7B7', fontWeight: 700, marginBottom: 2 }}>Jarak Saran Model</div>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#34D399' }}>{optimizationStats.optimizedKm.toFixed(1)} km</div>
-              <div style={{ fontSize: 10, color: '#A7F3D0' }}>Global Optimum</div>
+              <div style={{ fontSize: 10, color: '#A7F3D0' }}>Model Jarak Prototype</div>
             </div>
 
             <div style={{ background: 'rgba(253, 147, 76, 0.15)', borderRadius: 12, padding: '10px 12px', border: '1px solid rgba(253, 147, 76, 0.4)' }}>
-              <div style={{ fontSize: 11, color: '#FD934C', fontWeight: 700, marginBottom: 2 }}>Efisiensi Jarak</div>
+              <div style={{ fontSize: 11, color: '#FD934C', fontWeight: 700, marginBottom: 2 }}>Selisih Jarak Model</div>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#FDBA74' }}>
                 {optimizationStats.savedKm > 0 ? `-${optimizationStats.savedKm.toFixed(1)} km` : '0 km'}
               </div>
               <div style={{ fontSize: 10, color: '#FED7AA' }}>
-                {optimizationStats.savedKm > 0 ? `Hemat ${optimizationStats.percentageSaved}% rute` : 'Rute sudah paling hemat'}
+                {optimizationStats.savedKm > 0 ? `Selisih urutan ${optimizationStats.percentageSaved}% pada model` : 'Urutan awal sudah terpendek pada model'}
               </div>
             </div>
+          </div>
+
+          <div style={{ fontSize: 10.5, color: '#D1FAE5', marginTop: 10, lineHeight: 1.4, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8 }}>
+            ℹ️ Catatan: Urutan merupakan saran berdasarkan model jarak prototype. Jarak dan waktu perjalanan aktual dapat berbeda. Periksa navigasi di Google Maps.
           </div>
         </div>
       )}
 
-      {/* Node 0: Basecamp Kota Kandangan */}
+      {/* Node 0: Titik Keberangkatan Terpilih */}
       <div style={{ display: 'flex', gap: 14, position: 'relative' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div
@@ -433,13 +479,13 @@ ${routeTrack}
             <span style={{ fontSize: 11, fontWeight: 700, color: '#6E7972' }}>Km 0.0</span>
           </div>
           <h3 style={{ fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 700, color: '#012D1D', margin: '0 0 4px' }}>
-            Basecamp Kota Kandangan
+            {startPoint.name}
           </h3>
           <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 8px' }}>
-            Pusat kota, persiapan perbekalan kuliner Ketupat &amp; pengecekan kendaraan.
+            Titik awal keberangkatan rute perjalanan wisata.
           </p>
           <div style={{ fontSize: 11.5, color: '#012D1D', fontWeight: 600 }}>
-            🕒 Mulai Ekspedisi: 07:30 WITA
+            🕒 Mulai Perjalanan Disarankan: 07:30 WITA
           </div>
         </div>
       </div>
@@ -631,14 +677,14 @@ ${routeTrack}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
           <span style={{ fontSize: 11, fontWeight: 800, color: '#FD934C', letterSpacing: '0.05em' }}>
-            ⇲ ALGORITMA HAVERSINE
+            ⇲ MODEL JARAK PROTOTYPE
           </span>
         </div>
         <h3 style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 800, color: '#012D1D', margin: '0 0 4px' }}>
-          Saran Singgah Terdekat Sepanjang Jalur
+          Saran Destinasi Singgah Terdekat
         </h3>
         <p style={{ fontSize: 12, color: '#6E7972', margin: '0 0 14px' }}>
-          Deviasi jarak kurang dari 2.5 km dari koridor rute aktif Anda
+          Destinasi terdekat dari titik rute Anda berdasarkan model jarak garis lurus prototype
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -677,7 +723,7 @@ ${routeTrack}
                       {item.name}
                     </div>
                     <div style={{ fontSize: 11.5, color: '#FD934C', fontWeight: 600 }}>
-                      +{formatDistanceKm(deviationKm)} deviasi • {item.category || item.region || 'Meratus'}
+                      +{formatDistanceKm(deviationKm)} dari titik rute • {item.category || item.region || 'HSS'}
                     </div>
                   </div>
                 </div>
@@ -844,115 +890,176 @@ ${routeTrack}
               </div>
             </div>
 
-            {/* Title & Subtitle */}
-            <h1
-              style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 'clamp(24px, 3.5vw, 34px)',
-                fontWeight: 800,
-                color: 'var(--meratus-deep)',
-                margin: '0 0 4px',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Rute Ekspedisi Meratus
-            </h1>
-            <p style={{ fontSize: 13, color: '#6E7972', margin: '0 0 20px' }}>
-              {itinerary.length} Destinasi Terpilih • Koridor Loksado Hulu Sungai Selatan
-            </p>
-
-            {/* 3 Metric Cards */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 12,
-                marginBottom: 20,
-              }}
-            >
-              {/* Metric 1: Total Jarak */}
-              <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px 12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
-                <div style={{ fontSize: 11, color: '#6E7972', fontWeight: 600, marginBottom: 2 }}>Total Jarak</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#012D1D', lineHeight: 1.1 }}>
-                  {totalKm} <span style={{ fontSize: 12, fontWeight: 600 }}>km</span>
-                </div>
-                <div style={{ fontSize: 10, color: '#9E9E9E', marginTop: 4 }}>Kandangan ➔ Haratai</div>
-              </div>
-
-              {/* Metric 2: Durasi Melaju */}
-              <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px 12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
-                <div style={{ fontSize: 11, color: '#6E7972', fontWeight: 600, marginBottom: 2 }}>Durasi Melaju</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#012D1D', lineHeight: 1.1 }}>
-                  {totalDrivingHours}j {totalDrivingMins}m
-                </div>
-                <div style={{ fontSize: 10, color: '#9E9E9E', marginTop: 4 }}>Jalan Perbukitan</div>
-              </div>
-
-              {/* Metric 3: Total Ekspedisi */}
-              <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px 12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
-                <div style={{ fontSize: 11, color: '#6E7972', fontWeight: 600, marginBottom: 2 }}>Total Ekspedisi</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#012D1D', lineHeight: 1.1 }}>
-                  {totalTourHours}j {totalTourMins}m
-                </div>
-                <div style={{ fontSize: 10, color: '#9E9E9E', marginTop: 4 }}>Termasuk Singgah</div>
-              </div>
-            </div>
-
-            {/* Corridor Map Strip */}
-            <div
-              style={{
-                background: 'linear-gradient(135deg, #E2F0E8 0%, #D5E8DD 100%)',
-                border: '1px solid #C1DBC9',
-                borderRadius: 16,
-                padding: '12px 16px',
-                marginBottom: 16,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span
-                  style={{
-                    background: '#ffffff',
-                    color: '#012D1D',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: '4px 12px',
-                    borderRadius: 9999,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  📍 Urutan Rute: Kandangan ➔ Loksado
-                </span>
-                <span style={{ fontSize: 11.5, color: '#012D1D', fontWeight: 600 }}>
-                  Optimalisasi Jalur Singkat
-                </span>
-              </div>
-
+            {/* Title & Subtitle or Empty State */}
+            {itinerary.length === 0 ? (
               <div
                 style={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  borderRadius: 10,
-                  padding: '8px 12px',
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: '#012D1D',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: 4,
+                  background: '#ffffff',
+                  border: '1.5px dashed #C1DBC9',
+                  borderRadius: 20,
+                  padding: '48px 24px',
+                  textAlign: 'center',
+                  marginBottom: 28,
+                  boxShadow: '0 4px 16px rgba(1, 45, 29, 0.03)',
                 }}
               >
-                <span>● Kandangan</span>
-                {itinerary.map((d) => (
-                  <React.Fragment key={d.id}>
-                    <span>➔</span>
-                    <span>● {d.name.split(' ')[0]}</span>
-                  </React.Fragment>
-                ))}
+                <div style={{ fontSize: 40, marginBottom: 14 }}>🧭</div>
+                <h2
+                  style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: 'var(--meratus-deep)',
+                    margin: '0 0 8px',
+                  }}
+                >
+                  Rencana Perjalanan Masih Kosong
+                </h2>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: '#6E7972',
+                    maxWidth: 480,
+                    margin: '0 auto 20px',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Titik keberangkatan Anda saat ini:{' '}
+                  <strong style={{ color: '#012D1D' }}>{startPoint.name}</strong>.
+                  <br />
+                  Silakan pilih 2 atau lebih destinasi dari Katalog Wisata untuk melihat saran urutan perjalanan, estimasi jarak model prototype, dan membuka navigasi jalan riil di Google Maps.
+                </p>
+                <button
+                  onClick={() => navigate('/directory')}
+                  style={{
+                    background: 'var(--meratus-deep)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: '12px 24px',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    boxShadow: '0 2px 8px rgba(1, 45, 29, 0.15)',
+                  }}
+                >
+                  <Icon.Compass size={16} style={{ color: '#C1ECD4' }} />
+                  <span>Pilih Destinasi di Katalog</span>
+                </button>
               </div>
-            </div>
+            ) : (
+              <>
+                <h1
+                  style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 'clamp(24px, 3.5vw, 34px)',
+                    fontWeight: 800,
+                    color: 'var(--meratus-deep)',
+                    margin: '0 0 4px',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  Saran Urutan Perjalanan Wisata
+                </h1>
+                <p style={{ fontSize: 13, color: '#6E7972', margin: '0 0 20px' }}>
+                  {itinerary.length} Destinasi Terpilih • Berangkat dari {startPoint.name}
+                </p>
+
+                {/* 3 Metric Cards */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 12,
+                    marginBottom: 20,
+                  }}
+                >
+                  {/* Metric 1: Total Jarak */}
+                  <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px 12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                    <div style={{ fontSize: 11, color: '#6E7972', fontWeight: 600, marginBottom: 2 }}>Jarak Model</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#012D1D', lineHeight: 1.1 }}>
+                      {totalKm} <span style={{ fontSize: 12, fontWeight: 600 }}>km</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: '#9E9E9E', marginTop: 4 }}>Model Garis Prototype</div>
+                  </div>
+
+                  {/* Metric 2: Durasi Melaju */}
+                  <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px 12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                    <div style={{ fontSize: 11, color: '#6E7972', fontWeight: 600, marginBottom: 2 }}>Estimasi Melaju</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#012D1D', lineHeight: 1.1 }}>
+                      {totalDrivingHours}j {totalDrivingMins}m
+                    </div>
+                    <div style={{ fontSize: 10, color: '#9E9E9E', marginTop: 4 }}>Asumsi Kecepatan Rata-rata</div>
+                  </div>
+
+                  {/* Metric 3: Total Ekspedisi */}
+                  <div style={{ background: '#ffffff', border: '1px solid #EBEFEA', borderRadius: 14, padding: '14px 12px', textAlign: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                    <div style={{ fontSize: 11, color: '#6E7972', fontWeight: 600, marginBottom: 2 }}>Estimasi Total</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#012D1D', lineHeight: 1.1 }}>
+                      {totalTourHours}j {totalTourMins}m
+                    </div>
+                    <div style={{ fontSize: 10, color: '#9E9E9E', marginTop: 4 }}>Termasuk Waktu Singgah</div>
+                  </div>
+                </div>
+
+                {/* Corridor Map Strip */}
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #E2F0E8 0%, #D5E8DD 100%)',
+                    border: '1px solid #C1DBC9',
+                    borderRadius: 16,
+                    padding: '12px 16px',
+                    marginBottom: 16,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span
+                      style={{
+                        background: '#ffffff',
+                        color: '#012D1D',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: '4px 12px',
+                        borderRadius: 9999,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      📍 Saran Urutan: {startPoint.name.split(' ')[0]} ➔ {itinerary[itinerary.length - 1]?.name?.split(' ')[0] || 'Tujuan'}
+                    </span>
+                    <span style={{ fontSize: 11.5, color: '#012D1D', fontWeight: 600 }}>
+                      Saran Model Jarak Prototype
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      borderRadius: 10,
+                      padding: '8px 12px',
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      color: '#012D1D',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 4,
+                    }}
+                  >
+                    <span>● {startPoint.name.split(' ')[0]}</span>
+                    {itinerary.map((d) => (
+                      <React.Fragment key={d.id}>
+                        <span>➔</span>
+                        <span>● {d.name.split(' ')[0]}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
 
             {/* MOBILE ONLY: Preview Urutan Jalur Map (Langsung muncul otomatis ketika ada wisata yang disisipkan) */}
             {isMobile && itinerary.length > 0 && (
@@ -1072,6 +1179,8 @@ ${routeTrack}
 
             {/* Render Timeline Stops */}
             {renderTimelineStops()}
+          </>
+        )}
           </div>
 
           {/* RIGHT COLUMN: STICKY MAP (On desktop >960px) */}
@@ -1099,20 +1208,20 @@ ${routeTrack}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 15 }}>🗺️</span>
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#012D1D' }}>
-                      Peta Jalur &amp; Topografi
+                      Pratinjau Urutan Kunjungan
                     </span>
                   </div>
                   <span
                     style={{
                       fontSize: 11,
                       fontWeight: 700,
-                      color: '#994700',
-                      background: '#FFF3EB',
+                      color: '#065F46',
+                      background: '#D1FAE5',
                       padding: '3px 8px',
                       borderRadius: 6,
                     }}
                   >
-                    Meratus GIS
+                    Model Prototype
                   </span>
                 </div>
 
@@ -1122,7 +1231,7 @@ ${routeTrack}
 
                 <div style={{ padding: '14px 18px', background: '#FAFDFB', borderTop: '1px solid #EBEFEA' }}>
                   <div style={{ fontSize: 12, color: '#57534E', textAlign: 'center' }}>
-                    Peta menampilkan elevasi kontur perbukitan Meratus dan penanda titik henti secara presisi.
+                    Pratinjau urutan kunjungan menghubungkan garis lurus antartitik. Buka navigasi jalan riil langsung di Google Maps.
                   </div>
                 </div>
               </div>

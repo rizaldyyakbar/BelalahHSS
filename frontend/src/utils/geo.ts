@@ -44,7 +44,7 @@ export function formatDistanceKm(km: number): string {
 }
 
 /**
- * Estimate road distance in Meratus terrain (applying 1.28x winding mountain road coefficient)
+ * Estimasi jarak model cadangan (faktor pengali 1,28) sebagai pendekatan jarak rute berliku di medan perbukitan
  */
 export function estimateRoadDistanceKm(directKm: number): number {
   return directKm * 1.28;
@@ -148,8 +148,8 @@ export interface ClientRouteOptimizationResult<T> {
 }
 
 /**
- * Optimize multi-stop route using Brute Force permutation on Dijkstra/Haversine distance matrix.
- * Guarantees mathematical global minimum for N <= 7 stops, with Greedy fallback for N > 7.
+ * Evaluasi urutan multi-destinasi pada mode cadangan (fallback frontend)
+ * menggunakan seluruh permutasi (N <= 7) atau pendekatan greedy (N > 7) pada matriks jarak.
  */
 export function optimizeRouteClientSide<
   T extends { id: number; name: string; latitude?: number | string; longitude?: number | string }

@@ -110,7 +110,7 @@ export const BrowseByCategory: React.FC = () => {
           }}
         >
           <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
-          Database Kategori Terverifikasi ({categories.length} Kategori)
+          Kategori Destinasi ({categories.length} Kategori)
         </div>
         <h2
           style={{
@@ -132,7 +132,7 @@ export const BrowseByCategory: React.FC = () => {
             lineHeight: 1.55,
           }}
         >
-          Klasifikasi destinasi wisata resmi Kabupaten Hulu Sungai Selatan untuk mempermudah penyusunan rute liburan Anda.
+          Klasifikasi destinasi wisata di Kabupaten Hulu Sungai Selatan untuk membantu perencanaan perjalanan Anda.
         </p>
       </div>
 

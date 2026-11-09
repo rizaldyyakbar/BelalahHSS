@@ -468,7 +468,7 @@ export const ExperiencesPage: React.FC = () => {
                     SPBU Gambah Luar
                   </h3>
                   <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 10px', lineHeight: 1.4 }}>
-                    Titik pengisian bahan bakar resmi terakhir sebelum rute menanjak menuju kawasan pegunungan Meratus.
+                    Titik SPBU pengisian bahan bakar sebelum rute menanjak menuju kawasan pegunungan Meratus.
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                     <div style={{ fontSize: 11, color: '#6E7972', display: 'flex', gap: 10 }}>

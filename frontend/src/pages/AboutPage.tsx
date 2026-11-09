@@ -17,16 +17,16 @@ export const AboutPage: React.FC = () => {
         <section className="catalog-hero-backdrop" style={{ paddingBottom: 48 }}>
           <div className="catalog-tag-badge">
             <Icon.Compass size={13} />
-            <span>Tentang Belalah HSS • Disporapar HSS</span>
+            <span>Tentang Belalah HSS • Prototype Penelitian Tugas Akhir</span>
           </div>
 
           <h1 className="catalog-title">
-            Harmoni Teknologi Cerdas &amp; Warisan Tradisi Pegunungan Meratus
+            Perancangan Desain Interaktif Rute Wisata Hulu Sungai Selatan
           </h1>
 
           <p className="catalog-subtitle">
-            Sistem Pendukung Keputusan dan Perencana Itinerari Pariwisata Hulu Sungai Selatan, memadukan metode
-            Multi-Criteria Decision Making (SAW) dengan efisiensi rute shortest-path Dijkstra &amp; Haversine.
+            Functional interactive prototype aplikasi route planner pariwisata Kabupaten Hulu Sungai Selatan,
+            dikembangkan dalam siklus Human-Centered Design untuk pengujian skenario tugas dan evaluasi UEQ.
           </p>
 
           <div className="catalog-stats-row">
@@ -36,7 +36,7 @@ export const AboutPage: React.FC = () => {
             </div>
             <div className="catalog-stat-pill">
               <span style={{ color: 'var(--meratus-clay)' }}>⚙️</span>
-              <span>SAW + Dijkstra Routing Engine</span>
+              <span>Simulasi SAW &amp; Model Jarak Dijkstra/Haversine</span>
             </div>
           </div>
         </section>
@@ -81,22 +81,21 @@ export const AboutPage: React.FC = () => {
             <div className="about-pillar-card">
               <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
-                Metode Rekomendasi SAW
+                Simulasi Rekomendasi SAW
               </h3>
               <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
-                Sistem merekomendasikan destinasi terbaik dengan metode <strong>Simple Additive Weighting (SAW)</strong> berdasarkan
-                prioritas preferensi wisatawan: Kebersihan &amp; Keamanan (40%), Fasilitas (30%), Popularitas (20%), dan Biaya Kunjungan (10%).
+                Sistem memberikan skor rekomendasi menggunakan simulasi <strong>Simple Additive Weighting (SAW)</strong> dengan konfigurasi kriteria: Kebersihan &amp; Keamanan (40%), Fasilitas (30%), Popularitas (20%), dan Biaya Kunjungan (10%). Skor ini merupakan konfigurasi simulasi prototype, bukan sertifikasi kualitas resmi.
               </p>
             </div>
 
             {/* Card 4 */}
             <div className="about-pillar-card">
-              <div style={{ fontSize: 28, marginBottom: 12 }}>🔀</div>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>🧭</div>
               <h3 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 10px' }}>
-                Optimasi Rute Dijkstra &amp; Permutasi Matriks
+                Model Jarak Geografis &amp; Saran Urutan
               </h3>
               <p style={{ fontSize: 14.5, color: 'var(--meratus-muted)', lineHeight: 1.65, margin: 0 }}>
-                Algoritma shortest-path Dijkstra dipadukan dengan evaluasi permutasi matriks jarak untuk menyusun urutan kunjungan multi-destinasi global optimum yang paling hemat jarak dan waktu, serta siap diekspor langsung ke Google Maps rute multi-stop.
+                Matriks jarak geografis dihitung antartitik untuk menyusun saran urutan kunjungan multi-destinasi (pemeriksaan seluruh permutasi untuk ≤ 7 destinasi dan pendekatan greedy untuk &gt; 7 destinasi). Rute aktual dan navigasi jalan riil dibuka langsung ke Google Maps.
               </p>
             </div>
           </div>

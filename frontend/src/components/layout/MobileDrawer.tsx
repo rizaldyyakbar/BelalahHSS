@@ -130,22 +130,22 @@ export const MobileDrawer: React.FC = () => {
 
           {/* Section: Call Center & Bantuan Lapangan */}
           <div className="mobile-drawer-group">
-            <span className="mobile-drawer-group-label">POS INFORMASI & BANTUAN</span>
+            <span className="mobile-drawer-group-label">INFORMASI & NARAHUBUNG</span>
             
             <div className="mobile-drawer-emergency-card">
               <div className="mobile-emergency-header">
                 <Icon.PhoneCall size={16} />
-                <span>Call Center Disporapar HSS</span>
+                <span>Narahubung Pengujian Belalah HSS</span>
               </div>
               <a href="tel:051721010" className="mobile-emergency-phone">
                 (0517) 21010
               </a>
               <p className="mobile-emergency-desc">
-                Posko Informasi Kandangan & Kawasan Wisata Loksado. Siap sedia membantu koordinasi lapangan.
+                Pusat informasi rute penelitian wisata Hulu Sungai Selatan untuk peserta evaluasi.
               </p>
               <div className="mobile-status-pill">
                 <span className="mobile-status-dot" />
-                <span>Jalur Meratus Pantau Normal</span>
+                <span>Prototype Uji Fungsional</span>
               </div>
             </div>
           </div>
@@ -172,8 +172,8 @@ export const MobileDrawer: React.FC = () => {
 
         {/* Drawer Footer */}
         <div className="mobile-drawer-footer">
-          <span>Dinas Pemuda, Olahraga & Pariwisata Kab. HSS</span>
-          <span className="mobile-drawer-version">Geopark Meratus Rute v2.0</span>
+          <span>Prototype Penelitian Evaluasi Rute HSS</span>
+          <span className="mobile-drawer-version">Siklus Evaluasi UEQ</span>
         </div>
       </aside>
     </div>

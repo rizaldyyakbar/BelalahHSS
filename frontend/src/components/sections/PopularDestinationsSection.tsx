@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '../atomic/Icons';
-import { Destination } from '../../constants/destinations';
+import { Destination, getDestinationSourceStatus } from '../../constants/destinations';
 
 import { calculateHaversineDistance, estimateRoadDistanceKm, formatDistanceKm, parseCoords } from '../../utils/geo';
 import { getImageUrl } from '../../utils/imageUrl';
@@ -122,6 +122,23 @@ export const PopularDestinationsSection: React.FC<PopularDestinationsSectionProp
 
               {/* Body */}
               <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ marginBottom: 4 }}>
+                  <span
+                    style={{
+                      fontSize: 9.5,
+                      fontWeight: 700,
+                      color: dest.id <= 12 ? '#065F46' : '#92400E',
+                      background: dest.id <= 12 ? '#D1FAE5' : '#FEF3C7',
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      letterSpacing: '0.02em',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {getDestinationSourceStatus(dest.id)}
+                  </span>
+                </div>
+
                 <h3
                   style={{
                     fontFamily: 'var(--serif)',

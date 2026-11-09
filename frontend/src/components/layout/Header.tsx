@@ -59,37 +59,55 @@ export const Header: React.FC = () => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Brand Logo with 5x click secret trigger */}
-        <Link
-          to="/"
-          onClick={(e) => handleLogoSecretClick(e)}
-          style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}
-        >
+        {/* Brand Logo with 5x click secret trigger & Research Prototype Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link
+            to="/"
+            onClick={(e) => handleLogoSecretClick(e)}
+            style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}
+          >
+            <span
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 22,
+                fontWeight: 700,
+                color: 'var(--meratus-deep)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+              }}
+            >
+              Belalah HSS
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--sans)',
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: '0.16em',
+                color: 'var(--meratus-muted)',
+                textTransform: 'uppercase',
+              }}
+            >
+              Hulu Sungai Selatan
+            </span>
+          </Link>
           <span
             style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 22,
+              fontSize: 10,
               fontWeight: 700,
-              color: 'var(--meratus-deep)',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.1,
+              color: '#065F46',
+              background: '#D1FAE5',
+              padding: '2px 8px',
+              borderRadius: 6,
+              letterSpacing: '0.04em',
+              lineHeight: 1.3,
+              alignSelf: 'center',
             }}
+            title="Functional interactive prototype penelitian tugas akhir"
           >
-            Belalah HSS
+            PROTOTYPE PENELITIAN
           </span>
-          <span
-            style={{
-              fontFamily: 'var(--sans)',
-              fontSize: 9.5,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              color: 'var(--meratus-muted)',
-              textTransform: 'uppercase',
-            }}
-          >
-            Hulu Sungai Selatan
-          </span>
-        </Link>
+        </div>
 
         {/* Navigation Links */}
         <nav

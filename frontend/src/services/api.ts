@@ -1,4 +1,4 @@
-import { DESTINATIONS, Destination } from '../constants/destinations';
+import { DESTINATIONS, Destination, getDestinationSourceStatus } from '../constants/destinations';
 import { optimizeRouteClientSide, parseCoords, calculateHaversineDistance } from '../utils/geo';
 import { API_BASE_URL } from '../utils/imageUrl';
 
@@ -146,13 +146,14 @@ export async function fetchRecommendations(params: RecommendationParams = {}): P
           facilities: localMatch?.facilities || [
             { icon: 'map-pin', name: 'Area Parkir' },
             { icon: 'camera', name: 'Spot Foto Alami' },
-            { icon: 'shield', name: 'Pos Retribusi Resmi' },
+            { icon: 'shield', name: 'Pos Informasi & Tiket' },
           ],
           rank: item.rank || index + 1,
           latitude: itemLat,
           longitude: itemLng,
           entrance: ticketPrice,
           popularitas: sawScoreNumber,
+          sourceStatus: getDestinationSourceStatus(item.id),
           price: rawTicketPrice !== undefined
             ? Number(rawTicketPrice)
             : (localMatch?.price ? (localMatch.price < 1000 ? localMatch.price * 1000 : localMatch.price) : 10000),
@@ -307,6 +308,7 @@ export async function fetchDestinationById(
           latitude: itemLat,
           longitude: itemLng,
           entrance: ticketPrice,
+          sourceStatus: getDestinationSourceStatus(item.id),
           popularitas:
             item.values && item.values['Popularitas']
               ? Number(item.values['Popularitas'])

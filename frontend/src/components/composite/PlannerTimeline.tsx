@@ -40,7 +40,7 @@ export const PlannerTimeline: React.FC<PlannerTimelineProps> = ({
       {/* 1. Metrics Calculation Card */}
       <div className="metrics-calculation-card">
         <div className="metrics-header">
-          <h3 className="metrics-title">Kalkulasi Perjalanan</h3>
+          <h3 className="metrics-title">Estimasi Jarak Model</h3>
         </div>
 
         <div className="metrics-numbers-grid">
@@ -239,7 +239,7 @@ export const PlannerTimeline: React.FC<PlannerTimelineProps> = ({
         </div>
 
         <p className="corridor-desc">
-          Titik wisata potensial yang berada persis di koridor rute Anda tanpa membuang banyak waktu:
+          Saran destinasi alternatif terdekat dari perhentian Anda berdasarkan model jarak prototype:
         </p>
 
         <div className="corridor-grid">

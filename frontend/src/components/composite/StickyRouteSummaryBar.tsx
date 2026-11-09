@@ -85,7 +85,7 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
             <div className="sticky-route-info">
               <div className="sticky-route-header-line">
                 <span>{count} Destinasi Terpilih</span>
-                {count >= 2 && <span className="sticky-optimal-badge">⚡ Rute Teroptimasi (Dijkstra + Permutasi)</span>}
+                {count >= 2 && <span className="sticky-optimal-badge">🧭 Saran Urutan Kunjungan</span>}
                 {count === 1 && (
                   <span
                     style={{
@@ -115,11 +115,11 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
                   </span>
                 )}
                 <span style={{ color: 'var(--meratus-subtle)', fontWeight: 500 }}>
-                  • Estimasi {estimatedKm} km (~{durationText})
+                  • Estimasi model {estimatedKm} km (~{durationText})
                 </span>
               </div>
               <div className="sticky-route-subtext">
-                <span>🔀 Matriks jarak Dijkstra dihitung otomatis dengan permutasi jarak terpendek</span>
+                <span>Urutan disusun berdasarkan model jarak prototype • Navigasi jalan aktual di Google Maps</span>
               </div>
             </div>
           </div>
@@ -156,7 +156,7 @@ export const StickyRouteSummaryBar: React.FC<StickyRouteSummaryBarProps> = ({
             </div>
             <div className="sticky-route-mobile-text">
               <div className="sticky-route-mobile-title">
-                {count} Destinasi Terpilih <span style={{ color: '#2A6650', fontWeight: 700 }}>• Optimal</span>
+                {count} Destinasi Terpilih <span style={{ color: '#2A6650', fontWeight: 700 }}>• Siap Ditinjau</span>
               </div>
               <div className="sticky-route-mobile-sub">
                 Est. {estimatedKm} km • ~{durationText}

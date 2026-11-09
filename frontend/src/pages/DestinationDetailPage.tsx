@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
-import { DESTINATIONS, Destination } from '../constants/destinations';
+import { DESTINATIONS, Destination, getDestinationSourceStatus } from '../constants/destinations';
 import {
   fetchDestinationById,
   fetchRecommendations,
@@ -153,10 +153,24 @@ export const DestinationDetailPage: React.FC = () => {
   const isAdventure = (destination.category || '').toLowerCase().includes('petualang');
   const isRafting = destination.name.toLowerCase().includes('rafting') || isAdventure;
   const priceDisplay = destination.entrance || 'Hubungi pengelola';
-  const durationDisplay = isAdventure ? '2–3 Jam' : (destination.hours || '08.00 – 17.00 WITA');
 
   // Dynamic nearby waypoint recommendations calculated via Haversine distance
   const currentCoords = parseCoords(destination);
+
+  // Estimasi durasi berkendara dari Basecamp Kandangan berdasarkan model jarak
+  const durationDisplay = useMemo(() => {
+    if (!currentCoords) return '±45 menit (estimasi)';
+    const distFromKandangan = estimateRoadDistanceKm(
+      calculateHaversineDistance(-2.7758, 115.2635, currentCoords.lat, currentCoords.lng)
+    );
+    const drivingMinutes = Math.max(10, Math.round((distFromKandangan / 35) * 60));
+    const h = Math.floor(drivingMinutes / 60);
+    const m = drivingMinutes % 60;
+    if (h > 0) {
+      return `±${h} jam ${m > 0 ? `${m} mnt` : ''} (estimasi model)`;
+    }
+    return `±${m} menit (estimasi model)`;
+  }, [currentCoords]);
   const nearbyPlaces = allDestinations
     .filter((d) => d.id !== destination.id)
     .map((d) => {
@@ -207,8 +221,8 @@ export const DestinationDetailPage: React.FC = () => {
     if (n.includes('pelampung') || n.includes('life')) return 'Rompi pelampung berstandar SNI untuk perlindungan dan keselamatan wisata air.';
     if (n.includes('dermaga') || n.includes('rakit') || n.includes('boat')) return 'Dermaga tambat dan titik awal keberangkatan dengan pijakan aman.';
     if (n.includes('foto') || n.includes('camera')) return 'Sudut pandang estetis dengan pencahayaan alami untuk dokumentasi perjalanan.';
-    if (n.includes('retribusi') || n.includes('pos') || n.includes('informasi') || n.includes('tiket')) return 'Loket resmi pengelola Pokdarwis Disporapar HSS untuk registrasi dan panduan wisata.';
-    return 'Sarana pendukung resmi yang tersedia langsung di sekitar kawasan destinasi.';
+    if (n.includes('retribusi') || n.includes('pos') || n.includes('informasi') || n.includes('tiket')) return 'Loket tiket dan pos informasi pengelola setempat / Pokdarwis.';
+    return 'Sarana pendukung yang tersedia di sekitar kawasan destinasi.';
   };
 
   const getFacilityTag = (name: string): string => {
@@ -396,13 +410,13 @@ export const DestinationDetailPage: React.FC = () => {
         { icon: 'bilas', name: 'Kamar Bilas & Ganti', desc: 'Fasilitas bilas air bersih setelah beraktivitas di alam terbuka', tag: 'Bersih' },
         { icon: 'fork', name: 'Warung Makanan & Minuman', desc: 'Sentra makanan hangat dan minuman segar khas lokal', tag: 'Tersedia' },
         { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Parkir kendaraan roda 2 dan roda 4 aman terkelola', tag: 'Aman' },
-        { icon: 'shield', name: 'Pos Retribusi Resmi', desc: 'Loket resmi pengelola Pokdarwis Disporapar HSS', tag: 'Resmi' },
+        { icon: 'shield', name: 'Pos Tiket & Registrasi', desc: 'Loket registrasi dan informasi pengelola setempat', tag: 'Tersedia' },
       ];
     }
     if (cat.includes('budaya') || cat.includes('sejarah') || cat.includes('religi')) {
       return [
         { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Lahan parkir pengunjung roda 2 dan roda 4 memadai', tag: 'Aman' },
-        { icon: 'shield', name: 'Pusat Informasi & Pemandu', desc: 'Petugas informasi dan pemandu narasi sejarah lokal', tag: 'Resmi' },
+        { icon: 'shield', name: 'Pusat Informasi & Pemandu', desc: 'Petugas informasi dan pemandu narasi sejarah lokal', tag: 'Tersedia' },
         { icon: 'toilet', name: 'Toilet & Sarana Kebersihan', desc: 'Fasilitas toilet terawat demi kenyamanan pengunjung', tag: 'Bersih' },
         { icon: 'musholla', name: 'Sarana Ibadah Sholat', desc: 'Tempat ibadah dan fasilitas wudhu bersih di kawasan wisata', tag: 'Tersedia' },
         { icon: 'gazebo', name: 'Bale / Gazebo Istirahat', desc: 'Pondok berteduh untuk santai sejenak bersama rombongan', tag: 'Nyaman' },
@@ -415,7 +429,7 @@ export const DestinationDetailPage: React.FC = () => {
       { icon: 'gazebo', name: 'Gazebo & Rest Area', desc: 'Pondok santai beratap teduh untuk melepas lelah pengunjung', tag: 'Nyaman' },
       { icon: 'fork', name: 'Kantin / Warung Wisata', desc: 'Menyajikan aneka kuliner lokal, kopi, dan camilan hangat', tag: 'Tersedia' },
       { icon: 'camera', name: 'Spot Foto Panorama', desc: 'Sudut pandang estetis berlatar bentang alam Meratus', tag: 'Favorit' },
-      { icon: 'shield', name: 'Pos Pengelola & Tiket', desc: 'Loket retribusi resmi Pokdarwis terdaftar Disporapar HSS', tag: 'Resmi' },
+      { icon: 'shield', name: 'Pos Pengelola & Tiket', desc: 'Loket tiket dan registrasi pengelola setempat', tag: 'Tersedia' },
     ];
   };
 
@@ -660,8 +674,8 @@ export const DestinationDetailPage: React.FC = () => {
                 <span
                   style={{
                     fontSize: 11.5,
-                    background: '#EAF4EE',
-                    color: '#012D1D',
+                    background: destination.id <= 12 ? '#EAF4EE' : '#FEF3C7',
+                    color: destination.id <= 12 ? '#012D1D' : '#92400E',
                     padding: '4px 12px',
                     borderRadius: 999,
                     fontWeight: 700,
@@ -671,7 +685,7 @@ export const DestinationDetailPage: React.FC = () => {
                     border: '1px solid #D1E5D8',
                   }}
                 >
-                  <span>✓</span> Terverifikasi Lapangan
+                  <span>📍</span> {getDestinationSourceStatus(destination.id)}
                 </span>
               </div>
 
@@ -709,10 +723,10 @@ export const DestinationDetailPage: React.FC = () => {
                   </div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--meratus-deep)' }}>
-                      Evaluasi Kelayakan Sarana Wisata (Kriteria SAW)
+                      Skor Rekomendasi (Simulasi SAW)
                     </div>
                     <div style={{ fontSize: 11.5, color: 'var(--meratus-muted)' }}>
-                      Terverifikasi Disporapar Hulu Sungai Selatan &amp; survei lapangan
+                      Simulasi bobot: Kebersihan 40%, Fasilitas 30%, Popularitas 20%, Tiket 10%
                     </div>
                   </div>
                 </div>
@@ -1082,7 +1096,7 @@ export const DestinationDetailPage: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  background: '#EDF5F0',
+                  background: destination.id <= 12 ? '#EDF5F0' : '#FEF3C7',
                   border: '1px solid #D7E5DC',
                   borderRadius: 10,
                   padding: '8px 12px',
@@ -1092,8 +1106,8 @@ export const DestinationDetailPage: React.FC = () => {
                   fontWeight: 600,
                 }}
               >
-                <span>🛡️</span>
-                <span>Terverifikasi Disporapar Hulu Sungai Selatan</span>
+                <span>📍</span>
+                <span>Status Data: {getDestinationSourceStatus(destination.id)}</span>
               </div>
 
               {/* Action Buttons */}
@@ -1143,7 +1157,7 @@ export const DestinationDetailPage: React.FC = () => {
                   }}
                 >
                   <Icon.Location size={16} style={{ color: '#994700' }} />
-                  <span>Petunjuk Arah Google Maps</span>
+                  <span>Buka Navigasi di Google Maps</span>
                 </button>
               </div>
 
@@ -1159,15 +1173,15 @@ export const DestinationDetailPage: React.FC = () => {
                 </div>
                 <div className="detail-info-row">
                   <span className="detail-info-key">Jam Operasional</span>
-                  <span className="detail-info-val">{destination.hours || 'Informasi belum tersedia'}</span>
+                  <span className="detail-info-val">{destination.hours || 'Konfirmasi pengelola setempat'}</span>
                 </div>
                 <div className="detail-info-row">
-                  <span className="detail-info-key">Kondisi Jalan</span>
-                  <span className="detail-info-val">Aspal Halus &amp; Cor Beton</span>
+                  <span className="detail-info-key">Kondisi Akses</span>
+                  <span className="detail-info-val">Jalan pedesaan/pegunungan (cek Google Maps)</span>
                 </div>
                 <div className="detail-info-row" style={{ borderBottom: 'none' }}>
-                  <span className="detail-info-key">Waktu Terbaik</span>
-                  <span className="detail-info-val">Pagi (08.00 – 11.00)</span>
+                  <span className="detail-info-key">Waktu Disarankan</span>
+                  <span className="detail-info-val">Pagi / Siang hari</span>
                 </div>
               </div>
 

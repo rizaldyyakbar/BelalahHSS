@@ -11,7 +11,7 @@ export const SmartRoutingCtaBanner: React.FC = () => {
         <div>
           <div className="smart-routing-badge">
             <Icon.Compass size={12} />
-            <span>Smart Routing Engine</span>
+            <span>Perencana Rute Wisata</span>
           </div>
 
           <h2 className="smart-routing-title">
@@ -19,8 +19,8 @@ export const SmartRoutingCtaBanner: React.FC = () => {
           </h2>
 
           <p className="smart-routing-desc">
-            Rute Anda akan dihitung, dioptimalkan secara otomatis menggunakan algoritma Dijkstra &amp;
-            Haversine, serta siap diekspor ke Google Maps multi-stop pada halaman perencana penuh.
+            Pilih destinasi yang ingin Anda kunjungi, tinjau saran urutan perjalanan berdasarkan model jarak prototype,
+            dan buka langsung rute ke Google Maps untuk navigasi jalan riil.
           </p>
         </div>
 
@@ -29,7 +29,7 @@ export const SmartRoutingCtaBanner: React.FC = () => {
           onClick={() => navigate('/planner')}
         >
           <Icon.Compass size={18} />
-          <span>Mulai Perjalanan &amp; Buka Planner</span>
+          <span>Buka Perencana Rute</span>
         </button>
       </div>
     </section>

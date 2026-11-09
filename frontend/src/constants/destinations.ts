@@ -1,9 +1,10 @@
-// Authentic Hulu Sungai Selatan (HSS) Tourism Destinations Data
-// Kriteria SAW (sesuai hasil wawancara fase Empathize & admin panel):
-//   1. Kebersihan dan Keamanan — benefit, bobot 0.40 (Peringkat 1)
-//   2. Fasilitas               — benefit, bobot 0.30 (Peringkat 2)
-//   3. Popularitas             — benefit, bobot 0.20 (Peringkat 3)
-//   4. Harga Tiket / Price     — cost,    bobot 0.10 (Peringkat 4)
+// Hulu Sungai Selatan (HSS) Tourism Destinations Dataset
+// Catatan Penelitian: Konfigurasi bobot kriteria SAW untuk simulasi prototype:
+//   1. Kebersihan dan Keamanan — benefit, bobot 0.40
+//   2. Fasilitas               — benefit, bobot 0.30
+//   3. Popularitas             — benefit, bobot 0.20
+//   4. Harga Tiket / Biaya     — cost,    bobot 0.10
+// Bobot dan skor ini merupakan simulasi model prototype penelitian, bukan sertifikasi resmi.
 
 export interface Destination {
   id: number;
@@ -21,18 +22,20 @@ export interface Destination {
   facilities?: Facility[];
   hours?: string;
   entrance?: string;
+  priceType?: 'per_person' | 'per_package' | 'voluntary';
+  sourceStatus?: string;
   rank?: number;
   latitude?: number;
   longitude?: number;
 
-  // ── Nilai kriteria SAW ────────────────────────────────────────────────────
-  /** Skor kebersihan & keamanan (0–100 / skala 1–5), kriteria benefit bobot 0.40 (Peringkat 1) */
+  // ── Nilai kriteria SAW (Simulasi Prototype) ────────────────────────────────
+  /** Skor kebersihan & keamanan (skala simulasi), kriteria benefit bobot 0.40 */
   kebersihanKeamanan?: number;
-  /** Skor kelengkapan fasilitas (0–100 / skala 1–5), kriteria benefit bobot 0.30 (Peringkat 2) */
+  /** Skor kelengkapan fasilitas (skala simulasi), kriteria benefit bobot 0.30 */
   fasilitasScore?: number;
-  /** Skor popularitas destinasi (0–100 / volume kunjungan), kriteria benefit bobot 0.20 (Peringkat 3) */
+  /** Skor popularitas destinasi (skala simulasi), kriteria benefit bobot 0.20 */
   popularitas?: number;
-  /** Estimasi biaya kunjungan dalam ribuan rupiah, kriteria cost bobot 0.10 (Peringkat 4) */
+  /** Estimasi biaya kunjungan dalam ribuan rupiah, kriteria cost bobot 0.10 */
   price?: number;
   // ─────────────────────────────────────────────────────────────────────────
 }
@@ -67,7 +70,7 @@ export const DESTINATIONS: Destination[] = [
       { icon: 'fork', name: 'Kantin & Warung Wisata', desc: 'Warung minuman hangat, makanan ringan, dan madu kelulut asli Meratus', tag: 'Tersedia' },
       { icon: 'bilas', name: 'Toilet & Kamar Mandi', desc: 'Fasilitas sanitasi dengan pasokan air pegunungan alami yang melimpah', tag: 'Bersih' },
       { icon: 'parking', name: 'Area Parkir Kendaraan', desc: 'Titik parkir motor dan mobil sebelum jalur setapak air terjun', tag: 'Aman' },
-      { icon: 'shield', name: 'Pos Informasi & Tiket', desc: 'Pos pengelola Pokdarwis resmi untuk informasi dan bantuan pengunjung', tag: 'Resmi' },
+      { icon: 'shield', name: 'Pos Informasi & Tiket', desc: 'Pos pengelola untuk informasi dan tiket masuk pengunjung', tag: 'Tersedia' },
       { icon: 'musholla', name: 'Musholla Al-Ikhlas', desc: 'Tempat ibadah sholat dan sarana wudhu bersih di area wisata', tag: 'Tersedia' },
       { icon: 'camera', name: 'Spot Foto Pelataran Air', desc: 'Batu pandang aman untuk dokumentasi latar pemandangan air terjun', tag: 'Favorit' },
     ],
@@ -98,7 +101,7 @@ export const DESTINATIONS: Destination[] = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Balanting_di_Sungai_Amandit_Loksado.jpg',
     ],
     facilities: [
-      { icon: 'dermaga', name: 'Dermaga Tambat Hulu', desc: 'Titik awal pemberangkatan dan perakitan bambu paring tradisional', tag: 'Resmi' },
+      { icon: 'dermaga', name: 'Dermaga Tambat Hulu', desc: 'Titik awal pemberangkatan dan perakitan bambu paring tradisional', tag: 'Tersedia' },
       { icon: 'shield', name: 'Rompi Pelampung SNI', desc: 'Perlengkapan keselamatan standar wajib untuk seluruh penumpang', tag: 'Wajib' },
       { icon: 'bed', name: 'Rest Area Tepi Sungai', desc: 'Pondok istirahat teduh untuk santai sejenak di tepi Sungai Amandit', tag: 'Nyaman' },
       { icon: 'bilas', name: 'Kamar Bilas & Ganti', desc: 'Fasilitas bilas dan ganti pakaian setelah selesai arung jeram', tag: 'Bersih' },
@@ -534,3 +537,17 @@ export const DESTINATIONS: Destination[] = [
     kebersihanKeamanan: 82,
   },
 ];
+
+/**
+ * Mengembalikan status sumber data destinasi sesuai batasan penelitian:
+ * - ID 1–12 : Tercatat dalam dokumen rujukan Disporapar HSS
+ * - ID 13–21: Data pelengkap simulasi penelitian
+ * Seluruh koordinat berstatus koordinat digital Google Maps.
+ */
+export function getDestinationSourceStatus(id: number): string {
+  if (id >= 1 && id <= 12) {
+    return 'Dokumen Dinas · Koordinat Digital';
+  }
+  return 'Data Penelitian · Koordinat Digital';
+}
+

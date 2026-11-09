@@ -21,17 +21,17 @@ export const HowToCreateRoute: React.FC<HowToCreateRouteProps> = ({
     {
       number: '01',
       title: 'Pilih titik mulai',
-      description: 'Jelajahi berbagai destinasi wisata pilihan kami',
+      description: 'Tentukan lokasi awal keberangkatan Anda di Hulu Sungai Selatan',
     },
     {
       number: '02',
       title: 'Tentukan destinasi',
-      description: 'Atur urutan kunjungan sesuai preferensi Anda',
+      description: 'Pilih destinasi yang ingin dikunjungi dari katalog',
     },
     {
       number: '03',
-      title: 'Dapatkan rekomendasi',
-      description: 'Terima saran aktivitas dan restoran terbaik',
+      title: 'Tinjau saran perjalanan',
+      description: 'Periksa urutan kunjungan dan buka navigasi di Google Maps',
     },
   ],
   onStartPlanning,

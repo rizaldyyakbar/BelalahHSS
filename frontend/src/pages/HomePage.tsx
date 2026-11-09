@@ -22,6 +22,8 @@ export const HomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [startPoint, setStartPoint] = useState<string>('kandangan');
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [isGpsActive, setIsGpsActive] = useState<boolean>(false);
 
   // Initial selected destinations matching saved itinerary or empty by default
   const [selectedDestinations, setSelectedDestinations] = useState<Destination[]>(() => {
@@ -63,10 +65,19 @@ export const HomePage: React.FC = () => {
       }
     };
 
-    if (navigator.geolocation) {
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => loadRecommendations(pos.coords.latitude, pos.coords.longitude),
-        () => loadRecommendations(),
+        (pos) => {
+          if (!isMounted) return;
+          setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setIsGpsActive(true);
+          loadRecommendations(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          if (!isMounted) return;
+          setIsGpsActive(false);
+          loadRecommendations();
+        },
         { timeout: 5000 }
       );
     } else {
@@ -77,6 +88,22 @@ export const HomePage: React.FC = () => {
       isMounted = false;
     };
   }, []);
+
+  const handleStartPointChange = (newPoint: string) => {
+    setStartPoint(newPoint);
+    if (newPoint === 'current' && !isGpsActive && typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setIsGpsActive(true);
+        },
+        () => {
+          setIsGpsActive(false);
+        },
+        { timeout: 7000 }
+      );
+    }
+  };
 
   // Filtered destinations for the popular section based on category selection
   const filteredDestinations = destinations.filter((d) => {
@@ -113,9 +140,13 @@ export const HomePage: React.FC = () => {
   };
 
   const handleBuildRoute = () => {
-    // Navigate to planner passing selected destination IDs
+    // Navigate to planner passing selected destination IDs and departure point
     const ids = selectedDestinations.map((d) => d.id).join(',');
-    navigate(`/planner?destinations=${ids}&start=${startPoint}`);
+    let startQuery = startPoint;
+    if (startPoint === 'current' && userCoords) {
+      startQuery = `custom:${userCoords.lat.toFixed(5)},${userCoords.lng.toFixed(5)}`;
+    }
+    navigate(`/planner?destinations=${ids}&start=${startQuery}`);
   };
 
   return (
@@ -132,8 +163,9 @@ export const HomePage: React.FC = () => {
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
           startPoint={startPoint}
-          onStartPointChange={setStartPoint}
+          onStartPointChange={handleStartPointChange}
           onBuildRoute={handleBuildRoute}
+          isGpsActive={isGpsActive}
         />
 
         {/* 2. Popular Destinations Section (SAW & Haversine Ranked) */}

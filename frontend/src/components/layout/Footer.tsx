@@ -52,9 +52,9 @@ export const Footer: React.FC<FooterProps> = ({
               margin: '0 0 16px',
             }}
           >
-            Sistem Pendukung Keputusan dan Perencana Itinerari Cerdas Wisata Hulu Sungai Selatan.
-            Memadukan metode Simple Additive Weighting (SAW) dan kalkulasi jarak Haversine untuk
-            eksplorasi Meratus yang autentik.
+            Prototype Interaktif Perencana Rute Wisata Kabupaten Hulu Sungai Selatan.
+            Dikembangkan untuk pengujian fungsional dan evaluasi pengalaman pengguna (UEQ)
+            dalam lingkup penelitian Tugas Akhir.
           </p>
 
           <div
@@ -141,7 +141,7 @@ export const Footer: React.FC<FooterProps> = ({
             </li>
             <li>
               <Link to="/about" style={{ textDecoration: 'none', fontSize: 13.5, color: 'var(--meratus-muted)' }}>
-                Kontak Pemkab HSS
+                Tentang Penelitian
               </Link>
             </li>
           </ul>
@@ -159,7 +159,7 @@ export const Footer: React.FC<FooterProps> = ({
               margin: '0 0 16px',
             }}
           >
-            Koneksi Cerdas
+            Navigasi Rute
           </h4>
 
           <div
@@ -184,7 +184,7 @@ export const Footer: React.FC<FooterProps> = ({
                 marginBottom: 8,
               }}
             >
-              <span>🔀 Integrasi Multi-Stop</span>
+              <span>🧭 Saran Urutan Perjalanan</span>
             </div>
             <p
               style={{
@@ -194,7 +194,7 @@ export const Footer: React.FC<FooterProps> = ({
                 margin: 0,
               }}
             >
-              Optimalkan urutan perjalanan Anda secara otomatis dan buka langsung rute ke Google Maps.
+              Tinjau saran urutan kunjungan berdasarkan model jarak prototype dan buka navigasi jalan riil langsung di Google Maps.
             </p>
           </div>
         </div>
@@ -205,13 +205,13 @@ export const Footer: React.FC<FooterProps> = ({
         className="figma-footer-bottom"
         onClick={(e) => handleFooterSecretClick(e)}
         style={{ cursor: 'default', userSelect: 'none' }}
-        title="Belalah HSS Engine"
+        title="Belalah HSS Prototype Engine"
       >
         <div>
-          © 2025 Belalah HSS • Dinas Pemuda, Olahraga, dan Pariwisata Hulu Sungai Selatan.
+          © 2025 Belalah HSS • Prototype Penelitian Perencana Rute Wisata HSS (Bukan Layanan Resmi Pemerintah).
         </div>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'var(--meratus-muted)' }}>
-          v1.2 • Meratus Geographical Engine
+          Tahap Pengujian Pengguna (UEQ)
         </div>
       </div>
     </footer>

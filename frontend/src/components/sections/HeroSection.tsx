@@ -12,6 +12,7 @@ interface HeroSectionProps {
   startPoint: string;
   onStartPointChange: (point: string) => void;
   onBuildRoute: () => void;
+  isGpsActive?: boolean;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
@@ -24,6 +25,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   startPoint,
   onStartPointChange,
   onBuildRoute,
+  isGpsActive = false,
 }) => {
   const [showAddDropdown, setShowAddDropdown] = useState(false);
 
@@ -50,18 +52,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Eyebrow Tag */}
         <div className="hero-meratus-tag">
           <Icon.Compass size={13} style={{ color: '#c1ecd4' }} />
-          <span>Sistem Cerdas Rute Meratus • Hulu Sungai Selatan</span>
+          <span>Perencana Rute Wisata • Hulu Sungai Selatan</span>
         </div>
 
         {/* Title */}
         <h1 className="hero-meratus-title">
-          Rencanakan rute wisata HSS dalam <br />3 langkah
+          Rencanakan perjalanan wisata HSS dalam <br />3 langkah
         </h1>
 
         {/* Description */}
         <p className="hero-meratus-desc">
-          Pilih titik mulai, tentukan destinasi favoritmu di Pegunungan Meratus & sekitarnya,
-          dan dapatkan urutan rute paling efisien otomatis dengan kalkulasi presisi.
+          Pilih titik mulai, tentukan destinasi pilihan di Pegunungan Meratus dan sekitarnya,
+          dan dapatkan saran urutan kunjungan yang siap dibuka langsung di Google Maps.
         </p>
 
         {/* Trip Builder Card */}
@@ -76,8 +78,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 </span>
                 <span
                   style={{
-                    background: 'var(--meratus-mint)',
-                    color: 'var(--meratus-mint-text)',
+                    background: isGpsActive ? 'var(--meratus-mint)' : '#F1F5F9',
+                    color: isGpsActive ? 'var(--meratus-mint-text)' : '#475569',
                     fontSize: 11,
                     fontWeight: 700,
                     padding: '2px 8px',
@@ -87,8 +89,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     gap: 4,
                   }}
                 >
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--meratus-deep)' }} />
-                  GPS Siap
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      background: isGpsActive ? 'var(--meratus-deep)' : '#94A3B8',
+                    }}
+                  />
+                  {startPoint === 'current'
+                    ? (isGpsActive ? 'GPS Aktif' : 'Izin GPS Diperlukan')
+                    : 'Titik Acuan'}
                 </span>
               </div>
               <div className="trip-builder-input-box">
@@ -341,8 +352,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <div className="step-item">
             <div className="step-number-badge">3</div>
             <div>
-              <div className="step-title">Optimasi Otomatis</div>
-              <div className="step-desc">Kalkulasi rute terpendek siap dibuka di Maps</div>
+              <div className="step-title">Saran Urutan Kunjungan</div>
+              <div className="step-desc">Tinjau urutan perjalanan dan buka navigasi di Google Maps</div>
             </div>
           </div>
         </div>

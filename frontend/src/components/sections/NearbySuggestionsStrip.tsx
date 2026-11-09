@@ -146,8 +146,8 @@ export const NearbySuggestionsStrip: React.FC<NearbySuggestionsStripProps> = ({
             </h2>
             <p style={{ fontSize: 13, color: '#57534E', margin: 0 }}>
               {activeTab === 'destinations'
-                ? 'Optimal untuk disinggahi searah koridor perjalanan rute wisata Anda'
-                : 'Fasilitas penunjang resmi dari database (Penginapan, Kuliner, SPBU, Masjid)'}
+                ? 'Destinasi terdekat berdasarkan estimasi jarak model dari titik pilihan Anda'
+                : 'Fasilitas pendukung perjalanan terdekat (Penginapan, Kuliner, SPBU, Tempat Ibadah)'}
             </p>
           </div>
 
