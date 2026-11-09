@@ -99,20 +99,18 @@ export const DirectoryPage: React.FC = () => {
     }
   };
 
-  // Helper to match category consistently between category count pills and active filter
-  const matchesCategory = (dest: Destination, selCategory: string) => {
-    if (selCategory === 'Semua') return true;
-    const destCat = (dest.category || '').toLowerCase();
-    const selCat = selCategory.toLowerCase();
+  // Helper to match category consistently based on actual destination category
+  const normalizeCat = (c?: string) => {
+    const s = (c || '').toLowerCase().trim();
+    if (s.includes('alam')) return 'alam';
+    if (s.includes('budaya')) return 'budaya';
+    if (s.includes('petualangan')) return 'petualangan';
+    return s;
+  };
 
-    return (
-      destCat.includes(selCat) ||
-      selCat.includes(destCat) ||
-      (selCat.includes('alam') && destCat.includes('alam')) ||
-      (selCat.includes('budaya') && (destCat.includes('budaya') || dest.name.toLowerCase().includes('adat') || dest.name.toLowerCase().includes('balai'))) ||
-      (selCat.includes('petualangan') && (destCat.includes('petualangan') || dest.name.toLowerCase().includes('rafting') || dest.name.toLowerCase().includes('sungai'))) ||
-      (selCat.includes('religi') && (destCat.includes('religi') || dest.name.toLowerCase().includes('masjid') || dest.name.toLowerCase().includes('makam')))
-    );
+  const matchesCategory = (dest: Destination, selCategory: string) => {
+    if (!selCategory || selCategory === 'Semua') return true;
+    return normalizeCat(dest.category) === normalizeCat(selCategory);
   };
 
   // Dynamic category pills list with real counts
