@@ -1,11 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { Icon } from '../components/atomic/Icons';
+import { fetchNearbyFacilities, ApiFacility, FALLBACK_FACILITIES } from '../services/api';
+
+const TYPE_CONFIG: Record<string, { label: string; icon: string; badgeBg: string; badgeColor: string; defaultImg: string }> = {
+  kuliner: {
+    label: 'Kuliner Khas',
+    icon: '🍲',
+    badgeBg: '#FFF3EB',
+    badgeColor: '#994700',
+    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+  },
+  penginapan: {
+    label: 'Homestay & Penginapan',
+    icon: '🛖',
+    badgeBg: '#EAF4EE',
+    badgeColor: '#012D1D',
+    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+  },
+  spbu: {
+    label: 'SPBU & Rest Area',
+    icon: '⛽',
+    badgeBg: '#FEF3C7',
+    badgeColor: '#92400E',
+    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kolam_Wisata_Air_Panas_Tanuhi.jpg/1280px-Kolam_Wisata_Air_Panas_Tanuhi.jpg',
+  },
+  masjid: {
+    label: 'Tempat Ibadah',
+    icon: '🕌',
+    badgeBg: '#E0E7FF',
+    badgeColor: '#3730A3',
+    defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
+  },
+};
 
 export const ExperiencesPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
-  const [savedSpots, setSavedSpots] = useState<string[]>([]);
+  const [facilities, setFacilities] = useState<ApiFacility[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [savedSpots, setSavedSpots] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('belalah_saved_spots');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -13,17 +54,60 @@ export const ExperiencesPage: React.FC = () => {
     setTimeout(() => setToastMsg(null), 3000);
   };
 
-  const handleToggleSpot = (name: string) => {
-    if (savedSpots.includes(name)) {
-      setSavedSpots(savedSpots.filter((s) => s !== name));
-      showToast(`${name} dihapus dari titik singgah.`);
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
+    fetchNearbyFacilities(-2.7758, 115.2635, 60)
+      .then((data) => {
+        if (!isMounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          setFacilities(data);
+        } else {
+          setFacilities(FALLBACK_FACILITIES);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setFacilities(FALLBACK_FACILITIES);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleToggleSpot = (spotName: string) => {
+    let updated: string[];
+    if (savedSpots.includes(spotName)) {
+      updated = savedSpots.filter((s) => s !== spotName);
+      showToast(`${spotName} dihapus dari titik singgah.`);
     } else {
-      setSavedSpots([...savedSpots, name]);
-      showToast(`${name} berhasil disisipkan ke rencana rute!`);
+      updated = [...savedSpots, spotName];
+      showToast(`${spotName} berhasil disisipkan ke rencana rute!`);
+    }
+    setSavedSpots(updated);
+    try {
+      localStorage.setItem('belalah_saved_spots', JSON.stringify(updated));
+    } catch {
+      // ignore
     }
   };
 
-  const categories = ['Semua', 'Kuliner Khas', 'Homestay Warga'];
+  const categories = [
+    { key: 'Semua', label: 'Semua Singgah' },
+    { key: 'kuliner', label: 'Kuliner Khas' },
+    { key: 'penginapan', label: 'Homestay & Penginapan' },
+    { key: 'spbu', label: 'SPBU & Rest Area' },
+    { key: 'masjid', label: 'Tempat Ibadah' },
+  ];
+
+  const filteredFacilities = facilities.filter((fac) => {
+    if (selectedCategory === 'Semua') return true;
+    return fac.type?.toLowerCase() === selectedCategory.toLowerCase();
+  });
 
   return (
     <div style={{ background: 'var(--meratus-bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -33,14 +117,14 @@ export const ExperiencesPage: React.FC = () => {
         <div
           style={{
             position: 'fixed',
-            top: 64,
+            top: 76,
             left: '50%',
             transform: 'translateX(-50%)',
             background: '#012D1D',
             color: '#ffffff',
-            padding: '8px 18px',
+            padding: '9px 20px',
             borderRadius: 9999,
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: 600,
             zIndex: 1100,
             boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
@@ -51,9 +135,8 @@ export const ExperiencesPage: React.FC = () => {
       )}
 
       <main style={{ flex: 1, paddingBottom: 90 }}>
-        {/* Header Section (Figma Screen 6) */}
+        {/* Header Section */}
         <section className="bh-container" style={{ paddingTop: 96, paddingBottom: 16 }}>
-          {/* Eyebrow Tag */}
           <div
             style={{
               display: 'inline-flex',
@@ -76,11 +159,10 @@ export const ExperiencesPage: React.FC = () => {
                 textTransform: 'uppercase',
               }}
             >
-              Pemberhentian Terkurasi
+              Pemberhentian Terkurasi Google Maps
             </span>
           </div>
 
-          {/* Title & Subtitle */}
           <h1
             style={{
               fontFamily: 'var(--serif)',
@@ -91,7 +173,7 @@ export const ExperiencesPage: React.FC = () => {
               letterSpacing: '-0.02em',
             }}
           >
-            Titik Singgah &amp; Kuliner Khas
+            Titik Singgah &amp; Kuliner Khas HSS
           </h1>
 
           <p
@@ -100,10 +182,10 @@ export const ExperiencesPage: React.FC = () => {
               color: '#57534E',
               margin: '0 0 20px',
               lineHeight: 1.55,
-              maxWidth: 580,
+              maxWidth: 620,
             }}
           >
-            Tempat istirahat nyaman, kuliner legendaris Ketupat Kandangan, dan homestay ramah warga di sepanjang koridor Loksado-Meratus.
+            Tempat istirahat nyaman, kuliner legendaris Ketupat Kandangan, homestay ramah warga, dan pos BBM di sepanjang koridor Hulu Sungai Selatan menuju Geopark Meratus.
           </p>
 
           {/* Category Filter Pills */}
@@ -119,497 +201,237 @@ export const ExperiencesPage: React.FC = () => {
             }}
           >
             {categories.map((cat) => {
-              const active = selectedCategory === cat;
+              const active = selectedCategory === cat.key;
+              const count = cat.key === 'Semua'
+                ? facilities.length
+                : facilities.filter((f) => f.type?.toLowerCase() === cat.key).length;
+
               return (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
                   style={{
-                    background: active ? '#012D1D' : '#EDF2EE',
+                    background: active ? '#012D1D' : '#ffffff',
                     color: active ? '#ffffff' : '#57534E',
-                    border: 'none',
+                    border: '1px solid',
+                    borderColor: active ? '#012D1D' : '#E2EAE4',
                     borderRadius: 9999,
-                    padding: '6px 16px',
+                    padding: '7px 16px',
                     fontSize: 12.5,
                     fontWeight: active ? 700 : 500,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
+                    boxShadow: active ? '0 2px 8px rgba(1, 45, 29, 0.15)' : 'none',
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  {cat}
+                  {cat.label} ({count})
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* Spot Cards Feed (Responsive 2-Columns on Desktop) */}
+        {/* Spot Cards Feed (Responsive 2-3 Columns Grid) */}
         <section className="bh-container">
-          <div className="experiences-cards-grid">
-            {/* Card 1: Warung Ketupat Kandangan Hj. Maryam */}
-            {(selectedCategory === 'Semua' || selectedCategory === 'Kuliner Khas') && (
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: 16,
-                  border: '1px solid #EBEFEA',
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg"
-                    alt="Warung Ketupat Kandangan Hj. Maryam"
-                    loading="lazy"
-                    decoding="async"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 12,
-                      background: '#FD934C',
-                      color: '#ffffff',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '3px 9px',
-                      borderRadius: 9999,
-                    }}
-                  >
-                    Otentik Kuliner
-                  </div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 10,
-                      right: 12,
-                      background: 'rgba(0, 0, 0, 0.72)',
-                      color: '#ffffff',
-                      fontSize: 10.5,
-                      fontWeight: 600,
-                      padding: '3px 8px',
-                      borderRadius: 9999,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    <Icon.Compass size={11} style={{ color: '#C1ECD4' }} />
-                    <span>1.5 km</span>
-                  </div>
-                </div>
-
-                <div style={{ padding: '14px 14px 16px' }}>
-                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: 16.5, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 4px' }}>
-                    Warung Ketupat Kandangan Hj. Maryam
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 10px', lineHeight: 1.45 }}>
-                    Ikan Haruan Asap kuah santan gurih berempah khas Banjar dipanggang dengan arang sabut kelapa tradisional.
-                  </p>
-                  <div style={{ fontSize: 11, color: '#6E7972', display: 'flex', gap: 12, marginBottom: 12 }}>
-                    <span>📍 Jl. Jend. Sudirman Kandangan</span>
-                    <span>🕒 06:30 – 21:00 WITA</span>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F0F4F1' }}>
-                    <div>
-                      <div style={{ fontSize: 9.5, fontWeight: 700, color: '#6E7972' }}>KISARAN HARGA</div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#012D1D' }}>Rp 20.000 – 35.000</div>
-                    </div>
-                    <button
-                      onClick={() => handleToggleSpot('Warung Ketupat Hj. Maryam')}
-                      style={{
-                        height: 36,
-                        padding: '0 14px',
-                        borderRadius: 10,
-                        border: 'none',
-                        background: savedSpots.includes('Warung Ketupat Hj. Maryam') ? '#09261B' : '#012D1D',
-                        color: '#ffffff',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <Icon.Route size={14} style={{ color: '#C1ECD4' }} />
-                      <span>{savedSpots.includes('Warung Ketupat Hj. Maryam') ? '✓ Di Rute' : '+ Singgah di Rute'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Card 2: Sentra Dodol Asli Kandangan Berkat Bersama */}
-            {(selectedCategory === 'Semua' || selectedCategory === 'Kuliner Khas') && (
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: 16,
-                  border: '1px solid #EBEFEA',
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
-                  <img
-                    src="/assets/museum-rakyat.jpg"
-                    alt="Sentra Dodol Asli Kandangan Berkat Bersama"
-                    loading="lazy"
-                    decoding="async"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/balanting-paring.jpg';
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 12,
-                      background: '#8C4A1E',
-                      color: '#ffffff',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '3px 9px',
-                      borderRadius: 9999,
-                    }}
-                  >
-                    Oleh-oleh Khas
-                  </div>
-                </div>
-
-                <div style={{ padding: '14px 14px 16px' }}>
-                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: 16.5, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 4px' }}>
-                    Sentra Dodol Asli Kandangan Berkat Bersama
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 10px', lineHeight: 1.45 }}>
-                    Kudapan manis legit resep turun-temurun, tersedia varian original santan kelapa, ketan hitam, dan durian hutan Meratus.
-                  </p>
-                  <div style={{ fontSize: 11, color: '#6E7972', marginBottom: 12 }}>
-                    📍 Kawasan Simpang 5 Kandangan
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F0F4F1' }}>
-                    <div>
-                      <div style={{ fontSize: 9.5, fontWeight: 700, color: '#6E7972' }}>KOTAK KECIL</div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#012D1D' }}>Mulai Rp 15.000</div>
-                    </div>
-                    <button
-                      onClick={() => handleToggleSpot('Sentra Dodol Berkat Bersama')}
-                      style={{
-                        height: 36,
-                        padding: '0 14px',
-                        borderRadius: 10,
-                        border: 'none',
-                        background: savedSpots.includes('Sentra Dodol Berkat Bersama') ? '#09261B' : '#012D1D',
-                        color: '#ffffff',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <Icon.Route size={14} style={{ color: '#C1ECD4' }} />
-                      <span>{savedSpots.includes('Sentra Dodol Berkat Bersama') ? '✓ Di Rute' : '+ Singgah di Rute'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Card 3: Meratus Riverside Homestay Loksado */}
-            {(selectedCategory === 'Semua' || selectedCategory === 'Homestay Warga') && (
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: 16,
-                  border: '1px solid #EBEFEA',
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                }}
-              >
-                <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Sungai_Amandit_Loksado.jpg/1280px-Sungai_Amandit_Loksado.jpg"
-                    alt="Meratus Riverside Homestay Loksado"
-                    loading="lazy"
-                    decoding="async"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 12,
-                      background: '#0A4433',
-                      color: '#ffffff',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '3px 9px',
-                      borderRadius: 9999,
-                    }}
-                  >
-                    Tepi Sungai Amandit
-                  </div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 10,
-                      right: 12,
-                      background: 'rgba(0, 0, 0, 0.72)',
-                      color: '#ffffff',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      padding: '3px 9px',
-                      borderRadius: 9999,
-                    }}
-                  >
-                    Rp 250.000 / malam
-                  </div>
-                </div>
-
-                <div style={{ padding: '14px 14px 16px' }}>
-                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: 16.5, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 4px' }}>
-                    Meratus Riverside Homestay Loksado
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 10px', lineHeight: 1.45 }}>
-                    Penginapan kayu asri dengan suara gemericik air sungai alami. Dikelola keluarga Dayak Meratus dengan keramahan otentik.
-                  </p>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-                    <span style={{ background: '#F1F4F1', padding: '3px 8px', borderRadius: 8, fontSize: 11, color: '#414844' }}>
-                      🛏️ Kamar Mandi Bersih
-                    </span>
-                    <span style={{ background: '#F1F4F1', padding: '3px 8px', borderRadius: 8, fontSize: 11, color: '#414844' }}>
-                      ☕ Sarapan Pagi
-                    </span>
-                    <span style={{ background: '#F1F4F1', padding: '3px 8px', borderRadius: 8, fontSize: 11, color: '#414844' }}>
-                      🛶 Akses Lanting Bambu
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F0F4F1' }}>
-                    <div style={{ fontSize: 11.5, color: '#6E7972' }}>
-                      📍 Desa Hulu Banyu, Loksado
-                    </div>
-                    <button
-                      onClick={() => handleToggleSpot('Meratus Riverside Homestay')}
-                      style={{
-                        height: 36,
-                        padding: '0 14px',
-                        borderRadius: 10,
-                        border: 'none',
-                        background: savedSpots.includes('Meratus Riverside Homestay') ? '#09261B' : '#012D1D',
-                        color: '#ffffff',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <Icon.Route size={14} style={{ color: '#C1ECD4' }} />
-                      <span>{savedSpots.includes('Meratus Riverside Homestay') ? '✓ Di Rute' : '+ Singgah di Rute'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Card 4: SPBU Gambah Luar (Pos BBM Terakhir) */}
-            <div
-              style={{
-                background: '#ffffff',
-                borderRadius: 16,
-                border: '1px solid #EBEFEA',
-                padding: '16px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          {loading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
+                  key={i}
                   style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 12,
-                    background: '#FFF0F0',
-                    display: 'grid',
-                    placeItems: 'center',
-                    fontSize: 22,
-                    flexShrink: 0,
+                    borderRadius: 16,
+                    background: '#e8efe9',
+                    height: 280,
+                    animation: 'pulse 1.5s infinite ease-in-out',
                   }}
-                >
-                  ⛽
-                </div>
-                <div style={{ flex: 1 }}>
-                  <span
-                    style={{
-                      background: '#FFEAEA',
-                      color: '#C23C3C',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: 9999,
-                      display: 'inline-block',
-                      marginBottom: 4,
-                    }}
-                  >
-                    ⚠️ Pos BBM Terakhir
-                  </span>
-                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 700, color: '#012D1D', margin: '0 0 4px' }}>
-                    SPBU Gambah Luar
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 10px', lineHeight: 1.4 }}>
-                    Titik SPBU pengisian bahan bakar sebelum rute menanjak menuju kawasan pegunungan Meratus.
-                  </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                    <div style={{ fontSize: 11, color: '#6E7972', display: 'flex', gap: 10 }}>
-                      <span>ATM</span> • <span>Musholla</span> • <span>Toilet Bersih</span>
-                    </div>
-                    <button
-                      onClick={() => window.open('https://maps.google.com/?q=SPBU+Gambah+Luar+Kandangan', '_blank')}
-                      style={{
-                        height: 32,
-                        padding: '0 12px',
-                        borderRadius: 8,
-                        border: '1px solid #E2EAE4',
-                        background: '#F1F4F1',
-                        color: '#1A1611',
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                      }}
-                    >
-                      <Icon.Location size={13} style={{ color: '#FD934C' }} />
-                      <span>Petunjuk Titik</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 5: Balai Singgah Pokdarwis Malaris */}
-            <div
-              style={{
-                background: '#ffffff',
-                borderRadius: 16,
-                border: '1px solid #EBEFEA',
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg"
-                  alt="Balai Singgah Pokdarwis Malaris"
-                  loading="lazy"
-                  decoding="async"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 10,
-                    left: 12,
-                    background: '#012D1D',
-                    color: '#C1ECD4',
-                    fontSize: 10,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 9999,
-                  }}
-                >
-                  Balai Pokdarwis
-                </div>
-              </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+              {filteredFacilities.map((fac) => {
+                const defaultConf = {
+                  label: 'Titik Singgah',
+                  icon: '📍',
+                  badgeBg: '#FFF3EB',
+                  badgeColor: '#994700',
+                  defaultImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+                };
+                const conf = (fac.type && TYPE_CONFIG[fac.type]) || TYPE_CONFIG.kuliner || defaultConf;
+                const isSaved = savedSpots.includes(fac.name);
+                const gmapsUrl = fac.google_maps_url || (fac.latitude && fac.longitude
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${fac.latitude},${fac.longitude}`
+                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fac.name + ', Hulu Sungai Selatan')}`);
 
-              <div style={{ padding: '14px 14px 16px' }}>
-                <h3 style={{ fontFamily: 'var(--serif)', fontSize: 16.5, fontWeight: 700, color: 'var(--meratus-deep)', margin: '0 0 4px' }}>
-                  Balai Singgah Pokdarwis Malaris
-                </h3>
-                <p style={{ fontSize: 12, color: '#57534E', margin: '0 0 10px', lineHeight: 1.45 }}>
-                  Pusat informasi pemandu lokal Loksado, seduhan kopi pasak bumi hangat tradisional, dan titik kumpul rehat pendaki Meratus.
-                </p>
-                <div style={{ fontSize: 11, color: '#6E7972', marginBottom: 12 }}>
-                  📍 Dikelola Kelompok Sadar Wisata Desa Malaris
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F0F4F1' }}>
-                  <div>
-                    <div style={{ fontSize: 9.5, fontWeight: 700, color: '#6E7972' }}>KOPI &amp; REHAT</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#012D1D' }}>Donasi Sukarela</div>
-                  </div>
-                  <button
-                    onClick={() => handleToggleSpot('Balai Singgah Pokdarwis Malaris')}
+                return (
+                  <div
+                    key={fac.id || fac.name}
                     style={{
-                      height: 36,
-                      padding: '0 14px',
-                      borderRadius: 10,
-                      border: 'none',
-                      background: savedSpots.includes('Balai Singgah Pokdarwis Malaris') ? '#09261B' : '#012D1D',
-                      color: '#ffffff',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: 'pointer',
+                      background: '#ffffff',
+                      borderRadius: 16,
+                      border: '1px solid #EBEFEA',
+                      overflow: 'hidden',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                       display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
+                      flexDirection: 'column',
                     }}
                   >
-                    <Icon.Route size={14} style={{ color: '#C1ECD4' }} />
-                    <span>{savedSpots.includes('Balai Singgah Pokdarwis Malaris') ? '✓ Di Rute' : '+ Singgah di Rute'}</span>
-                  </button>
-                </div>
-              </div>
+                    {/* Media Preview */}
+                    <div style={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
+                      <img
+                        src={fac.image_url || conf.defaultImg}
+                        alt={fac.name}
+                        loading="lazy"
+                        decoding="async"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = conf.defaultImg;
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 10,
+                          left: 12,
+                          background: conf.badgeBg,
+                          color: conf.badgeColor,
+                          fontSize: 10.5,
+                          fontWeight: 800,
+                          padding: '3px 10px',
+                          borderRadius: 9999,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        {conf.icon} {conf.label}
+                      </div>
+
+                      {fac.distance_km !== undefined && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: 10,
+                            right: 12,
+                            background: 'rgba(0, 0, 0, 0.75)',
+                            color: '#ffffff',
+                            fontSize: 10.5,
+                            fontWeight: 600,
+                            padding: '3px 9px',
+                            borderRadius: 9999,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <Icon.Compass size={11} style={{ color: '#C1ECD4' }} />
+                          <span>~{fac.distance_km} km dari Kandangan</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content Body */}
+                    <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                        <h3
+                          style={{
+                            fontFamily: 'var(--serif)',
+                            fontSize: 17,
+                            fontWeight: 700,
+                            color: 'var(--meratus-deep)',
+                            margin: 0,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {fac.name}
+                        </h3>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            background: '#FFF9E6',
+                            color: '#B45309',
+                            padding: '2px 7px',
+                            borderRadius: 6,
+                            fontSize: 11,
+                            fontWeight: 800,
+                            flexShrink: 0,
+                            marginLeft: 8,
+                          }}
+                        >
+                          <span>★</span>
+                          <span>{fac.rating || 4.7}</span>
+                        </div>
+                      </div>
+
+                      <p style={{ fontSize: 12, color: '#6E7972', margin: '0 0 16px', lineHeight: 1.45, flex: 1 }}>
+                        📍 {fac.address || 'Kabupaten Hulu Sungai Selatan, Kalimantan Selatan'}
+                      </p>
+
+                      {/* Action Buttons */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 10,
+                          paddingTop: 12,
+                          borderTop: '1px solid #F0F4F1',
+                        }}
+                      >
+                        <a
+                          href={gmapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            textDecoration: 'none',
+                            color: '#012D1D',
+                            background: '#F1F5F2',
+                            borderRadius: 10,
+                            padding: '8px 12px',
+                            fontSize: 11.5,
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 5,
+                          }}
+                        >
+                          <span>Buka Google Maps</span>
+                          <span style={{ fontSize: 11 }}>↗</span>
+                        </a>
+
+                        <button
+                          onClick={() => handleToggleSpot(fac.name)}
+                          style={{
+                            background: isSaved ? '#012D1D' : '#FD934C',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: 10,
+                            padding: '8px 14px',
+                            fontSize: 11.5,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 5,
+                          }}
+                        >
+                          {isSaved ? (
+                            <>
+                              <Icon.Check size={12} color="#C1ECD4" />
+                              <span>Tersimpan</span>
+                            </>
+                          ) : (
+                            <span>+ Titik Singgah</span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-
-            {/* Callout Card: Dukung UMKM Warga Dayak & Banjar (Figma Screen 6) */}
-            <div
-              style={{
-                background: '#012D1D',
-                borderRadius: 18,
-                padding: '18px 16px',
-                color: '#ffffff',
-                boxShadow: '0 4px 16px rgba(1, 45, 29, 0.25)',
-                marginTop: 6,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                <span style={{ fontSize: 14 }}>🍃</span>
-                <span style={{ fontSize: 10.5, fontWeight: 800, color: '#C1ECD4', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  Etika Singgah Bijak
-                </span>
-              </div>
-
-              <h4 style={{ fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 800, margin: '0 0 8px' }}>
-                Dukung UMKM Warga Dayak &amp; Banjar
-              </h4>
-
-              <p style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.85)', lineHeight: 1.5, margin: '0 0 14px' }}>
-                Berbelanja langsung di warung warga memperkuat ekonomi akar rumput dan kelestarian alam Meratus. Bawalah tempat makan sendiri atau pilih kemasan daun pisang untuk mengurangi sampah plastik di pegunungan.
-              </p>
-
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ background: 'rgba(193, 236, 212, 0.15)', border: '1px solid rgba(193, 236, 212, 0.3)', color: '#C1ECD4', padding: '4px 10px', borderRadius: 9999, fontSize: 11, fontWeight: 600 }}>
-                  ✓ Bebas Sampah
-                </span>
-                <span style={{ background: 'rgba(193, 236, 212, 0.15)', border: '1px solid rgba(193, 236, 212, 0.3)', color: '#C1ECD4', padding: '4px 10px', borderRadius: 9999, fontSize: 11, fontWeight: 600 }}>
-                  ✓ Keadilan Ekonomi
-                </span>
-              </div>
-            </div>
-          </div>
+          )}
         </section>
       </main>
 

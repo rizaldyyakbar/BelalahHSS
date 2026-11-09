@@ -62,7 +62,14 @@ export const BrowseByCategory: React.FC = () => {
             };
 
             const countNum = cat.destinations_count !== undefined ? cat.destinations_count : 0;
-            const countLabel = countNum > 0 ? `${countNum} DESTINASI` : 'SENTRA KHAS HSS';
+            let countLabel = `${countNum} DESTINASI`;
+            if (countNum === 0) {
+              if (cat.name.toLowerCase().includes('kuliner')) {
+                countLabel = 'SENTRA KULINER HSS';
+              } else {
+                countLabel = 'CAGAR BUDAYA';
+              }
+            }
 
             return {
               id: cat.id,
@@ -89,6 +96,14 @@ export const BrowseByCategory: React.FC = () => {
       isMounted = false;
     };
   }, []);
+
+  const handleCategoryClick = (cat: CategoryCardItem) => {
+    if (cat.name.toLowerCase().includes('kuliner')) {
+      navigate('/experiences');
+    } else {
+      navigate(`/directory?category=${encodeURIComponent(cat.filterKey)}`);
+    }
+  };
 
   return (
     <section className="bh-container section-browse-category" style={{ marginTop: 52 }}>
@@ -157,7 +172,7 @@ export const BrowseByCategory: React.FC = () => {
             <div
               key={cat.id}
               className="category-figma-card"
-              onClick={() => navigate(`/directory?category=${encodeURIComponent(cat.filterKey)}`)}
+              onClick={() => handleCategoryClick(cat)}
               style={{ cursor: 'pointer' }}
             >
               <div className="category-figma-media">
@@ -179,7 +194,11 @@ export const BrowseByCategory: React.FC = () => {
               <div className="category-figma-body">
                 <p className="category-figma-desc">{cat.description}</p>
                 <div className="category-figma-link">
-                  <span>Lihat destinasi kategori ini</span>
+                  <span>
+                    {cat.name.toLowerCase().includes('kuliner')
+                      ? 'Lihat rekomendasi titik singgah'
+                      : 'Lihat destinasi kategori ini'}
+                  </span>
                   <Icon.ArrowRight size={14} />
                 </div>
               </div>

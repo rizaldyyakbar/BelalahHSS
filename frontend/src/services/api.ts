@@ -363,7 +363,7 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
       icon: '🌿',
       description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
       image_url: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
-      destinations_count: 16,
+      destinations_count: 10,
     },
     {
       id: 2,
@@ -381,16 +381,16 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
       icon: '🚣',
       description: 'Bamboo rafting Sungai Amandit, river tubing alami, dan ekspedisi rimba Meratus.',
       image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
-      destinations_count: 2,
+      destinations_count: 1,
     },
     {
       id: 4,
       name: 'Wisata Religi',
       slug: 'religi',
       icon: '🕌',
-      description: 'Ziarah makam ulama kharismatik dan situs cagar budaya spiritual bersejarah di bumi Antaludin.',
+      description: 'Ziarah cagar budaya spiritual bersejarah dan masjid kuno di bumi Antaludin.',
       image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
-      destinations_count: 2,
+      destinations_count: 0,
     },
     {
       id: 5,
@@ -417,30 +417,110 @@ export interface ApiFacility {
   google_maps_url?: string;
 }
 
+export interface ApiArticle {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  read_time: string;
+  snippet: string;
+  content: string[];
+  image_url?: string;
+  author?: string;
+  created_at?: string;
+}
+
 export const FALLBACK_FACILITIES: ApiFacility[] = [
-  { id: 1, name: 'Wisma Pemandian Air Panas Tanuhi', type: 'penginapan', latitude: -2.7789, longitude: 115.4265, rating: 4.6, address: 'Kompleks Wisata Air Panas, Desa Hulu Banyu, Kec. Loksado' },
-  { id: 2, name: 'Lodge Alam Meratus Loksado', type: 'penginapan', latitude: -2.7935, longitude: 115.4420, rating: 4.7, address: 'Tepi Sungai Amandit, Desa Loksado, Kec. Loksado' },
-  { id: 3, name: 'Meratus Resort & Mountain Homestay', type: 'penginapan', latitude: -2.7915, longitude: 115.4450, rating: 4.5, address: 'Jl. Poros Loksado - Loklahung, Kec. Loksado' },
-  { id: 4, name: 'Haratai Eco Homestay', type: 'penginapan', latitude: -2.7910, longitude: 115.4845, rating: 4.8, address: 'Kawasan Hutan Lindung Desa Haratai, Kec. Loksado' },
-  { id: 5, name: 'Warung Selera Meratus Loksado', type: 'kuliner', latitude: -2.7928, longitude: 115.4415, rating: 4.5, address: 'Dekat Jembatan Gantung Loksado, Kec. Loksado' },
-  { id: 6, name: 'Kantin Rest Area Riam Barajang', type: 'kuliner', latitude: -2.7848, longitude: 115.4492, rating: 4.4, address: 'Bantaran Riam Barajang, Desa Loklahung, Kec. Loksado' },
-  { id: 7, name: 'Musholla Al-Ikhlas Loksado', type: 'masjid', latitude: -2.7930, longitude: 115.4408, rating: 4.8, address: 'Pusat Desa Loksado, Kec. Loksado' },
-  { id: 8, name: 'Pertashop & Mini Fuel Loksado', type: 'spbu', latitude: -2.7905, longitude: 115.4380, rating: 4.3, address: 'Jl. Laksamana Udara Suryadarma, Loksado' },
-  { id: 9, name: 'Rest Area & Warung Sungai Pariangan', type: 'kuliner', latitude: -2.7410, longitude: 115.3692, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung' },
-  { id: 10, name: 'Warung Ikan Bakar Tradisional Padang Batung', type: 'kuliner', latitude: -2.7460, longitude: 115.3610, rating: 4.5, address: 'Jl. Raya Padang Batung, HSS' },
-  { id: 11, name: 'Homestay Alam Lembah Batu Laki', type: 'penginapan', latitude: -2.7485, longitude: 115.3560, rating: 4.4, address: 'Kaki Bukit Batu Laki, Kec. Padang Batung' },
-  { id: 12, name: 'Masjid Jami Al-Hidayah Padang Batung', type: 'masjid', latitude: -2.7440, longitude: 115.3630, rating: 4.9, address: 'Pusat Kecamatan Padang Batung, HSS' },
-  { id: 13, name: 'SPBU Padang Batung', type: 'spbu', latitude: -2.7520, longitude: 115.3510, rating: 4.5, address: 'Jl. Brigjen H. Hasan Basry, Padang Batung' },
-  { id: 14, name: 'Hotel Rakat Mupakat Kandangan', type: 'penginapan', latitude: -2.7760, longitude: 115.2645, rating: 4.5, address: 'Jl. Pangeran Antasari No. 12, Kandangan Kota' },
-  { id: 15, name: 'Wisma Duta Syariah Kandangan', type: 'penginapan', latitude: -2.7725, longitude: 115.2610, rating: 4.4, address: 'Jl. Jenderal Sudirman, Kandangan Barat' },
-  { id: 16, name: 'Warung Ketupat Kandangan Pak Haji', type: 'kuliner', latitude: -2.7750, longitude: 115.2642, rating: 4.9, address: 'Jl. Jenderal Sudirman, Kandangan Kota (Spesialis Iwak Haruan Asap)' },
-  { id: 17, name: 'Warung Ketupat Kandangan Nanang', type: 'kuliner', latitude: -2.7738, longitude: 115.2635, rating: 4.8, address: 'Kawasan Pasar Los Batu Kandangan' },
-  { id: 18, name: 'Sentra Kuliner Dodol Asli Kandangan', type: 'kuliner', latitude: -2.7712, longitude: 115.2618, rating: 4.7, address: 'Pusat Oleh-Oleh Khas Dodol Kandangan, Jl. A. Yani' },
-  { id: 19, name: 'Masjid Agung As-Syuhada Kandangan', type: 'masjid', latitude: -2.7745, longitude: 115.2630, rating: 4.9, address: 'Alun-Alun Antaludin, Pusat Kota Kandangan' },
-  { id: 20, name: 'SPBU Hamalau Kandangan', type: 'spbu', latitude: -2.7788, longitude: 115.2665, rating: 4.5, address: 'Jl. A. Yani KM 2.5 Hamalau, Kandangan' },
-  { id: 21, name: 'Dermaga & Sentra Iwak Baung Bangkau', type: 'kuliner', latitude: -2.6860, longitude: 115.1965, rating: 4.6, address: 'Tepi Danau Bangkau, Kec. Kandangan Barat / Pahaungan' },
-  { id: 22, name: 'Masjid Kuno As-Suada (Masjid Baangkat)', type: 'masjid', latitude: -2.7151, longitude: 115.2289, rating: 4.9, address: 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Ulin Tertua)' },
-  { id: 23, name: 'Pertashop Nagara Daha', type: 'spbu', latitude: -2.6840, longitude: 115.1940, rating: 4.4, address: 'Jl. Poros Negara - Kandangan, Daha Selatan' },
+  { id: 1, name: 'Warung Ketupat Kandangan Hj. Maryam', type: 'kuliner', latitude: -2.7745, longitude: 115.2640, rating: 4.8, address: 'Jl. Jenderal Sudirman No. 45, Kandangan Kota', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg' },
+  { id: 2, name: 'Sentra Dodol Asli Kandangan Berkat Bersama', type: 'kuliner', latitude: -2.7712, longitude: 115.2618, rating: 4.7, address: 'Jl. Ahmad Yani KM 1.5, Kandangan Barat', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg' },
+  { id: 3, name: 'Meratus Riverside Homestay Loksado', type: 'penginapan', latitude: -2.7932, longitude: 115.4418, rating: 4.7, address: 'Bantaran Sungai Amandit, Desa Loksado', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg' },
+  { id: 4, name: 'Wisma Pemandian Air Panas Tanuhi', type: 'penginapan', latitude: -2.7789, longitude: 115.4265, rating: 4.6, address: 'Kompleks Wisata Air Panas, Desa Hulu Banyu, Kec. Loksado', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kolam_Wisata_Air_Panas_Tanuhi.jpg/1280px-Kolam_Wisata_Air_Panas_Tanuhi.jpg' },
+  { id: 5, name: 'Balai Singgah Pokdarwis Malaris', type: 'penginapan', latitude: -2.7950, longitude: 115.4480, rating: 4.6, address: 'Kompleks Balai Adat Malaris, Desa Loklahung, Kec. Loksado', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg/1280px-Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg' },
+  { id: 6, name: 'SPBU Gambah Luar (Pos BBM Jalur Meratus)', type: 'spbu', latitude: -2.7790, longitude: 115.2670, rating: 4.5, address: 'Jl. A. Yani, Gambah Luar, Kandangan' },
+  { id: 7, name: 'Warung Selera Meratus Loksado', type: 'kuliner', latitude: -2.7928, longitude: 115.4415, rating: 4.5, address: 'Dekat Jembatan Gantung Loksado, Kec. Loksado' },
+  { id: 8, name: 'Rest Area & Warung Sungai Pariangan', type: 'kuliner', latitude: -2.7410, longitude: 115.3692, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung' },
+  { id: 9, name: 'Masjid Agung As-Syuhada Kandangan', type: 'masjid', latitude: -2.7745, longitude: 115.2630, rating: 4.9, address: 'Alun-Alun Antaludin, Pusat Kota Kandangan' },
+  { id: 10, name: 'Pertashop & Mini Fuel Loksado', type: 'spbu', latitude: -2.7905, longitude: 115.4380, rating: 4.3, address: 'Jl. Laksamana Udara Suryadarma, Loksado' },
+  { id: 11, name: 'Kedai Kopi & Rest Area Pemandangan Loksado', type: 'kuliner', latitude: -2.7715, longitude: 115.4220, rating: 4.6, address: 'Gardu Pandang Situs Pemandangan, Hulu Banyu' },
+  { id: 12, name: 'Masjid Kuno As-Suada (Masjid Baangkat)', type: 'masjid', latitude: -2.7151, longitude: 115.2289, rating: 4.9, address: 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Tertua)' },
+];
+
+export const FALLBACK_ARTICLES: ApiArticle[] = [
+  {
+    id: 1,
+    title: 'Tata Krama & Etika Bertamu di Balai Adat Dayak Meratus',
+    slug: 'tata-krama-balai-adat',
+    category: 'Adat & Budaya',
+    read_time: '4 mnt',
+    snippet: 'Memahami makna ruang sakral Balai Adat, tata cara menyapa tetua adat dengan santun, serta etika memotret ritual upacara Aruh Bawanang.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg',
+    author: 'Lembaga Adat HSS & Peneliti',
+    content: [
+      'Pegunungan Meratus di Hulu Sungai Selatan bukan sekadar bentang alam karst yang elok, melainkan ruang sakral bagi masyarakat adat Dayak Bukit (Dayak Meratus). Selama ratusan tahun, keseimbangan alam dan kehidupan sosial diatur oleh hukum adat serta kearifan leluhur yang diwariskan turun-temurun.',
+      'Ketika memasuki kawasan Balai Adat seperti di Malaris atau Haratai, wisatawan wajib mengenakan pakaian yang sopan dan tidak menginjak bagian ritual tertentu tanpa izin Tetua Adat (Damang). Saat ritual seperti Aruh Bawanang berlangsung, keheningan dan penghormatan penuh sangat diharapkan.',
+      'Suku Dayak Meratus memegang teguh filosofi bahwa sungai, hutan, dan bebatuan karst memiliki penunggu yang menjaga harmoni alam. Larangan merusak pohon, membuang sampah di aliran sungai Amandit, atau berbicara pongah di hutan adalah aturan adat tertinggi.',
+    ],
+  },
+  {
+    id: 2,
+    title: 'Panduan Musim Terbaik Menjajal Bamboo Rafting Sungai Amandit',
+    slug: 'panduan-bamboo-rafting',
+    category: 'Tips Jalur',
+    read_time: '3 mnt',
+    snippet: 'Tips debit air ramah pemula dan persiapan pakaian ganti selama pengarungan riam sungai Loksado.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+    author: 'Komunitas Wisata Loksado',
+    content: [
+      'Waktu terbaik mengarungi Sungai Amandit menggunakan rakit bambu tradisional (Balanting Paring) adalah saat musim peralihan atau kemarau basah, di mana debit air stabil dan jeram riam tidak terlalu ganas bagi wisatawan pemula.',
+      'Pastikan membawa kantong tahan air (dry bag) untuk ponsel dan dokumen berharga. Kenakan sandal gunung bertali atau sepatu air yang tidak licin di atas batang bambu basah.',
+      'Selalu gunakan rompi pelampung berstandar dan percayakan kemudi sepenuhnya kepada joki lanting berlisensi lokal Dayak Meratus yang telah hafal setiap kelokan batu sungai.',
+    ],
+  },
+  {
+    id: 3,
+    title: 'Mengapa Ketupat Kandangan Dimakan Menggunakan Tangan',
+    slug: 'tradisi-ketupat-kandangan',
+    category: 'Kuliner & Tradisi',
+    read_time: '5 mnt',
+    snippet: 'Tradisi kuliner otentik ikan haruan asap berkuah santan kental yang disantap tanpa sendok.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+    author: 'Sentra Kuliner Kandangan',
+    content: [
+      'Masyarakat Banjar Pahuluan di Hulu Sungai Selatan memiliki tradisi turun-temurun menyantap Ketupat Kandangan langsung menggunakan jemari tangan tanpa sendok garpu. Tekstur ketupat beras lokal yang mudah terurai berpadu sempurna dengan siraman kuah santan hangat berempah pala dan kayu manis.',
+      'Ikan gabus (haruan) yang dibakar perlahan menggunakan arang sabut kelapa menghasilkan aroma asap (smoky) yang khas, daging kenyal, dan gurih alami yang sulit ditiru di daerah lain.',
+      'Kini sentra kuliner Ketupat Kandangan dapat ditemui di sepanjang koridor Jalan Jenderal Sudirman dan kawasan Pasar Los Batu Kandangan.',
+    ],
+  },
+  {
+    id: 4,
+    title: "Prinsip 'Bawa Pulang Sampah' di Hutan Lindung Haratai & Meratus",
+    slug: 'etika-bawa-pulang-sampah',
+    category: 'Tips Jalur',
+    read_time: '6 mnt',
+    snippet: 'Menjaga kebersihan hulu mata air dan kelestarian vegetasi rimba karst Meratus.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg/1280px-Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg',
+    author: 'Pokdarwis Haratai',
+    content: [
+      'Kawasan hutan lindung Air Terjun Haratai dan Pegunungan Meratus merupakan hulu tangkapan air vital bagi Kalimantan Selatan. Tidak ada fasilitas pembuangan sampah modern di dalam jalur rimba.',
+      'Setiap pengunjung wajib membawa kembali seluruh sampah kemasan plastik, botol air mineral, dan sisa perbekalan hingga ke tempat pembuangan akhir di kota Kandangan.',
+      'Jaga kesegaran kolam alami dengan tidak menggunakan sabun kimia atau deterjen saat berenang di air terjun demi menjaga populasi ikan lokal sungai pedalaman.',
+    ],
+  },
+  {
+    id: 5,
+    title: 'Mengenal Tanaman Obat Pasak Bumi & Madu Hutan Asli Meratus',
+    slug: 'tanaman-obat-meratus',
+    category: 'Adat & Budaya',
+    read_time: '4 mnt',
+    snippet: 'Hasil hutan bukan kayu yang dikelola secara arif dan lestari oleh masyarakat Dayak.',
+    image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Kayu_manis_di_Balai_Adat_Haratai.jpg/1280px-Kayu_manis_di_Balai_Adat_Haratai.jpg',
+    author: 'Kelompok Tani Hutan Loksado',
+    content: [
+      'Masyarakat pedalaman Loksado dan Haratai memiliki pengetahuan etnobotani warisan leluhur yang mengagumkan. Pasak bumi (Eurycoma longifolia) dan akar kuning dimanfaatkan sebagai jamu stamina alami keluarga.',
+      'Selain rempah kayu manis, madu lebah hutan liar (Apis dorsata) dipanen dari dahan pohon sialang tinggi menggunakan teknik panen lestari (hanya mengambil sarang madu tanpa membunuh koloni lebah).',
+      'Membeli madu hutan dan hasil hutan bukan kayu langsung dari warga lokal adalah bentuk dukungan nyata bagi ekonomi hijau berkelanjutan di Meratus.',
+    ],
+  },
 ];
 
 /**
@@ -449,13 +529,15 @@ export const FALLBACK_FACILITIES: ApiFacility[] = [
 export async function fetchNearbyFacilities(
   lat?: number,
   lng?: number,
-  radiusKm = 30
+  radiusKm = 60,
+  type?: string
 ): Promise<ApiFacility[]> {
   try {
     const query = new URLSearchParams();
     if (lat !== undefined) query.append('lat', lat.toString());
     if (lng !== undefined) query.append('lng', lng.toString());
     query.append('radius_km', radiusKm.toString());
+    if (type && type.toLowerCase() !== 'semua') query.append('type', type);
 
     const response = await fetch(`${API_BASE_URL}/facilities/nearby?${query.toString()}`, {
       headers: { Accept: 'application/json' },
@@ -470,9 +552,13 @@ export async function fetchNearbyFacilities(
     console.warn('[Belalah API] Failed fetching nearby facilities, using fallback:', error);
   }
 
-  // Authentic local database fallback sorted by Haversine distance
+  let list = FALLBACK_FACILITIES;
+  if (type && type.toLowerCase() !== 'semua') {
+    list = list.filter((f) => f.type?.toLowerCase() === type.toLowerCase());
+  }
+
   if (lat !== undefined && lng !== undefined) {
-    return FALLBACK_FACILITIES.map((fac) => {
+    return list.map((fac) => {
       const fLat = Number(fac.latitude);
       const fLng = Number(fac.longitude);
       const dist = calculateHaversineDistance(lat, lng, fLat, fLng);
@@ -486,7 +572,39 @@ export async function fetchNearbyFacilities(
       .sort((a, b) => (a.distance_km ?? 0) - (b.distance_km ?? 0));
   }
 
-  return FALLBACK_FACILITIES;
+  return list;
+}
+
+/**
+ * Fetch articles/journal list from backend API with fallback
+ */
+export async function fetchArticles(category?: string): Promise<ApiArticle[]> {
+  try {
+    const query = new URLSearchParams();
+    if (category && category.toLowerCase() !== 'semua') {
+      query.append('category', category);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/articles?${query.toString()}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (response.ok) {
+      const res = await response.json();
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        return res.data;
+      }
+    }
+  } catch (error) {
+    console.warn('[Belalah API] Failed fetching articles, using fallback:', error);
+  }
+
+  if (category && category.toLowerCase() !== 'semua') {
+    return FALLBACK_ARTICLES.filter((a) =>
+      a.category.toLowerCase().includes(category.toLowerCase())
+    );
+  }
+
+  return FALLBACK_ARTICLES;
 }
 
 /**

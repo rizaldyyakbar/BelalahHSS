@@ -24,8 +24,8 @@ export const MobileDrawer: React.FC = () => {
   return (
     <div className="mobile-drawer-portal" role="dialog" aria-modal="true" aria-label="Menu Navigasi Mobile">
       {/* Backdrop */}
-      <div 
-        className="mobile-drawer-backdrop" 
+      <div
+        className="mobile-drawer-backdrop"
         onClick={closeDrawer}
         tabIndex={-1}
       />
@@ -38,7 +38,7 @@ export const MobileDrawer: React.FC = () => {
             <span className="mobile-drawer-title">Belalah HSS</span>
             <span className="mobile-drawer-tagline">FIELD GUIDE HULU SUNGAI SELATAN</span>
           </div>
-          <button 
+          <button
             className="mobile-drawer-close-btn"
             onClick={closeDrawer}
             aria-label="Tutup Menu"
@@ -52,8 +52,8 @@ export const MobileDrawer: React.FC = () => {
           {/* Section: Navigasi Utama */}
           <div className="mobile-drawer-group">
             <span className="mobile-drawer-group-label">NAVIGASI UTAMA</span>
-            
-            <button 
+
+            <button
               className={`mobile-drawer-nav-item ${isActive('/') ? 'active' : ''}`}
               onClick={() => handleNavClick('/')}
             >
@@ -64,7 +64,7 @@ export const MobileDrawer: React.FC = () => {
               {isActive('/') && <span className="mobile-nav-dot" />}
             </button>
 
-            <button 
+            <button
               className={`mobile-drawer-nav-item ${isActive('/directory') ? 'active' : ''}`}
               onClick={() => handleNavClick('/directory')}
             >
@@ -75,7 +75,7 @@ export const MobileDrawer: React.FC = () => {
               {isActive('/directory') && <span className="mobile-nav-dot" />}
             </button>
 
-            <button 
+            <button
               className={`mobile-drawer-nav-item ${isActive('/planner') ? 'active' : ''}`}
               onClick={() => handleNavClick('/planner')}
             >
@@ -89,7 +89,7 @@ export const MobileDrawer: React.FC = () => {
               {isActive('/planner') && <span className="mobile-nav-dot" />}
             </button>
 
-            <button 
+            <button
               className={`mobile-drawer-nav-item ${isActive('/journal') ? 'active' : ''}`}
               onClick={() => handleNavClick('/journal')}
             >
@@ -105,7 +105,7 @@ export const MobileDrawer: React.FC = () => {
           <div className="mobile-drawer-group">
             <span className="mobile-drawer-group-label">EKSPLORASI & EDUKASI</span>
 
-            <button 
+            <button
               className={`mobile-drawer-nav-item ${isActive('/about') ? 'active' : ''}`}
               onClick={() => handleNavClick('/about')}
             >
@@ -116,7 +116,7 @@ export const MobileDrawer: React.FC = () => {
               {isActive('/about') && <span className="mobile-nav-dot" />}
             </button>
 
-            <button 
+            <button
               className={`mobile-drawer-nav-item ${isActive('/experiences') ? 'active' : ''}`}
               onClick={() => handleNavClick('/experiences')}
             >
@@ -131,14 +131,14 @@ export const MobileDrawer: React.FC = () => {
           {/* Section: Call Center & Bantuan Lapangan */}
           <div className="mobile-drawer-group">
             <span className="mobile-drawer-group-label">INFORMASI & NARAHUBUNG</span>
-            
+
             <div className="mobile-drawer-emergency-card">
               <div className="mobile-emergency-header">
                 <Icon.PhoneCall size={16} />
                 <span>Narahubung Pengujian Belalah HSS</span>
               </div>
-              <a href="tel:051721010" className="mobile-emergency-phone">
-                (0517) 21010
+              <a href="tel:+62817320915" className="mobile-emergency-phone">
+                (0817) 320915
               </a>
               <p className="mobile-emergency-desc">
                 Pusat informasi rute penelitian wisata Hulu Sungai Selatan untuk peserta evaluasi.
@@ -154,13 +154,13 @@ export const MobileDrawer: React.FC = () => {
           <div className="mobile-drawer-group">
             <span className="mobile-drawer-group-label">PILIHAN BAHASA / LANGUAGE</span>
             <div className="mobile-lang-switcher-row">
-              <button 
+              <button
                 className={`mobile-lang-btn ${lang === 'ID' ? 'active' : ''}`}
                 onClick={() => setLang('ID')}
               >
                 Bahasa Indonesia (ID)
               </button>
-              <button 
+              <button
                 className={`mobile-lang-btn ${lang === 'EN' ? 'active' : ''}`}
                 onClick={() => setLang('EN')}
               >

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Article;
 use App\Models\Category;
 use App\Models\Criteria;
 use App\Models\Destination;
@@ -420,10 +421,144 @@ class DatabaseSeeder extends Seeder
                 'address' => 'Jl. Poros Negara - Kandangan, Daha Selatan',
                 'image_url' => null,
             ],
+
+            // Spot Terkurasi Google Maps & Titik Singgah Utama HSS
+            [
+                'name' => 'Warung Ketupat Kandangan Hj. Maryam',
+                'type' => 'kuliner',
+                'latitude' => -2.7745,
+                'longitude' => 115.2640,
+                'rating' => 4.8,
+                'address' => 'Jl. Jenderal Sudirman No. 45, Kandangan Kota',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+            ],
+            [
+                'name' => 'Sentra Dodol Asli Kandangan Berkat Bersama',
+                'type' => 'kuliner',
+                'latitude' => -2.7712,
+                'longitude' => 115.2618,
+                'rating' => 4.7,
+                'address' => 'Jl. Ahmad Yani KM 1.5, Kandangan Barat',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+            ],
+            [
+                'name' => 'Meratus Riverside Homestay Loksado',
+                'type' => 'penginapan',
+                'latitude' => -2.7932,
+                'longitude' => 115.4418,
+                'rating' => 4.7,
+                'address' => 'Bantaran Sungai Amandit, Desa Loksado, Kec. Loksado',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+            ],
+            [
+                'name' => 'SPBU Gambah Luar (Pos BBM Jalur Meratus)',
+                'type' => 'spbu',
+                'latitude' => -2.7790,
+                'longitude' => 115.2670,
+                'rating' => 4.5,
+                'address' => 'Jl. A. Yani, Gambah Luar, Kandangan',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kolam_Wisata_Air_Panas_Tanuhi.jpg/1280px-Kolam_Wisata_Air_Panas_Tanuhi.jpg',
+            ],
+            [
+                'name' => 'Balai Singgah Pokdarwis Malaris',
+                'type' => 'penginapan',
+                'latitude' => -2.7950,
+                'longitude' => 115.4480,
+                'rating' => 4.6,
+                'address' => 'Kompleks Balai Adat Malaris, Desa Loklahung, Kec. Loksado',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg/1280px-Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
+            ],
+            [
+                'name' => 'Kedai Kopi & Rest Area Pemandangan Loksado',
+                'type' => 'kuliner',
+                'latitude' => -2.7715,
+                'longitude' => 115.4220,
+                'rating' => 4.6,
+                'address' => 'Kawasan Gardu Pandang Situs Pemandangan, Hulu Banyu, Kec. Loksado',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/a/af/Pemandangan_Sungai_Loksado.jpg',
+            ],
         ];
 
         foreach ($facilities as $fac) {
             Facility::updateOrCreate(['name' => $fac['name']], $fac);
+        }
+
+        // 6. Seed Articles (Jurnal Wisata & Panduan Budaya Meratus)
+        $articles = [
+            [
+                'title' => 'Tata Krama & Etika Bertamu di Balai Adat Dayak Meratus',
+                'slug' => 'tata-krama-balai-adat',
+                'category' => 'Adat & Budaya',
+                'read_time' => '4 mnt',
+                'snippet' => 'Memahami makna ruang sakral Balai Adat, tata cara menyapa tetua adat dengan santun, serta etika memotret ritual upacara Aruh Bawanang.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Balai_Adat_Malaris.jpg/1280px-Balai_Adat_Malaris.jpg',
+                'author' => 'Lembaga Adat HSS & Peneliti',
+                'content' => [
+                    'Pegunungan Meratus di Hulu Sungai Selatan bukan sekadar bentang alam karst yang elok, melainkan ruang sakral bagi masyarakat adat Dayak Bukit (Dayak Meratus). Selama ratusan tahun, keseimbangan alam dan kehidupan sosial diatur oleh hukum adat serta kearifan leluhur yang diwariskan turun-temurun.',
+                    'Ketika memasuki kawasan Balai Adat seperti di Malaris atau Haratai, wisatawan wajib mengenakan pakaian yang sopan dan tidak menginjak bagian ritual tertentu tanpa izin Tetua Adat (Damang). Saat ritual seperti Aruh Bawanang berlangsung, keheningan dan penghormatan penuh sangat diharapkan.',
+                    'Suku Dayak Meratus memegang teguh filosofi bahwa sungai, hutan, dan bebatuan karst memiliki penunggu yang menjaga harmoni alam. Larangan merusak pohon, membuang sampah di aliran sungai Amandit, atau berbicara pongah di hutan adalah aturan adat tertinggi.',
+                ],
+            ],
+            [
+                'title' => 'Panduan Musim Terbaik Menjajal Bamboo Rafting Sungai Amandit',
+                'slug' => 'panduan-bamboo-rafting',
+                'category' => 'Tips Jalur',
+                'read_time' => '3 mnt',
+                'snippet' => 'Tips debit air ramah pemula dan persiapan pakaian ganti selama pengarungan riam sungai Loksado.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+                'author' => 'Komunitas Wisata Loksado',
+                'content' => [
+                    'Waktu terbaik mengarungi Sungai Amandit menggunakan rakit bambu tradisional (Balanting Paring) adalah saat musim peralihan atau kemarau basah, di mana debit air stabil dan jeram riam tidak terlalu ganas bagi wisatawan pemula.',
+                    'Pastikan membawa kantong tahan air (dry bag) untuk ponsel dan dokumen berharga. Kenakan sandal gunung bertali atau sepatu air yang tidak licin di atas batang bambu basah.',
+                    'Selalu gunakan rompi pelampung berstandar dan percayakan kemudi sepenuhnya kepada joki lanting berlisensi lokal Dayak Meratus yang telah hafal setiap kelokan batu sungai.',
+                ],
+            ],
+            [
+                'title' => 'Mengapa Ketupat Kandangan Dimakan Menggunakan Tangan',
+                'slug' => 'tradisi-ketupat-kandangan',
+                'category' => 'Kuliner & Tradisi',
+                'read_time' => '5 mnt',
+                'snippet' => 'Tradisi kuliner otentik ikan haruan asap berkuah santan kental yang disantap tanpa sendok.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+                'author' => 'Sentra Kuliner Kandangan',
+                'content' => [
+                    'Masyarakat Banjar Pahuluan di Hulu Sungai Selatan memiliki tradisi turun-temurun menyantap Ketupat Kandangan langsung menggunakan jemari tangan tanpa sendok garpu. Tekstur ketupat beras lokal yang mudah terurai berpadu sempurna dengan siraman kuah santan hangat berempah pala dan kayu manis.',
+                    'Ikan gabus (haruan) yang dibakar perlahan menggunakan arang sabut kelapa menghasilkan aroma asap (smoky) yang khas, daging kenyal, dan gurih alami yang sulit ditiru di daerah lain.',
+                    'Kini sentra kuliner Ketupat Kandangan dapat ditemui di sepanjang koridor Jalan Jenderal Sudirman dan kawasan Pasar Los Batu Kandangan.',
+                ],
+            ],
+            [
+                'title' => "Prinsip 'Bawa Pulang Sampah' di Hutan Lindung Haratai & Meratus",
+                'slug' => 'etika-bawa-pulang-sampah',
+                'category' => 'Tips Jalur',
+                'read_time' => '6 mnt',
+                'snippet' => 'Menjaga kebersihan hulu mata air dan kelestarian vegetasi rimba karst Meratus.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg/1280px-Air_Terjun_Haratai%2C_Loksado%2C_Hulu_Sungai_Selatan.jpg',
+                'author' => 'Pokdarwis Haratai',
+                'content' => [
+                    'Kawasan hutan lindung Air Terjun Haratai dan Pegunungan Meratus merupakan hulu tangkapan air vital bagi Kalimantan Selatan. Tidak ada fasilitas pembuangan sampah modern di dalam jalur rimba.',
+                    'Setiap pengunjung wajib membawa kembali seluruh sampah kemasan plastik, botol air mineral, dan sisa perbekalan hingga ke tempat pembuangan akhir di kota Kandangan.',
+                    'Jaga kesegaran kolam alami dengan tidak menggunakan sabun kimia atau deterjen saat berenang di air terjun demi menjaga populasi ikan lokal sungai pedalaman.',
+                ],
+            ],
+            [
+                'title' => 'Mengenal Tanaman Obat Pasak Bumi & Madu Hutan Asli Meratus',
+                'slug' => 'tanaman-obat-meratus',
+                'category' => 'Adat & Budaya',
+                'read_time' => '4 mnt',
+                'snippet' => 'Hasil hutan bukan kayu yang dikelola secara arif dan lestari oleh masyarakat Dayak.',
+                'image_url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Kayu_manis_di_Balai_Adat_Haratai.jpg/1280px-Kayu_manis_di_Balai_Adat_Haratai.jpg',
+                'author' => 'Kelompok Tani Hutan Loksado',
+                'content' => [
+                    'Masyarakat pedalaman Loksado dan Haratai memiliki pengetahuan etnobotani warisan leluhur yang mengagumkan. Pasak bumi (Eurycoma longifolia) dan akar kuning dimanfaatkan sebagai jamu stamina alami keluarga.',
+                    'Selain rempah kayu manis, madu lebah hutan liar (Apis dorsata) dipanen dari dahan pohon sialang tinggi menggunakan teknik panen lestari (hanya mengambil sarang madu tanpa membunuh koloni lebah).',
+                    'Membeli madu hutan dan hasil hutan bukan kayu langsung dari warga lokal adalah bentuk dukungan nyata bagi ekonomi hijau berkelanjutan di Meratus.',
+                ],
+            ],
+        ];
+
+        foreach ($articles as $art) {
+            Article::updateOrCreate(['slug' => $art['slug']], $art);
         }
 
         \Illuminate\Support\Facades\Cache::flush();
