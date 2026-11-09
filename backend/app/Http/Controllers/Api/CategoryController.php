@@ -14,6 +14,7 @@ class CategoryController extends Controller
     public function index(): JsonResponse
     {
         $categories = Category::query()
+            ->has('destinations')
             ->withCount('destinations')
             ->orderBy('id', 'asc')
             ->get(['id', 'name', 'slug', 'icon', 'description', 'image_url']);

@@ -356,7 +356,14 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
     if (response.ok) {
       const res = await response.json();
       if (Array.isArray(res.data) && res.data.length > 0) {
-        return res.data;
+        // Only return categories that actually have tourism destinations (exclude empty/misplaced categories)
+        const validCats = res.data.filter((c: ApiCategory) => {
+          const isKuliner = c.name?.toLowerCase().includes('kuliner') || c.slug?.toLowerCase().includes('kuliner');
+          const isReligi = c.name?.toLowerCase().includes('religi') || c.slug?.toLowerCase().includes('religi');
+          if (isKuliner || isReligi) return false;
+          return c.destinations_count === undefined || c.destinations_count > 0;
+        });
+        if (validCats.length > 0) return validCats;
       }
     }
   } catch (error) {
@@ -370,7 +377,7 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
       slug: 'wisata-alam',
       icon: '🌿',
       description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
-      image_url: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
+      image_url: '/assets/langara.jpg',
       destinations_count: 10,
     },
     {
@@ -388,26 +395,8 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
       slug: 'petualangan',
       icon: '🚣',
       description: 'Bamboo rafting Sungai Amandit, river tubing alami, dan ekspedisi rimba Meratus.',
-      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
+      image_url: '/assets/balanting-paring.jpg',
       destinations_count: 1,
-    },
-    {
-      id: 4,
-      name: 'Wisata Religi',
-      slug: 'religi',
-      icon: '🕌',
-      description: 'Ziarah cagar budaya spiritual bersejarah dan masjid kuno di bumi Antaludin.',
-      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
-      destinations_count: 0,
-    },
-    {
-      id: 5,
-      name: 'Kuliner',
-      slug: 'kuliner',
-      icon: '🍲',
-      description: 'Ketupat Kandangan otentik, dodol HSS legit, dan ragam kuliner khas Banjar Pahuluan.',
-      image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
-      destinations_count: 0,
     },
   ];
 }
@@ -446,14 +435,13 @@ export const FALLBACK_FACILITIES: ApiFacility[] = [
   { id: 5, name: 'Balai Singgah Pokdarwis Malaris', type: 'penginapan', latitude: -2.7950, longitude: 115.4480, rating: 4.6, address: 'Kompleks Balai Adat Malaris, Desa Loklahung, Kec. Loksado', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg/1280px-Balai_adat_Urui_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg' },
   { id: 6, name: 'SPBU Gambah Luar (Pos BBM Jalur Meratus)', type: 'spbu', latitude: -2.7790, longitude: 115.2670, rating: 4.5, address: 'Jl. A. Yani, Gambah Luar, Kandangan', image_url: '/assets/spbu-pertamina.jpg' },
   { id: 7, name: 'Warung Selera Meratus Loksado', type: 'kuliner', latitude: -2.7928, longitude: 115.4415, rating: 4.5, address: 'Dekat Jembatan Gantung Loksado, Kec. Loksado', image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg' },
-  { id: 8, name: 'Rest Area & Warung Sungai Pariangan', type: 'kuliner', latitude: -2.7410, longitude: 115.3692, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung', image_url: '/assets/wisata-pariangan.jpg' },
+  { id: 8, name: 'Cafe Mangala (Mangala Coffee Loksado)', type: 'kuliner', latitude: -2.7728, longitude: 115.4245, rating: 4.7, address: 'RT. 02, Desa Hulu Banyu, Kec. Loksado (Panorama Gunung Kantawan)', image_url: '/assets/cafe-mangala.jpg' },
   { id: 9, name: 'Masjid Agung As-Syuhada Kandangan', type: 'masjid', latitude: -2.7745, longitude: 115.2630, rating: 4.9, address: 'Alun-Alun Antaludin, Pusat Kota Kandangan', image_url: '/assets/masjid-agung.jpg' },
   { id: 10, name: 'Pertashop & Mini Fuel Loksado', type: 'spbu', latitude: -2.7905, longitude: 115.4380, rating: 4.3, address: 'Jl. Laksamana Udara Suryadarma, Loksado', image_url: '/assets/spbu-pertamina.jpg' },
-  { id: 11, name: 'Cafe Mangala (Mangala Coffee Loksado)', type: 'kuliner', latitude: -2.7728, longitude: 115.4245, rating: 4.7, address: 'RT. 02, Desa Hulu Banyu, Kec. Loksado (Panorama Gunung Kantawan)', image_url: '/assets/cafe-mangala.jpg' },
-  { id: 12, name: 'Masjid Kuno As-Suada (Masjid Baangkat)', type: 'masjid', latitude: -2.7151, longitude: 115.2289, rating: 4.9, address: 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Tertua)', image_url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Masjid_Ba%27angkat_2.jpg' },
-  { id: 13, name: 'Wisata Sungai Pariangan (Spot Pemandian & Gazebo)', type: 'wisata', latitude: -2.741201, longitude: 115.368912, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung', image_url: '/assets/wisata-pariangan.jpg' },
-  { id: 14, name: 'Bukit Batu Laki (Spot Panorama Karst)', type: 'wisata', latitude: -2.748912, longitude: 115.356211, rating: 4.5, address: 'Kawasan Karst, Desa Batu Laki, Kec. Padang Batung', image_url: '/assets/bukit-batu-laki.jpg' },
-  { id: 15, name: 'Bukit Batu Baduduk (Spot Panorama Perbukitan)', type: 'wisata', latitude: -2.712311, longitude: 115.312411, rating: 4.4, address: 'Perbukitan Hamak Timur, Kec. Telaga Langsat', image_url: '/assets/bukit-batu-baduduk.jpg' },
+  { id: 11, name: 'Masjid Kuno As-Suada (Masjid Baangkat)', type: 'masjid', latitude: -2.7151, longitude: 115.2289, rating: 4.9, address: 'Desa Wasah Hilir, Kec. Simpur (Cagar Budaya Tertua)', image_url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Masjid_Ba%27angkat_2.jpg' },
+  { id: 12, name: 'Wisata Sungai Pariangan (Spot Pemandian & Gazebo)', type: 'wisata', latitude: -2.741201, longitude: 115.368912, rating: 4.6, address: 'Bantaran Sungai Amandit, Desa Batu Bini, Kec. Padang Batung', image_url: '/assets/wisata-pariangan.jpg' },
+  { id: 13, name: 'Bukit Batu Laki (Spot Panorama Karst)', type: 'wisata', latitude: -2.748912, longitude: 115.356211, rating: 4.5, address: 'Kawasan Karst, Desa Batu Laki, Kec. Padang Batung', image_url: '/assets/bukit-batu-laki.jpg' },
+  { id: 14, name: 'Bukit Batu Baduduk (Spot Panorama Perbukitan)', type: 'wisata', latitude: -2.712311, longitude: 115.312411, rating: 4.4, address: 'Perbukitan Hamak Timur, Kec. Telaga Langsat', image_url: '/assets/bukit-batu-baduduk.jpg' },
 ];
 
 export const FALLBACK_ARTICLES: ApiArticle[] = [

@@ -121,15 +121,19 @@ export const DirectoryPage: React.FC = () => {
 
     if (categories.length > 0) {
       categories.forEach((cat) => {
+        // Exclude Kuliner from tourism destinations catalog as it belongs to Experiences / Titik Singgah
+        if (cat.name.toLowerCase().includes('kuliner')) return;
         const count = destinations.filter((d) => matchesCategory(d, cat.name)).length;
-        list.push({
-          label: cat.name,
-          count,
-        });
+        if (count > 0) {
+          list.push({
+            label: cat.name,
+            count,
+          });
+        }
       });
     } else {
       // Fallback categories if API is offline
-      const defaultCategories = ['Wisata Alam', 'Wisata Budaya', 'Petualangan', 'Wisata Religi'];
+      const defaultCategories = ['Wisata Alam', 'Wisata Budaya', 'Petualangan'];
       defaultCategories.forEach((catLabel) => {
         const count = destinations.filter((d) => matchesCategory(d, catLabel)).length;
         if (count > 0) {

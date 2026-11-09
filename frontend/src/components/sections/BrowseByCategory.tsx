@@ -17,7 +17,7 @@ const CATEGORY_META: Record<string, { icon: string; description: string; image: 
   'wisata-alam': {
     icon: '🌿',
     description: 'Pegunungan Meratus, rimba lindung, dan panorama hijau asri khas Hulu Sungai Selatan.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Panorama_Bukit_Batu_Lengara_Loksado_di_Kabupaten_Hulu_Sungai_Selatan%2C_Kalimantan_Selatan.jpg',
+    image: '/assets/langara.jpg',
   },
   'wisata-budaya': {
     icon: '🏛️',
@@ -27,17 +27,7 @@ const CATEGORY_META: Record<string, { icon: string; description: string; image: 
   'petualangan': {
     icon: '🚣',
     description: 'Bamboo rafting Sungai Amandit, arung riam alami, dan ekspedisi rimba Meratus.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg/1280px-Keindahan_Balanting_di_Sungai_Amandit_Loksado.jpg',
-  },
-  'religi': {
-    icon: '🕌',
-    description: 'Ziarah makam ulama kharismatik dan situs spiritual bersejarah di bumi Antaludin.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Masjid_Ba%27angkat_2.jpg/1280px-Masjid_Ba%27angkat_2.jpg',
-  },
-  'kuliner': {
-    icon: '🍲',
-    description: 'Ketupat Kandangan otentik, dodol HSS, dan ragam kuliner khas Banjar Pahuluan.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ketupat_Kandangan_Haruan.jpg/1280px-Ketupat_Kandangan_Haruan.jpg',
+    image: '/assets/balanting-paring.jpg',
   },
 };
 
@@ -53,7 +43,13 @@ export const BrowseByCategory: React.FC = () => {
         if (!isMounted) return;
 
         if (Array.isArray(apiCats) && apiCats.length > 0) {
-          const dynamicCards: CategoryCardItem[] = apiCats.map((cat: ApiCategory) => {
+          // Only show authentic tourism destination categories (Wisata Alam, Budaya, Petualangan)
+          const tourismCats = apiCats.filter((cat: ApiCategory) => {
+            const lower = (cat.name || '').toLowerCase();
+            return !lower.includes('kuliner') && !lower.includes('religi');
+          });
+
+          const dynamicCards: CategoryCardItem[] = tourismCats.map((cat: ApiCategory) => {
             const slug = cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-');
             const fallbackMeta = CATEGORY_META[slug] || {
               icon: '📍',
@@ -62,14 +58,7 @@ export const BrowseByCategory: React.FC = () => {
             };
 
             const countNum = cat.destinations_count !== undefined ? cat.destinations_count : 0;
-            let countLabel = `${countNum} DESTINASI`;
-            if (countNum === 0) {
-              if (cat.name.toLowerCase().includes('kuliner')) {
-                countLabel = 'SENTRA KULINER HSS';
-              } else {
-                countLabel = 'CAGAR BUDAYA';
-              }
-            }
+            const countLabel = `${countNum} DESTINASI`;
 
             return {
               id: cat.id,
@@ -77,7 +66,7 @@ export const BrowseByCategory: React.FC = () => {
               icon: cat.icon || fallbackMeta.icon,
               count: countLabel,
               description: cat.description || fallbackMeta.description,
-              image: cat.image_url || fallbackMeta.image,
+              image: fallbackMeta.image || cat.image_url || '/assets/balanting-paring.jpg',
               filterKey: cat.name,
             };
           });
@@ -98,11 +87,7 @@ export const BrowseByCategory: React.FC = () => {
   }, []);
 
   const handleCategoryClick = (cat: CategoryCardItem) => {
-    if (cat.name.toLowerCase().includes('kuliner')) {
-      navigate('/experiences');
-    } else {
-      navigate(`/directory?category=${encodeURIComponent(cat.filterKey)}`);
-    }
+    navigate(`/directory?category=${encodeURIComponent(cat.filterKey)}`);
   };
 
   return (
