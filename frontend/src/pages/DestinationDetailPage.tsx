@@ -459,8 +459,56 @@ export const DestinationDetailPage: React.FC = () => {
       )}
 
       <main style={{ flex: 1, paddingBottom: 80 }}>
-        {/* 1. Breadcrumbs Bar with Mobile Back Button */}
-        <div className="detail-nav-breadcrumbs">
+        {/* Mobile Top App Bar (Clean Traveloka/Airbnb style) */}
+        <div className="mobile-only detail-mobile-top-bar">
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              background: '#F1F5F2',
+              border: 'none',
+              borderRadius: 8,
+              padding: '6px 12px',
+              color: 'var(--meratus-deep)',
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+            }}
+            aria-label="Kembali ke halaman sebelumnya"
+          >
+            ‹ Kembali
+          </button>
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({ title: destination.name, url: window.location.href });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('Tautan destinasi disalin ke clipboard!');
+              }
+            }}
+            style={{
+              background: '#F8FAF8',
+              border: '1px solid #D7E5DC',
+              borderRadius: 8,
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--meratus-deep)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <span>🔗 Bagikan</span>
+          </button>
+        </div>
+
+        {/* 1. Desktop Breadcrumbs Bar */}
+        <div className="detail-nav-breadcrumbs desktop-only">
           <button
             onClick={() => navigate(-1)}
             style={{
@@ -491,43 +539,46 @@ export const DestinationDetailPage: React.FC = () => {
           <span style={{ color: 'var(--meratus-deep)', fontWeight: 700 }}>{destination.name}</span>
         </div>
 
-        {/* 2. Destination Header (Title, Badges, Rating) */}
-        <section className="detail-hero-header">
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <div className="detail-badges-row">
-              {destination.rank && (
-                <span className="detail-pill-rank" style={{ background: '#F5EFE6', color: '#6A432D' }}>
-                  ★ Peringkat #{destination.rank}
+        {/* Mobile & Desktop Hero Section: on mobile, photo comes first via flex order */}
+        <div className="detail-mobile-hero-wrapper">
+          {/* 2. Destination Header (Title, Badges, Rating) */}
+          <section className="detail-hero-header">
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div className="detail-badges-row">
+                {destination.rank && (
+                  <span className="detail-pill-rank" style={{ background: '#F5EFE6', color: '#6A432D' }}>
+                    ★ Peringkat #{destination.rank}
+                  </span>
+                )}
+                <span className="detail-pill-score"> 
+                  ★ {destination.rating.toFixed(1)} ({destination.reviews} ulasan)
                 </span>
-              )}
-              <span className="detail-pill-score"> 
-                ★ {destination.rating.toFixed(1)} ({destination.reviews} ulasan)
-              </span>
-              <span className="detail-pill-fav">
-                {destination.category}
-              </span>
-              {destination.region && (
                 <span className="detail-pill-fav">
-                  {destination.region}
+                  {destination.category}
                 </span>
-              )}
+                {destination.region && (
+                  <span className="detail-pill-fav">
+                    {destination.region}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="detail-main-title">{destination.name}</h1>
+
+              <div className="detail-location-sub">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#FD934C' }}>
+                  <Icon.Pin size={15} />
+                  <strong style={{ color: '#1A1611' }}>{destination.location || 'Loksado, Hulu Sungai Selatan'}</strong>
+                </span>
+                <span>•</span>
+                <span style={{ color: '#994700', fontWeight: 700 }}>
+                  {destination.distance || 'Hulu Sungai Selatan'}
+                </span>
+              </div>
             </div>
 
-            <h1 className="detail-main-title">{destination.name}</h1>
-
-            <div className="detail-location-sub">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#FD934C' }}>
-                <Icon.Pin size={15} />
-                <strong style={{ color: '#1A1611' }}>{destination.location || 'Loksado, Hulu Sungai Selatan'}</strong>
-              </span>
-              <span>•</span>
-              <span style={{ color: '#994700', fontWeight: 700 }}>
-                {destination.distance || 'Hulu Sungai Selatan'}
-              </span>
-            </div>
-
-            {/* Mobile Share Quick Action */}
-            <div className="mobile-only" style={{ marginTop: 10 }}>
+            {/* Desktop Header Actions */}
+            <div className="detail-header-actions desktop-only">
               <button
                 onClick={() => {
                   if (navigator.share) {
@@ -538,189 +589,225 @@ export const DestinationDetailPage: React.FC = () => {
                   }
                 }}
                 style={{
-                  background: '#F8FAF8',
-                  border: '1px solid #D7E5DC',
-                  borderRadius: 8,
-                  padding: '5px 12px',
-                  fontSize: 11.5,
+                  background: '#ffffff',
+                  border: '1px solid #E2EAE4',
+                  borderRadius: 10,
+                  padding: '10px 16px',
+                  fontSize: 13,
                   fontWeight: 600,
                   color: 'var(--meratus-deep)',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 6,
+                  gap: 8,
                 }}
               >
-                <span>🔗 Bagikan Destinasi</span>
+                <span>🔗</span>
+                <span>Bagikan</span>
+              </button>
+
+              <button
+                onClick={handleToggleRoute}
+                style={{
+                  background: isInRoute ? '#09261B' : '#012D1D',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '10px 20px',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  boxShadow: '0 2px 8px rgba(1, 45, 29, 0.2)',
+                }}
+              >
+                <Icon.Compass size={16} style={{ color: '#C1ECD4' }} />
+                <span>{isInRoute ? '✓ Sudah Masuk Rute' : '+ Tambah ke Rute'}</span>
               </button>
             </div>
-          </div>
+          </section>
 
-          {/* Desktop Header Actions */}
-          <div className="detail-header-actions desktop-only">
-            <button
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({ title: destination.name, url: window.location.href });
-                } else {
-                  navigator.clipboard.writeText(window.location.href);
-                  showToast('Tautan destinasi disalin ke clipboard!');
-                }
-              }}
-              style={{
-                background: '#ffffff',
-                border: '1px solid #E2EAE4',
-                borderRadius: 10,
-                padding: '10px 16px',
-                fontSize: 13,
-                fontWeight: 600,
-                color: 'var(--meratus-deep)',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <span>🔗</span>
-              <span>Bagikan</span>
-            </button>
-
-            <button
-              onClick={handleToggleRoute}
-              style={{
-                background: isInRoute ? '#09261B' : '#012D1D',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 10,
-                padding: '10px 20px',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                boxShadow: '0 2px 8px rgba(1, 45, 29, 0.2)',
-              }}
-            >
-              <Icon.Compass size={16} style={{ color: '#C1ECD4' }} />
-              <span>{isInRoute ? '✓ Sudah Masuk Rute' : '+ Tambah ke Rute'}</span>
-            </button>
-          </div>
-        </section>
-
-        {/* 3. Media Gallery (2-Column Desktop Grid or Full Hero) */}
-        <section
-          className="detail-gallery-grid"
-          style={hasSubPhotos ? undefined : { gridTemplateColumns: '1fr' }}
-        >
-          {/* Main Hero Photo */}
-          <div className="detail-main-photo-box">
-            <img
-              src={mainImg}
-              alt={destination.name}
-              decoding="async"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            <div className="detail-main-photo-caption">
-              <div>
-                <strong style={{ fontSize: 14 }}>{destination.name}</strong>
-                <div style={{ fontSize: 11.5, opacity: 0.85 }}>{destination.location || 'Kabupaten Hulu Sungai Selatan'}</div>
-              </div>
-              <span
-                style={{
-                  background: 'rgba(255,255,255,0.25)',
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
-              >
-                Foto Lapangan
-              </span>
-            </div>
-          </div>
-
-          {/* Sub Photos (Side Column on Desktop, only shown when authentic extra photos exist) */}
-          {hasSubPhotos && subImg1 && subImg2 && (
-            <div className="detail-sub-photos-col">
-              <div className="detail-sub-photo-item">
-                <img
-                  src={subImg1}
-                  alt={`${destination.name} 1`}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div className="detail-sub-photo-caption">Sudut Wisata {destination.name}</div>
-              </div>
-
-              <div className="detail-sub-photo-item">
-                <img
-                  src={subImg2}
-                  alt={`${destination.name} 2`}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div className="detail-sub-photo-caption">Suasana {destination.name}</div>
+          {/* 3. Media Gallery (2-Column Desktop Grid or Full Hero) */}
+          <section
+            className="detail-gallery-grid"
+            style={hasSubPhotos ? undefined : { gridTemplateColumns: '1fr' }}
+          >
+            {/* Main Hero Photo */}
+            <div className="detail-main-photo-box">
+              <img
+                src={mainImg}
+                alt={destination.name}
+                decoding="async"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div className="detail-main-photo-caption">
+                <div>
+                  <strong style={{ fontSize: 14 }}>{destination.name}</strong>
+                  <div style={{ fontSize: 11.5, opacity: 0.85 }}>{destination.location || 'Kabupaten Hulu Sungai Selatan'}</div>
+                </div>
+                <span
+                  style={{
+                    background: 'rgba(255,255,255,0.25)',
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
+                  Foto Lapangan
+                </span>
               </div>
             </div>
-          )}
-        </section>
 
-        {/* 4. Main 2-Column Content Grid */}
+            {/* Sub Photos (Side Column on Desktop, only shown when authentic extra photos exist) */}
+            {hasSubPhotos && subImg1 && subImg2 && (
+              <div className="detail-sub-photos-col">
+                <div className="detail-sub-photo-item">
+                  <img
+                    src={subImg1}
+                    alt={`${destination.name} 1`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="detail-sub-photo-caption">Sudut Wisata {destination.name}</div>
+                </div>
+
+                <div className="detail-sub-photo-item">
+                  <img
+                    src={subImg2}
+                    alt={`${destination.name} 2`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="detail-sub-photo-caption">Suasana {destination.name}</div>
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* 4. Main Content Grid */}
         <section className="detail-content-grid">
           {/* Left Column: Narrative, Features, Facilities, Waypoints */}
           <div>
-            {/* Quick Specs Attribute Row */}
+            {/* Practical Visitor Key Information (Sleek unified card - replaces box clutter) */}
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                gap: 8,
-                marginBottom: 18,
+                background: '#ffffff',
+                border: '1px solid #E2EAE4',
+                borderRadius: 16,
+                padding: '16px 18px',
+                marginBottom: 20,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
               }}
             >
-              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Durasi Model</span>
-                <span>🕒 {durationDisplay}</span>
-              </div>
-              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Tarif Masuk</span>
-                <span>🏷️ {priceDisplay}</span>
-              </div>
-              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Aktivitas</span>
-                <span>👥 {isAdventure ? 'Pemandu Lokal' : 'Semua Usia'}</span>
-              </div>
-              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Kategori</span>
-                <span>👨‍👩‍👧 Ramah Wisatawan</span>
-              </div>
-            </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                  gap: '14px 16px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      background: '#F0F7F3',
+                      color: 'var(--meratus-deep)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  >
+                    🕒
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#7E8B82', fontWeight: 600 }}>Jam Buka</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--meratus-deep)' }}>
+                      {destination.hours || '08:00 - 17:00'}
+                    </div>
+                  </div>
+                </div>
 
-            {/* Mobile Practical Info Card (Agar di mobile informasi akses/operasional langsung terlihat tanpa harus scroll ke bawah) */}
-            <div
-              className="mobile-only detail-article-card"
-              style={{
-                background: '#FAFDFB',
-                border: '1.5px solid #D5E5DA',
-                marginBottom: 16,
-              }}
-            >
-              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--meratus-deep)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span>ℹ️ Informasi Praktis Kunjungan</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <div style={{ background: '#ffffff', border: '1px solid #E2EAE4', borderRadius: 10, padding: '8px 10px' }}>
-                  <div style={{ fontSize: 10, color: 'var(--meratus-muted)', fontWeight: 600 }}>Jam Operasional</div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--meratus-deep)', marginTop: 2 }}>{destination.hours || '08:00 - 17:00'}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      background: '#FDF6ED',
+                      color: '#994700',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  >
+                    ⏱️
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#7E8B82', fontWeight: 600 }}>Estimasi Waktu</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#994700' }}>
+                      {durationDisplay}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ background: '#ffffff', border: '1px solid #E2EAE4', borderRadius: 10, padding: '8px 10px' }}>
-                  <div style={{ fontSize: 10, color: 'var(--meratus-muted)', fontWeight: 600 }}>Jarak Basecamp</div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--meratus-deep)', marginTop: 2 }}>{destination.distance || 'HSS'}</div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      background: '#F0F7F3',
+                      color: 'var(--meratus-deep)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  >
+                    🏷️
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#7E8B82', fontWeight: 600 }}>Tarif Masuk</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--meratus-deep)' }}>
+                      {priceDisplay}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ background: '#ffffff', border: '1px solid #E2EAE4', borderRadius: 10, padding: '8px 10px', gridColumn: 'span 2' }}>
-                  <div style={{ fontSize: 10, color: 'var(--meratus-muted)', fontWeight: 600 }}>Kondisi Akses Jalan</div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#333333', marginTop: 2 }}>Jalan aspal &amp; rute pegunungan Meratus (roda 2 &amp; roda 4)</div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      background: '#FDF6ED',
+                      color: '#994700',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  >
+                    🛣️
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#7E8B82', fontWeight: 600 }}>Akses Rute</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1611' }}>
+                      Roda 2 &amp; Roda 4
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

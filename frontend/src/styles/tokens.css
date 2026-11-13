@@ -3692,30 +3692,66 @@ body {
     padding: 80px 16px 32px !important;
   }
 
-  /* Destination Detail Page Mobile Polish */
+  /* Destination Detail Page Mobile Polish - Clean Travel App Layout */
+  .detail-mobile-top-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    margin: 56px auto 0 !important;
+    padding: 10px 16px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #EAEFEA !important;
+  }
+
+  .detail-mobile-hero-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
   .detail-nav-breadcrumbs {
     margin: 64px auto 0 !important;
-    padding: 12px 16px !important;
+    padding: 10px 16px !important;
     font-size: 12px !important;
-    overflow-x: auto !important;
-    white-space: nowrap !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
+    border-bottom: 1px solid #EAEFEA !important;
   }
-  .detail-nav-breadcrumbs::-webkit-scrollbar {
-    display: none;
+
+  .detail-gallery-grid {
+    order: 1 !important;
+    margin: 12px auto 0 !important;
+    padding: 0 16px !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    height: auto !important;
+  }
+
+  .detail-main-photo-box {
+    height: 250px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .detail-main-photo-caption {
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 12px 14px !important;
+    border-radius: 0 0 16px 16px !important;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%) !important;
+    backdrop-filter: none !important;
   }
 
   .detail-hero-header {
+    order: 2 !important;
     margin: 14px auto 0 !important;
     padding: 0 16px !important;
-    gap: 12px !important;
+    gap: 8px !important;
   }
 
   .detail-main-title {
-    font-size: clamp(22px, 6vw, 28px) !important;
+    font-size: clamp(23px, 6vw, 28px) !important;
     line-height: 1.25 !important;
-    margin: 0 0 8px !important;
+    margin: 0 0 6px !important;
+    color: var(--meratus-deep) !important;
   }
 
   .detail-badges-row {
@@ -3728,56 +3764,39 @@ body {
   .detail-pill-fav {
     padding: 3px 9px !important;
     font-size: 11px !important;
+    border-radius: 999px !important;
   }
 
   .detail-location-sub {
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     gap: 6px !important;
-  }
-
-  .detail-gallery-grid {
-    margin: 14px auto 0 !important;
-    padding: 0 16px !important;
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    height: auto !important;
-  }
-
-  .detail-main-photo-box {
-    height: 230px !important;
-    border-radius: 14px !important;
-  }
-
-  .detail-main-photo-caption {
-    bottom: 10px !important;
-    left: 10px !important;
-    right: 10px !important;
-    padding: 8px 12px !important;
-    border-radius: 10px !important;
+    line-height: 1.4 !important;
   }
 
   .detail-sub-photos-col {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
 
   .detail-sub-photo-item {
-    height: 90px !important;
+    height: 80px !important;
     border-radius: 10px !important;
   }
 
   .detail-content-grid {
-    margin: 18px auto 90px !important;
+    margin: 16px auto 90px !important;
     padding: 0 16px !important;
     grid-template-columns: 1fr !important;
-    gap: 18px !important;
+    gap: 16px !important;
   }
 
   .detail-article-card {
     padding: 18px 16px !important;
-    border-radius: 14px !important;
-    margin-bottom: 16px !important;
+    border-radius: 16px !important;
+    margin-bottom: 14px !important;
+    border: 1px solid #E2EAE4 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
   }
 
   .detail-section-title {
@@ -3786,20 +3805,22 @@ body {
   }
 
   .detail-article-text {
-    font-size: 13.5px !important;
-    line-height: 1.6 !important;
+    font-size: 14px !important;
+    line-height: 1.65 !important;
     margin-bottom: 16px !important;
+    color: #333333 !important;
   }
 
   .detail-features-grid {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
-    margin: 16px 0 4px !important;
+    margin: 14px 0 4px !important;
   }
 
   .detail-feature-card {
     padding: 14px 14px !important;
     border-radius: 12px !important;
+    background: #FAFDFB !important;
   }
 
   .detail-facilities-grid {
@@ -3809,20 +3830,20 @@ body {
   }
 
   .detail-facility-card {
-    padding: 11px 12px !important;
-    border-radius: 11px !important;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
   }
 
   .detail-facility-icon-wrap {
-    width: 34px !important;
-    height: 34px !important;
-    font-size: 17px !important;
-    border-radius: 8px !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
+    border-radius: 9px !important;
   }
 
   .detail-sidebar-card {
     padding: 18px 16px !important;
-    border-radius: 14px !important;
+    border-radius: 16px !important;
     position: static !important;
   }
 }
