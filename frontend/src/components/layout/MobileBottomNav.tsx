@@ -28,6 +28,11 @@ export const MobileBottomNav: React.FC = () => {
     return () => window.removeEventListener('storage', updateCount);
   }, [location.pathname]);
 
+  // Hide global tab bottom nav on destination detail page so sticky destination action bar has full priority
+  if (location.pathname.startsWith('/destinations')) {
+    return null;
+  }
+
   const isJelajahActive = location.pathname === '/' || location.pathname.startsWith('/directory');
   const isRuteActive = location.pathname.startsWith('/planner');
   const isSinggahActive = location.pathname.startsWith('/experiences');

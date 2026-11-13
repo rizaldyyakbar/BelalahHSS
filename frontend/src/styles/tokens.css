@@ -3692,21 +3692,138 @@ body {
     padding: 80px 16px 32px !important;
   }
 
-  .detail-hero-content {
+  /* Destination Detail Page Mobile Polish */
+  .detail-nav-breadcrumbs {
+    margin: 64px auto 0 !important;
+    padding: 12px 16px !important;
+    font-size: 12px !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+  .detail-nav-breadcrumbs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .detail-hero-header {
+    margin: 14px auto 0 !important;
     padding: 0 16px !important;
+    gap: 12px !important;
+  }
+
+  .detail-main-title {
+    font-size: clamp(22px, 6vw, 28px) !important;
+    line-height: 1.25 !important;
+    margin: 0 0 8px !important;
+  }
+
+  .detail-badges-row {
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .detail-pill-rank,
+  .detail-pill-score,
+  .detail-pill-fav {
+    padding: 3px 9px !important;
+    font-size: 11px !important;
+  }
+
+  .detail-location-sub {
+    font-size: 12.5px !important;
+    gap: 6px !important;
   }
 
   .detail-gallery-grid {
+    margin: 14px auto 0 !important;
+    padding: 0 16px !important;
     grid-template-columns: 1fr !important;
+    gap: 10px !important;
     height: auto !important;
   }
 
-  .detail-gallery-main {
-    height: 240px !important;
+  .detail-main-photo-box {
+    height: 230px !important;
+    border-radius: 14px !important;
   }
 
-  .detail-gallery-sub {
-    display: none !important;
+  .detail-main-photo-caption {
+    bottom: 10px !important;
+    left: 10px !important;
+    right: 10px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .detail-sub-photos-col {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .detail-sub-photo-item {
+    height: 90px !important;
+    border-radius: 10px !important;
+  }
+
+  .detail-content-grid {
+    margin: 18px auto 90px !important;
+    padding: 0 16px !important;
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  .detail-article-card {
+    padding: 18px 16px !important;
+    border-radius: 14px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .detail-section-title {
+    font-size: 18px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .detail-article-text {
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    margin-bottom: 16px !important;
+  }
+
+  .detail-features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin: 16px 0 4px !important;
+  }
+
+  .detail-feature-card {
+    padding: 14px 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .detail-facilities-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-top: 12px !important;
+  }
+
+  .detail-facility-card {
+    padding: 11px 12px !important;
+    border-radius: 11px !important;
+  }
+
+  .detail-facility-icon-wrap {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 17px !important;
+    border-radius: 8px !important;
+  }
+
+  .detail-sidebar-card {
+    padding: 18px 16px !important;
+    border-radius: 14px !important;
+    position: static !important;
   }
 }
 

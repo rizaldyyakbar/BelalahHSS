@@ -459,11 +459,32 @@ export const DestinationDetailPage: React.FC = () => {
       )}
 
       <main style={{ flex: 1, paddingBottom: 80 }}>
-        {/* 1. Breadcrumbs Bar */}
+        {/* 1. Breadcrumbs Bar with Mobile Back Button */}
         <div className="detail-nav-breadcrumbs">
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              background: '#F1F5F2',
+              border: 'none',
+              borderRadius: 6,
+              padding: '3px 8px',
+              color: 'var(--meratus-deep)',
+              fontSize: 11.5,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              flexShrink: 0,
+            }}
+            aria-label="Kembali ke halaman sebelumnya"
+          >
+            ‹ Kembali
+          </button>
+          <span style={{ color: '#D1E0D7' }}>•</span>
           <Link to="/" style={{ color: 'var(--meratus-muted)', textDecoration: 'none' }}>Beranda</Link>
           <span>/</span>
-          <Link to="/directory" style={{ color: 'var(--meratus-muted)', textDecoration: 'none' }}>Katalog Destinasi</Link>
+          <Link to="/directory" style={{ color: 'var(--meratus-muted)', textDecoration: 'none' }}>Katalog</Link>
           <span>/</span>
           <span style={{ color: 'var(--meratus-subtle)' }}>{destination.region || destination.category || 'HSS'}</span>
           <span>/</span>
@@ -472,15 +493,15 @@ export const DestinationDetailPage: React.FC = () => {
 
         {/* 2. Destination Header (Title, Badges, Rating) */}
         <section className="detail-hero-header">
-          <div style={{ flex: 1, minWidth: 280 }}>
+          <div style={{ flex: 1, minWidth: 260 }}>
             <div className="detail-badges-row">
               {destination.rank && (
                 <span className="detail-pill-rank" style={{ background: '#F5EFE6', color: '#6A432D' }}>
-                  ★ Peringkat #{destination.rank} Wisata HSS
+                  ★ Peringkat #{destination.rank}
                 </span>
               )}
               <span className="detail-pill-score"> 
-                ★ {destination.rating.toFixed(1)} Rating ({destination.reviews} ulasan)
+                ★ {destination.rating.toFixed(1)} ({destination.reviews} ulasan)
               </span>
               <span className="detail-pill-fav">
                 {destination.category}
@@ -496,13 +517,42 @@ export const DestinationDetailPage: React.FC = () => {
 
             <div className="detail-location-sub">
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#FD934C' }}>
-                <Icon.Pin size={16} />
+                <Icon.Pin size={15} />
                 <strong style={{ color: '#1A1611' }}>{destination.location || 'Loksado, Hulu Sungai Selatan'}</strong>
               </span>
               <span>•</span>
               <span style={{ color: '#994700', fontWeight: 700 }}>
                 {destination.distance || 'Hulu Sungai Selatan'}
               </span>
+            </div>
+
+            {/* Mobile Share Quick Action */}
+            <div className="mobile-only" style={{ marginTop: 10 }}>
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({ title: destination.name, url: window.location.href });
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    showToast('Tautan destinasi disalin ke clipboard!');
+                  }
+                }}
+                style={{
+                  background: '#F8FAF8',
+                  border: '1px solid #D7E5DC',
+                  borderRadius: 8,
+                  padding: '5px 12px',
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: 'var(--meratus-deep)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <span>🔗 Bagikan Destinasi</span>
+              </button>
             </div>
           </div>
 
@@ -621,19 +671,58 @@ export const DestinationDetailPage: React.FC = () => {
           {/* Left Column: Narrative, Features, Facilities, Waypoints */}
           <div>
             {/* Quick Specs Attribute Row */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 24 }}>
-              <span style={{ background: '#F5EFE6', color: '#6A432D', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span>🕒 Durasi: {durationDisplay}</span>
-              </span>
-              <span style={{ background: '#F5EFE6', color: '#6A432D', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span>🏷️ Tarif: {priceDisplay}</span>
-              </span>
-              <span style={{ background: '#F5EFE6', color: '#6A432D', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span>👥 {isAdventure ? 'Didampingi Pemandu Lokal' : 'Semua Usia & Wisatawan'}</span>
-              </span>
-              <span style={{ background: '#F5EFE6', color: '#6A432D', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span>👨‍👩‍👧 Ramah Keluarga &amp; Pengunjung</span>
-              </span>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                gap: 8,
+                marginBottom: 18,
+              }}
+            >
+              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Durasi Model</span>
+                <span>🕒 {durationDisplay}</span>
+              </div>
+              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Tarif Masuk</span>
+                <span>🏷️ {priceDisplay}</span>
+              </div>
+              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Aktivitas</span>
+                <span>👥 {isAdventure ? 'Pemandu Lokal' : 'Semua Usia'}</span>
+              </div>
+              <div style={{ background: '#F5EFE6', color: '#6A432D', padding: '10px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 10, color: '#994700', textTransform: 'uppercase', letterSpacing: 0.5 }}>Kategori</span>
+                <span>👨‍👩‍👧 Ramah Wisatawan</span>
+              </div>
+            </div>
+
+            {/* Mobile Practical Info Card (Agar di mobile informasi akses/operasional langsung terlihat tanpa harus scroll ke bawah) */}
+            <div
+              className="mobile-only detail-article-card"
+              style={{
+                background: '#FAFDFB',
+                border: '1.5px solid #D5E5DA',
+                marginBottom: 16,
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--meratus-deep)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>ℹ️ Informasi Praktis Kunjungan</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ background: '#ffffff', border: '1px solid #E2EAE4', borderRadius: 10, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 10, color: 'var(--meratus-muted)', fontWeight: 600 }}>Jam Operasional</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--meratus-deep)', marginTop: 2 }}>{destination.hours || '08:00 - 17:00'}</div>
+                </div>
+                <div style={{ background: '#ffffff', border: '1px solid #E2EAE4', borderRadius: 10, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 10, color: 'var(--meratus-muted)', fontWeight: 600 }}>Jarak Basecamp</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--meratus-deep)', marginTop: 2 }}>{destination.distance || 'HSS'}</div>
+                </div>
+                <div style={{ background: '#ffffff', border: '1px solid #E2EAE4', borderRadius: 10, padding: '8px 10px', gridColumn: 'span 2' }}>
+                  <div style={{ fontSize: 10, color: 'var(--meratus-muted)', fontWeight: 600 }}>Kondisi Akses Jalan</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#333333', marginTop: 2 }}>Jalan aspal &amp; rute pegunungan Meratus (roda 2 &amp; roda 4)</div>
+                </div>
+              </div>
             </div>
 
             {/* Editorial Story Article */}
@@ -698,24 +787,24 @@ export const DestinationDetailPage: React.FC = () => {
                   background: 'linear-gradient(135deg, #F4F8F5 0%, #EBF4EE 100%)',
                   border: '1px solid #D7E5DC',
                   borderRadius: 12,
-                  padding: '12px 16px',
+                  padding: '12px 14px',
                   marginBottom: 16,
                   flexWrap: 'wrap',
                   gap: 12,
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 200, flex: 1 }}>
                   <div
                     style={{
-                      width: 38,
-                      height: 38,
+                      width: 36,
+                      height: 36,
                       borderRadius: 10,
                       background: '#012D1D',
                       color: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: 18,
+                      fontSize: 17,
                       flexShrink: 0,
                     }}
                   >
@@ -725,27 +814,27 @@ export const DestinationDetailPage: React.FC = () => {
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--meratus-deep)' }}>
                       Skor Rekomendasi (Simulasi SAW)
                     </div>
-                    <div style={{ fontSize: 11.5, color: 'var(--meratus-muted)' }}>
+                    <div style={{ fontSize: 11, color: 'var(--meratus-muted)', lineHeight: 1.3 }}>
                       Simulasi bobot: Kebersihan 40%, Fasilitas 30%, Popularitas 20%, Tiket 10%
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 700, color: '#012D1D', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      Skor Fasilitas
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#012D1D', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Fasilitas
                     </div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: '#012D1D' }}>
-                      {destination.fasilitasScore || 80}<span style={{ fontSize: 11.5, fontWeight: 500, color: '#6E7972' }}>/100</span>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#012D1D' }}>
+                      {destination.fasilitasScore || 80}<span style={{ fontSize: 11, fontWeight: 500, color: '#6E7972' }}>/100</span>
                     </div>
                   </div>
-                  <div style={{ width: 1, height: 26, background: '#C8DACF' }} />
+                  <div style={{ width: 1, height: 24, background: '#C8DACF' }} />
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 700, color: '#012D1D', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      Kebersihan &amp; Keamanan
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#012D1D', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Kebersihan
                     </div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: '#012D1D' }}>
-                      {destination.kebersihanKeamanan || 85}<span style={{ fontSize: 11.5, fontWeight: 500, color: '#6E7972' }}>/100</span>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#012D1D' }}>
+                      {destination.kebersihanKeamanan || 85}<span style={{ fontSize: 11, fontWeight: 500, color: '#6E7972' }}>/100</span>
                     </div>
                   </div>
                 </div>
@@ -1233,7 +1322,7 @@ export const DestinationDetailPage: React.FC = () => {
         </section>
       </main>
 
-      {/* 5. Mobile Floating Action Bar (Only visible on screens <=768px) */}
+      {/* 5. Mobile Floating Action Bar (Dedicated for smartphone thumb reach) */}
       <div
         className="mobile-only"
         style={{
@@ -1241,41 +1330,71 @@ export const DestinationDetailPage: React.FC = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 900,
+          zIndex: 1000,
           background: '#ffffff',
           borderTop: '1px solid rgba(193, 200, 194, 0.45)',
-          padding: '12px 16px env(safe-area-inset-bottom, 12px)',
+          padding: '10px 16px calc(10px + env(safe-area-inset-bottom, 0px))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.06)',
+          gap: 12,
+          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.08)',
         }}
       >
-        <div>
-          <div style={{ fontSize: 10, color: '#6E7972', fontWeight: 600 }}>Mulai dari</div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#012D1D' }}>{priceDisplay}</div>
+        <div style={{ minWidth: 0, flexShrink: 1 }}>
+          <div style={{ fontSize: 10, color: '#6E7972', fontWeight: 600 }}>Tarif Kunjungan</div>
+          <div style={{ fontSize: 14.5, fontWeight: 800, color: '#994700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {priceDisplay}
+          </div>
         </div>
 
-        <button
-          onClick={handleToggleRoute}
-          style={{
-            background: isInRoute ? '#09261B' : '#012D1D',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: 12,
-            padding: '10px 20px',
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            boxShadow: '0 2px 8px rgba(1, 45, 29, 0.25)',
-          }}
-        >
-          <Icon.Compass size={14} style={{ color: '#C1ECD4' }} />
-          <span>{isInRoute ? '✓ Di Rute Anda' : '+ Tambah ke Rute'}</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <button
+            onClick={() => {
+              const mapsUrl = getGoogleMapsRouteUrl(destination);
+              window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+            }}
+            style={{
+              background: '#F1F5F2',
+              color: 'var(--meratus-deep)',
+              border: '1px solid #D5E5DA',
+              borderRadius: 10,
+              padding: '9px 12px',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+            title="Buka navigasi Google Maps"
+          >
+            <span>🗺️</span>
+            <span>Peta</span>
+          </button>
+
+          <button
+            onClick={handleToggleRoute}
+            style={{
+              background: isInRoute ? '#09261B' : '#012D1D',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: 10,
+              padding: '9px 16px',
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 2px 8px rgba(1, 45, 29, 0.25)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Icon.Compass size={14} style={{ color: '#C1ECD4' }} />
+            <span>{isInRoute ? '✓ Di Rute' : '+ Tambah Rute'}</span>
+          </button>
+        </div>
       </div>
 
       <Footer />
